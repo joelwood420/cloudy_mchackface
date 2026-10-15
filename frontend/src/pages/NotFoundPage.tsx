@@ -4,7 +4,7 @@ export function NotFoundPage() {
   return (
     <main className="page">
       <h1>Page not found</h1>
-      <Link to="/">Back to modules</Link>
+      <Link to="/" className="back-link">Back to modules</Link>
     </main>
   )
 }

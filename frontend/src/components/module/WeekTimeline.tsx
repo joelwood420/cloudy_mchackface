@@ -54,7 +54,7 @@ export function WeekCard({
             </span>
             <span className="week-meta">
               <span className="small muted">{plural(week.tasks.length, 'task')}</span>
-              <ProgressBar value={0} label={`Week ${week.week_number} progress`} size="sm" />
+              <ProgressBar value={0} label={`Week ${week.week_number} progress`} size="sm" decorative />
             </span>
             <svg className="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M6 9l6 6 6-6" />
