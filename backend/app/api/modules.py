@@ -34,7 +34,6 @@ def get_module(key: str, db: Session = Depends(get_db)) -> ModuleDetail:
         select(Module)
         .where(Module.key == key)
         .options(selectinload(Module.weeks).selectinload(Week.tasks), selectinload(Module.assessments))
-        .execution_options(populate_existing=True)
     ).one_or_none()
     if module is None:
         raise HTTPException(status_code=404, detail="Module not found")

@@ -2,6 +2,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy.engine import make_url
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 
@@ -27,3 +28,9 @@ def sqlalchemy_url(url: str) -> str:
     if url.startswith("postgresql://"):
         url = "postgresql+psycopg://" + url[len("postgresql://"):]
     return url
+
+
+def same_database(a: str, b: str) -> bool:
+    """True if two URLs point at the same host, port and database (ignores scheme, credentials, query)."""
+    ua, ub = make_url(sqlalchemy_url(a)), make_url(sqlalchemy_url(b))
+    return (ua.host, ua.port, ua.database) == (ub.host, ub.port, ub.database)

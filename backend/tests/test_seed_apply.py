@@ -99,3 +99,26 @@ def test_run_with_valid_files_succeeds(db, tmp_path):
     )
     assert run(tmp_path, db) == 0
     assert count(db, Module) == 1
+
+
+def test_removing_one_week_keeps_module_and_other_weeks(db):
+    apply_seed(db, [seed([
+        {"key": "w9", "week_number": 9, "title": "W9", "tasks": [task("t1"), task("t2")]},
+        {"key": "w10", "week_number": 10, "title": "W10", "tasks": [task("t3")]},
+    ])])
+    apply_seed(db, [seed([{"key": "w10", "week_number": 10, "title": "W10", "tasks": [task("t3")]}])])
+
+    assert db.scalars(select(Module.key)).all() == ["ccc602"]
+    assert db.scalars(select(Week.key)).all() == ["w10"]
+    assert db.scalars(select(Task.key)).all() == ["t3"]
+
+
+def test_key_that_changes_type_deletes_the_old_row(db):
+    apply_seed(db, [seed([{"key": "w9", "week_number": 9, "title": "W9", "tasks": [task("shared")]}])])
+    apply_seed(db, [seed([
+        {"key": "w9", "week_number": 9, "title": "W9", "tasks": []},
+        {"key": "shared", "week_number": 10, "title": "S", "tasks": []},
+    ])])
+
+    assert db.scalars(select(Task.key)).all() == []
+    assert sorted(db.scalars(select(Week.key)).all()) == ["shared", "w9"]

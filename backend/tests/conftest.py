@@ -4,7 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 import app.models  # noqa: F401  (registers tables on Base.metadata)
-from app.config import get_settings, sqlalchemy_url
+from app.config import get_settings, same_database, sqlalchemy_url
 from app.db import Base, get_db
 from app.main import app
 
@@ -15,7 +15,7 @@ def engine():
     url = settings.test_database_url
     if not url:
         pytest.exit("TEST_DATABASE_URL is not set in backend/.env", returncode=1)
-    if url == settings.database_url:
+    if same_database(url, settings.database_url):
         pytest.exit("TEST_DATABASE_URL must differ from DATABASE_URL (tests wipe it)", returncode=1)
     eng = create_engine(sqlalchemy_url(url))
     Base.metadata.drop_all(eng)

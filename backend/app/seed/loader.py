@@ -53,21 +53,21 @@ def apply_seed(session: Session, seeds: list[SeedFile]) -> None:
     weeks = {w.key: w for w in session.scalars(select(Week))}
     tasks = {t.key: t for t in session.scalars(select(Task))}
     assessments = {a.key: a for a in session.scalars(select(Assessment))}
-    kept: set[str] = set()
+    kept: dict[str, set[str]] = {name: set() for name in ('modules', 'weeks', 'tasks', 'assessments')}
 
     for seed in seeds:
         sm = seed.module
         module = modules.get(sm.key) or Module(key=sm.key)
         module.code, module.title, module.position = sm.code, sm.title, sm.order
         session.add(module)
-        kept.add(sm.key)
+        kept['modules'].add(sm.key)
 
         for w_pos, sw in enumerate(seed.weeks):
             week = weeks.get(sw.key) or Week(key=sw.key)
             session.add(week)
             week.module = module
             week.week_number, week.title, week.position = sw.week_number, sw.title, w_pos
-            kept.add(sw.key)
+            kept['weeks'].add(sw.key)
 
             for t_pos, st in enumerate(sw.tasks):
                 task = tasks.get(st.key) or Task(key=st.key)
@@ -76,7 +76,7 @@ def apply_seed(session: Session, seeds: list[SeedFile]) -> None:
                 task.title, task.type, task.position = st.title, st.type, t_pos
                 task.external_url = str(st.external_url) if st.external_url else None
                 task.uplearn_url = str(st.uplearn_url) if st.uplearn_url else None
-                kept.add(st.key)
+                kept['tasks'].add(st.key)
 
         for sa in seed.assessments:
             assessment = assessments.get(sa.key) or Assessment(key=sa.key)
@@ -84,11 +84,22 @@ def apply_seed(session: Session, seeds: list[SeedFile]) -> None:
             assessment.module = module
             assessment.title, assessment.due_date = sa.title, sa.due_date
             assessment.uplearn_url = str(sa.uplearn_url) if sa.uplearn_url else None
-            kept.add(sa.key)
+            kept['assessments'].add(sa.key)
 
     session.flush()
-    for existing in (tasks, assessments, weeks, modules):
-        for key, obj in existing.items():
-            if key not in kept:
-                session.delete(obj)
+    # Children of a deleted parent are removed by the parent's delete (ORM cascade + DB ON DELETE CASCADE),
+    # so only delete objects whose parent is staying; each row is then deleted exactly once.
+    doomed_modules = {k for k in modules if k not in kept["modules"]}
+    doomed_weeks = {k for k, w in weeks.items() if k not in kept["weeks"] or w.module.key in doomed_modules}
+    for key, task in tasks.items():
+        if key not in kept["tasks"] and task.week.key not in doomed_weeks:
+            session.delete(task)
+    for key, assessment in assessments.items():
+        if key not in kept["assessments"] and assessment.module.key not in doomed_modules:
+            session.delete(assessment)
+    for key, week in weeks.items():
+        if key in doomed_weeks and week.module.key not in doomed_modules:
+            session.delete(week)
+    for key in doomed_modules:
+        session.delete(modules[key])
     session.flush()

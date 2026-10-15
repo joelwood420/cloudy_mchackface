@@ -19,6 +19,7 @@ def add_content(db):
     admin = Module(key="ccc601", code="CCC601", title="Public Cloud Administration", position=1)
     db.add_all([de, admin])
     db.flush()
+    db.expire_all()
 
 
 def test_list_modules_in_order_with_counts(client, db):

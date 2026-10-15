@@ -16,10 +16,11 @@ class Module(Base):
     position: Mapped[int]
 
     weeks: Mapped[list["Week"]] = relationship(
-        back_populates="module", cascade="all, delete-orphan", order_by="Week.position"
+        back_populates="module", cascade="all, delete-orphan", passive_deletes=True,
+        order_by="Week.position"
     )
     assessments: Mapped[list["Assessment"]] = relationship(
-        back_populates="module", cascade="all, delete-orphan"
+        back_populates="module", cascade="all, delete-orphan", passive_deletes=True
     )
 
 
@@ -35,7 +36,8 @@ class Week(Base):
 
     module: Mapped[Module] = relationship(back_populates="weeks")
     tasks: Mapped[list["Task"]] = relationship(
-        back_populates="week", cascade="all, delete-orphan", order_by="Task.position"
+        back_populates="week", cascade="all, delete-orphan", passive_deletes=True,
+        order_by="Task.position"
     )
 
 
