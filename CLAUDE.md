@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A study tracker for the Yoobee Colleges **Diploma in Cloud Computing and Cyber Security (Level 6)**. The Yoobee UPLearn portal (https://yoobee.uplearn.education/, a Moodle site) is hard to navigate, so this app shows week by week what to work on, upcoming assessments, and progress bars per course and for the whole programme. It's built for the owner first, with the aim of opening it to other students later.
 
-Status: Phase 1 done — CCC602 browsable locally, no accounts yet.
+Status: Phase 1 done + UI redesign — CCC602 browsable locally in the new layout; no accounts or ticking yet.
 
 ## Stack and layout
 
@@ -59,6 +59,7 @@ npm run lint                               # oxlint
 - Each user picks their **current week manually**; it is not derived from dates. Assessments still show real due dates.
 - **User accounts from day one**: email + password built into FastAPI (argon2, DB-backed sessions, HTTP-only cookie). Course structure is shared reference data; completion state and settings are per user.
 - Out of scope for now: certification tracking, AI study helper, automated portal sync.
+- UI follows the "Module timeline" design (docs/superpowers/specs/2026-10-15-ui-redesign-design.md); tick boxes are disabled and progress shows 0% until accounts land.
 
 ## Domain
 
