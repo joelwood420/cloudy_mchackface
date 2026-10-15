@@ -1,0 +1,244 @@
+module:
+  key: ccc602
+  code: CCC602
+  title: Data Engineering in the Public Cloud
+  order: 2
+
+weeks:
+  - key: ccc602-w09
+    week_number: 9
+    title: "DP-900 Learning Paths 1–4"
+    tasks:
+      - key: ccc602-w09-dp900-lp1
+        title: "DP-900 LP1: Explore core data concepts"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/training/paths/azure-data-fundamentals-explore-core-data-concepts/
+      - key: ccc602-w09-dp900-lp2
+        title: "DP-900 LP2: Explore relational data in Azure"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/training/paths/azure-data-fundamentals-explore-relational-data/
+      - key: ccc602-w09-dp900-lp3
+        title: "DP-900 LP3: Explore non-relational data in Azure"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/training/paths/azure-data-fundamentals-explore-non-relational-data
+      - key: ccc602-w09-dp900-lp4
+        title: "DP-900 LP4: Explore data analytics in Azure"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/training/paths/azure-data-fundamentals-explore-data-warehouse-analytics/
+      - key: ccc602-w09-dp900-labs
+        title: "DP-900 hands-on labs (Skillable; training key from your tutor)"
+        type: lab
+        external_url: https://msle.learnondemand.net/User/Login?returnUrl=%2FClass%2F692793
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48958
+      - key: ccc602-w09-a3-brief
+        title: "Read the Assessment 3 brief and plan your Azure practical tasks"
+        type: assessment_step
+        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
+
+  - key: ccc602-w10
+    week_number: 10
+    title: "DP-203 Modules 0–4: Synapse foundations"
+    tasks:
+      - key: ccc602-w10-dp203-m0
+        title: "DP-203 M0: Welcome and exam readiness"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/shows/exam-readiness-zone/preparing-for-dp-203-design-and-implement-data-storage-1-of-3
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48960
+      - key: ccc602-w10-dp203-m1
+        title: "DP-203 M1: Get started with data engineering on Azure"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/training/paths/get-started-data-engineering/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48960
+      - key: ccc602-w10-dp203-m2
+        title: "DP-203 M2: Synapse serverless SQL pools"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/azure/synapse-analytics/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48960
+      - key: ccc602-w10-dp203-m3
+        title: "DP-203 M3: Synapse Apache Spark pools"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/training/modules/integrate-sql-apache-spark-pools-azure-synapse-analytics/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48960
+      - key: ccc602-w10-dp203-m4
+        title: "DP-203 M4: Modern data warehouse with Synapse"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/training/modules/design-modern-data-warehouse-using-azure-synapse-analytics/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48960
+      - key: ccc602-w10-a3-demo
+        title: "Watch the tutor's Assessment 3 practical demo"
+        type: assessment_step
+        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
+      - key: ccc602-w10-a3-practical
+        title: "Do the Assessment 3 practical tasks in your own Azure account (mind the 30-day trial)"
+        type: assessment_step
+        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
+
+  - key: ccc602-w11
+    week_number: 11
+    title: "DP-203 Modules 5–7: Pipelines, Synapse Link, streaming"
+    tasks:
+      - key: ccc602-w11-dp203-m5
+        title: "DP-203 M5: Pipelines and activities"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/azure/data-factory/concepts-pipelines-activities?tabs=data-factory
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48962
+      - key: ccc602-w11-dp203-m6
+        title: "DP-203 M6: HTAP with Azure Synapse Link"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/azure/synapse-analytics/synapse-link/sql-synapse-link-overview
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48962
+      - key: ccc602-w11-dp203-m7
+        title: "DP-203 M7: Data streaming with Azure Stream Analytics"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/training/paths/implement-data-streaming-with-asa/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48962
+
+  - key: ccc602-w12
+    week_number: 12
+    title: "DP-203 Modules 8–9: Purview and Databricks"
+    tasks:
+      - key: ccc602-w12-dp203-m8
+        title: "DP-203 M8: Data governance with Microsoft Purview"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/purview/data-governance-overview
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48964
+      - key: ccc602-w12-dp203-m9
+        title: "DP-203 M9: Data engineering with Azure Databricks"
+        type: learning_path
+        external_url: https://learn.microsoft.com/en-us/training/paths/data-engineer-azure-databricks/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48964
+
+  - key: ccc602-w13
+    week_number: 13
+    title: "AWS DEA-C01 Modules 1–5"
+    tasks:
+      - key: ccc602-w13-labs
+        title: "Accept your AWS Academy invite and open the course"
+        type: lab
+        external_url: https://awsacademy.instructure.com/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48966
+      - key: ccc602-w13-deac01-m1
+        title: "DEA-C01 M1: Welcome and certification overview"
+        type: learning_path
+        external_url: https://aws.amazon.com/certification/certified-data-engineer-associate/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48966
+      - key: ccc602-w13-deac01-m2
+        title: "DEA-C01 M2: Data-driven organisations"
+        type: learning_path
+        external_url: https://aws.amazon.com/executive-insights/content/how-do-you-become-a-data-driven-organization/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48966
+      - key: ccc602-w13-deac01-m3
+        title: "DEA-C01 M3: The elements of data"
+        type: learning_path
+        external_url: https://aws.amazon.com/big-data/datalakes-and-analytics/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48966
+      - key: ccc602-w13-deac01-m4
+        title: "DEA-C01 M4: Data pipeline design principles and patterns"
+        type: learning_path
+        external_url: https://docs.aws.amazon.com/whitepapers/latest/building-data-lakes/designing-data-lakes-and-analytics-on-aws.html
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48966
+      - key: ccc602-w13-deac01-m5
+        title: "DEA-C01 M5: Securing and scaling the data pipeline"
+        type: learning_path
+        external_url: https://docs.aws.amazon.com/whitepapers/latest/aws-security-best-practices/aws-security-best-practices.pdf
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48966
+      - key: ccc602-w13-lab-athena
+        title: "Lab: Query data with Amazon Athena"
+        type: lab
+        external_url: https://awsacademy.instructure.com/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48966
+      - key: ccc602-w13-a4-brief
+        title: "Review the Assessment 4 brief"
+        type: assessment_step
+        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
+
+  - key: ccc602-w14
+    week_number: 14
+    title: "DEA-C01 Modules 6–8: Ingestion and storage"
+    tasks:
+      - key: ccc602-w14-deac01-m6
+        title: "DEA-C01 M6: Ingesting and preparing data (AWS Glue)"
+        type: learning_path
+        external_url: https://docs.aws.amazon.com/glue/index.html
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48968
+      - key: ccc602-w14-deac01-m7
+        title: "DEA-C01 M7: Batch vs stream ingestion (Kinesis)"
+        type: learning_path
+        external_url: https://docs.aws.amazon.com/kinesis/index.html
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48968
+      - key: ccc602-w14-deac01-m8
+        title: "DEA-C01 M8: Storing and organising data (S3)"
+        type: learning_path
+        external_url: https://docs.aws.amazon.com/s3/index.html
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48968
+      - key: ccc602-w14-lab-glue
+        title: "Lab: ETL on a dataset with AWS Glue"
+        type: lab
+        external_url: https://awsacademy.instructure.com/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48968
+
+  - key: ccc602-w15
+    week_number: 15
+    title: "DEA-C01 Modules 9–12: Processing, analytics, automation"
+    tasks:
+      - key: ccc602-w15-deac01-m9
+        title: "DEA-C01 M9: Processing big data (EMR)"
+        type: learning_path
+        external_url: https://docs.aws.amazon.com/emr/index.html
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48970
+      - key: ccc602-w15-deac01-m10
+        title: "DEA-C01 M10: Processing data for ML (SageMaker)"
+        type: learning_path
+        external_url: https://docs.aws.amazon.com/sagemaker/index.html
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48970
+      - key: ccc602-w15-deac01-m11
+        title: "DEA-C01 M11: Analysing and visualising data (QuickSight)"
+        type: learning_path
+        external_url: https://docs.aws.amazon.com/quicksight/index.html
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48970
+      - key: ccc602-w15-deac01-m12
+        title: "DEA-C01 M12: Automating the pipeline (Step Functions)"
+        type: learning_path
+        external_url: https://docs.aws.amazon.com/step-functions/index.html
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48970
+      - key: ccc602-w15-lab-emr
+        title: "Lab: Process logs with Amazon EMR and update dynamic data in place"
+        type: lab
+        external_url: https://awsacademy.instructure.com/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48970
+      - key: ccc602-w15-lab-firehose
+        title: "Lab: Stream data with Kinesis Firehose and OpenSearch"
+        type: lab
+        external_url: https://awsacademy.instructure.com/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48970
+      - key: ccc602-w15-lab-stepfn
+        title: "Lab: ETL pipelines with Athena and Step Functions"
+        type: lab
+        external_url: https://awsacademy.instructure.com/
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48970
+
+  - key: ccc602-w16
+    week_number: 16
+    title: "Assessment 4 focus"
+    tasks:
+      - key: ccc602-w16-a4-intro
+        title: "Watch the Assessment 4 intro and expected-outcome recording"
+        type: assessment_step
+        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
+      - key: ccc602-w16-a4-practical
+        title: "Do the Assessment 4 practical tasks in your own AWS account"
+        type: assessment_step
+        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
+      - key: ccc602-w16-a4-submit
+        title: "Submit Assessment 4"
+        type: assessment_step
+        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
+
+assessments:
+  - key: ccc602-a3
+    title: "Assessment 3: Azure Practical Scenario Evaluation"
+    due_date: 2026-10-25
+    uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
+  - key: ccc602-a4
+    title: "Assessment 4: Scenario-Based Activity Design and Implementation (AWS)"
+    uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
