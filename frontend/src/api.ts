@@ -6,6 +6,7 @@ export interface ModuleSummary {
   title: string
   week_count: number
   task_count: number
+  uplearn_url: string | null
 }
 
 export interface Task {
@@ -34,6 +35,7 @@ export interface ModuleDetail {
   key: string
   code: string
   title: string
+  uplearn_url: string | null
   weeks: Week[]
   assessments: Assessment[]
 }

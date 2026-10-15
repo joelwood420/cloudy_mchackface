@@ -2,30 +2,16 @@ import { useQuery } from '@tanstack/react-query'
 import { Link, useParams } from 'react-router-dom'
 import { ApiError, fetchModule, type TaskType } from '../api'
 import { ErrorMessage } from '../components/ErrorMessage'
+import { ExternalLink } from '../components/ExternalLink'
+import { formatDueDate } from '../format'
+
+// Kept exported until Task 5 replaces this page; ModulePage.test.tsx imports it from here.
+export { formatDueDate }
 
 const TYPE_LABELS: Record<TaskType, string> = {
   learning_path: 'Learning path',
   lab: 'Lab',
   assessment_step: 'Assessment',
-}
-
-/** Format a YYYY-MM-DD date in local time so it never shifts a day. */
-export function formatDueDate(iso: string): string {
-  const [year, month, day] = iso.split('-').map(Number)
-  return new Date(year, month - 1, day).toLocaleDateString('en-NZ', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-function ExternalLink({ href, children }: { href: string; children: string }) {
-  return (
-    <a href={href} target="_blank" rel="noopener noreferrer">
-      {children}
-    </a>
-  )
 }
 
 export function ModulePage() {
