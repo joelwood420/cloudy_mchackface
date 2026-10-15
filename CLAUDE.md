@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A study tracker for the Yoobee Colleges **Diploma in Cloud Computing and Cyber Security (Level 6)**. The Yoobee UPLearn portal (https://yoobee.uplearn.education/, a Moodle site) is hard to navigate, so this app shows week by week what to work on, upcoming assessments, and progress bars per course and for the whole programme. It's built for the owner first, with the aim of opening it to other students later.
 
-Status: new project, no code yet. Update this file as commands and structure become real.
+Status: Phase 1 done — CCC602 browsable locally, no accounts yet.
 
-## Stack and layout (planned)
+## Stack and layout
 
 Full design: `docs/superpowers/specs/2026-10-15-yoobee-study-guide-design.md`.
 
@@ -35,6 +35,9 @@ uv run alembic check                       # confirm models match migrations
 uv run python -m app.seed                  # validate + load seed/*.yaml
 ```
 
+- On a fresh database run `uv run alembic upgrade head` before the seed loader.
+- `uv run python -m app.seed [dir]` deletes any module not present in that folder.
+
 Frontend (run in `frontend/`):
 
 ```bash
@@ -43,6 +46,7 @@ npm run dev                                # http://localhost:5173, proxies /api
 npm test                                   # vitest
 npx vitest run src/pages/ModulePage.test.tsx   # single file
 npm run build                              # type check + build
+npm run lint                               # oxlint
 ```
 
 ## MVP scope
