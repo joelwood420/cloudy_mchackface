@@ -54,6 +54,26 @@ CLF-C02 (AWS Cloud Practitioner), SAA-C03 (AWS Solutions Architect Associate), A
 | Fortinet Training Institute | https://training.fortinet.com/ | Create a FortiCloud account first: https://support.fortinet.com/cred/#/sign-up . Used in CCC603 weeks 19–23. |
 | MS Teams | – | Main tutor channel. Keep questions short and in one message. |
 
+## Skillable (MSLE) lab classes
+
+Dashboard: https://msle.learnondemand.net/User/Dashboard (each student's class enrolment URL is personal, so seed lab tasks link to the dashboard).
+
+| Class | Required labs | In seed | Lab access ends |
+|---|---|---|---|
+| CCC601 AZ-900 | 8 hands-on labs (~1 h each) + end-of-class survey | Week 5 | 31 Dec 2026 |
+| CCC601 AZ-104 | 14 hands-on labs, Learning Paths 01–11 (~1 h each) + survey | Weeks 6–8, matched to AZ-104 modules | 31 Dec 2026 |
+| CCC602 DP-900 | 3 labs: Azure SQL Database (2 h 15), Azure Storage non-relational (2 h 15), large-scale analytics (3 h) + survey | Week 9 | 31 Dec 2026 |
+
+- Hands-on labs have 10 launch attempts each. The end-of-class survey opens 7 days before the class end date.
+- No Skillable class exists for DP-203 (CCC602 weeks 10–12). DP-203 practice is in your own Azure account.
+- AZ-104 lab mapping: 01 → M1 · 02a, 02b → M2 · 03b → M3 · 04 → M4 · 05 → M5 · 06 → M6 · 07 → M7 · 08 → M8 · 09a–c → M9 · 10 → M10 · 11 → M11.
+
+Optional "Skillable Challenge" labs (guided, ~30 min each, not required, not in seed):
+- AZ-900, cloud concepts: Create an Azure Function App; Create an Azure Logic App; High availability with availability sets; VM scale sets.
+- AZ-900, architecture and services: Manage resource groups; Run commands in Cloud Shell; DDoS protection plan; Key Vault encryption; Configure RBAC; Deploy a VM; Manage Entra users and groups; Network security group.
+- AZ-900, management and governance: ARM template deployment; Configure a lock; Azure Monitor; Service Health; Cost Management.
+- AZ-104: Manage a VM with Cloud Shell; Deploy a VM with PowerShell; Route tables (prerequisites) · Implement RBAC (identity and governance) · Virtual networking; VNet peering; Load balancer (networking) · Manage access to storage (storage) · VM scale sets (compute) · Azure Backup for VMs; VM diagnostic settings (monitor and back up).
+
 ## Course 00 "Things to know" forum (how-to posts)
 
 Forum: https://yoobee.uplearn.education/mod/forum/view.php?id=74020

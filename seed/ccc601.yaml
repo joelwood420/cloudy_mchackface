@@ -156,6 +156,11 @@ weeks:
     week_number: 5
     title: "AZ-900 Modules 0–3"
     tasks:
+      - key: ccc601-w05-skillable-register
+        title: "Register for AZ-900 and AZ-104 Skillable labs"
+        type: lab
+        note: "Skillable lab: the training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w05-azure-account
         title: "Create an Azure free tier account (personal email)"
         type: lab
@@ -165,16 +170,56 @@ weeks:
         type: learning_path
         external_url: https://learn.microsoft.com/training/paths/microsoft-azure-fundamentals-describe-cloud-concepts/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
+      - key: ccc601-w05-az900-lab01
+        title: "AZ-900 Lab 01: Deploy a static website with Azure Blob Storage"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w05-az900-m2
         title: "AZ-900 M2: Describe Azure architecture and services"
         type: learning_path
         external_url: https://learn.microsoft.com/training/paths/azure-fundamentals-describe-azure-architecture-services/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
+      - key: ccc601-w05-az900-lab02
+        title: "AZ-900 Lab 02: Organize and protect resources with tags and locks"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
+      - key: ccc601-w05-az900-lab03
+        title: "AZ-900 Lab 03: Build a simple website endpoint with Azure Functions"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
+      - key: ccc601-w05-az900-lab04
+        title: "AZ-900 Lab 04: Set up new employee access with Entra ID and RBAC"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
+      - key: ccc601-w05-az900-lab05
+        title: "AZ-900 Lab 05: Share files securely"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w05-az900-m3
         title: "AZ-900 M3: Describe Azure management and governance"
         type: learning_path
         external_url: https://learn.microsoft.com/training/paths/describe-azure-management-governance/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
+      - key: ccc601-w05-az900-lab06
+        title: "AZ-900 Lab 06: Set up cost guardrails in Azure"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
+      - key: ccc601-w05-az900-lab07
+        title: "AZ-900 Lab 07: Monitor Azure with Service Health and Activity Log alerts"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
+      - key: ccc601-w05-az900-lab08
+        title: "AZ-900 Lab 08: Manage Azure resources with Cloud Shell and the Azure CLI"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w05-a2-start
         title: "Start Assessment 2: read the brief"
         type: assessment_step
@@ -192,21 +237,46 @@ weeks:
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-identities-governance/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w06-az104-lab01
+        title: "AZ-104 Lab 01: Manage Microsoft Entra ID identities"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w06-az104-m2
         title: "AZ-104 M2: Administer governance and compliance"
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/paths/describe-azure-management-governance
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w06-az104-lab02a
+        title: "AZ-104 Lab 02a: Manage subscriptions and RBAC"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
+      - key: ccc601-w06-az104-lab02b
+        title: "AZ-104 Lab 02b: Manage governance via Azure Policy"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w06-az104-m3
         title: "AZ-104 M3: Administer Azure resources"
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/modules/describe-features-tools-manage-deploy-azure-resources/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w06-az104-lab03b
+        title: "AZ-104 Lab 03b: Manage Azure resources with ARM templates"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w06-az104-m4
         title: "AZ-104 M4: Administer virtual networking"
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-virtual-networks/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w06-az104-lab04
+        title: "AZ-104 Lab 04: Implement virtual networking"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w06-a2-t1
         title: "Complete Task 1 of Assessment 2 (Cloud infrastructure planning and cost optimisation)"
         type: assessment_step
@@ -220,21 +290,41 @@ weeks:
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/modules/configure-vnet-peering/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w07-az104-lab05
+        title: "AZ-104 Lab 05: Implement intersite connectivity"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w07-az104-m6
         title: "AZ-104 M6: Administer network traffic management"
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-overview
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w07-az104-lab06
+        title: "AZ-104 Lab 06: Implement network traffic management"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w07-az104-m7
         title: "AZ-104 M7: Administer Azure Storage"
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-storage/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w07-az104-lab07
+        title: "AZ-104 Lab 07: Manage Azure Storage"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w07-az104-m8
         title: "AZ-104 M8: Administer virtual machines"
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-compute-resources/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w07-az104-lab08
+        title: "AZ-104 Lab 08: Manage virtual machines"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w07-a2-t2
         title: "Complete Task 2 of Assessment 2 (Active Directory migration to Azure)"
         type: assessment_step
@@ -252,15 +342,40 @@ weeks:
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/modules/configure-azure-app-services/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w08-az104-lab09a
+        title: "AZ-104 Lab 09a: Implement Web Apps"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
+      - key: ccc601-w08-az104-lab09b
+        title: "AZ-104 Lab 09b: Implement Azure Container Instances"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
+      - key: ccc601-w08-az104-lab09c
+        title: "AZ-104 Lab 09c: Implement Azure Container Apps"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w08-az104-m10
         title: "AZ-104 M10: Administer data protection"
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/paths/az-104-monitor-backup-resources/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w08-az104-lab10
+        title: "AZ-104 Lab 10: Implement data protection"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w08-az104-m11
         title: "AZ-104 M11: Administer monitoring"
         type: learning_path
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+      - key: ccc601-w08-az104-lab11
+        title: "AZ-104 Lab 11: Implement monitoring"
+        type: lab
+        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc601-w08-a2-t4
         title: "Complete Task 4 of Assessment 2 (File share for multi-user access)"
         type: assessment_step

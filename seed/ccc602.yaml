@@ -12,6 +12,12 @@ weeks:
     week_number: 9
     title: "DP-900 Learning Paths 1–4"
     tasks:
+      - key: ccc602-w09-dp900-labs
+        title: "Register for DP-900 Skillable labs (training key from tutor)"
+        type: lab
+        note: "Skillable lab: the training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Login?returnUrl=%2FClass%2F692793
+        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48958
       - key: ccc602-w09-dp900-lp1
         title: "DP-900 LP1: Explore core data concepts"
         type: learning_path
@@ -22,22 +28,31 @@ weeks:
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/paths/azure-data-fundamentals-explore-relational-data/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9656
+      - key: ccc602-w09-dp900-lab-sql
+        title: "DP-900 Lab: Explore Azure SQL Database"
+        type: lab
+        note: "Skillable lab in the CCC602 DP-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc602-w09-dp900-lp3
         title: "DP-900 LP3: Explore non-relational data in Azure"
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/paths/azure-data-fundamentals-explore-non-relational-data/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9656
+      - key: ccc602-w09-dp900-lab-storage
+        title: "DP-900 Lab: Explore Azure Storage for non-relational data"
+        type: lab
+        note: "Skillable lab in the CCC602 DP-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc602-w09-dp900-lp4
         title: "DP-900 LP4: Explore data analytics in Azure"
         type: learning_path
         external_url: https://learn.microsoft.com/en-us/training/paths/azure-data-fundamentals-explore-data-warehouse-analytics/
         uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9656
-      - key: ccc602-w09-dp900-labs
-        title: "Register for DP-900 Skillable labs (training key from tutor)"
+      - key: ccc602-w09-dp900-lab-analytics
+        title: "DP-900 Lab: Explore fundamentals of large-scale data analytics"
         type: lab
-        note: "Skillable lab: the training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Login?returnUrl=%2FClass%2F692793
-        uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48958
+        note: "Skillable lab in the CCC602 DP-900 class. The training key is in the Teams tutor-only channel."
+        external_url: https://msle.learnondemand.net/User/Dashboard
       - key: ccc602-w09-a3-start
         title: "Start Assessment 3: read the brief"
         type: assessment_step
