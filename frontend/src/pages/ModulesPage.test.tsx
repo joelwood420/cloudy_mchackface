@@ -17,6 +17,17 @@ describe('ModulesPage', () => {
     expect(screen.getByText('8 weeks · 30 tasks')).toBeInTheDocument()
   })
 
+  it('uses singular forms for one week and one task', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jsonResponse([{ key: 'ccc603', code: 'CCC603', title: 'Single', week_count: 1, task_count: 1 }]),
+      ),
+    )
+    renderAt('/')
+    expect(await screen.findByText('1 week · 1 task')).toBeInTheDocument()
+  })
+
   it('shows a hint when there are no modules', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse([])))
     renderAt('/')

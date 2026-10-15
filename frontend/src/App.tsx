@@ -1,9 +1,16 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
+import { ApiError } from './api'
 import { ModulePage } from './pages/ModulePage'
 import { ModulesPage } from './pages/ModulesPage'
 
-const queryClient = new QueryClient({ defaultOptions: { queries: { retry: 1 } } })
+/** Never retry client errors (4xx); retry everything else once. */
+export function shouldRetry(failureCount: number, error: Error): boolean {
+  if (error instanceof ApiError && error.status < 500) return false
+  return failureCount < 1
+}
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: shouldRetry } } })
 
 export function AppRoutes() {
   return (

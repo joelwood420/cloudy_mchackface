@@ -60,7 +60,9 @@ export function ModulePage() {
             <summary>
               Week {week.week_number}: {week.title}
             </summary>
-            <p className="meta">{week.tasks.length} tasks</p>
+            <p className="meta">
+              {week.tasks.length} {week.tasks.length === 1 ? 'task' : 'tasks'}
+            </p>
             {week.tasks.length === 0 ? (
               <p>No tasks listed for this week.</p>
             ) : (

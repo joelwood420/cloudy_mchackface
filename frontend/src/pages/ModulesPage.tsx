@@ -22,7 +22,8 @@ export function ModulesPage() {
                 <span className="code">{m.code}</span> {m.title}
               </Link>
               <span className="meta">
-                {m.week_count} weeks · {m.task_count} tasks
+                {m.week_count} {m.week_count === 1 ? 'week' : 'weeks'} · {m.task_count}{' '}
+                {m.task_count === 1 ? 'task' : 'tasks'}
               </span>
             </li>
           ))}

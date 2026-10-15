@@ -45,6 +45,17 @@ describe('ModulePage', () => {
     expect(within(brief).getByRole('link', { name: 'UPLearn' })).toHaveAttribute('href', 'https://up.test/a3')
   })
 
+  it('uses singular "task" for a week with one task', async () => {
+    const single = {
+      ...detail,
+      weeks: [{ key: 'w1', week_number: 1, title: 'Intro', tasks: [detail.weeks[0].tasks[0]] }],
+    }
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(single)))
+    renderAt('/modules/ccc602')
+    const week1 = (await screen.findByText('Week 1: Intro')).closest('details')!
+    expect(within(week1).getByText('1 task')).toBeInTheDocument()
+  })
+
   it('handles a week with no tasks', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(detail)))
     renderAt('/modules/ccc602')
