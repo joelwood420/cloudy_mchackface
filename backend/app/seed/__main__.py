@@ -11,14 +11,14 @@ DEFAULT_SEED_DIR = Path(__file__).resolve().parents[3] / "seed"
 
 def run(seed_dir: Path, session: Session) -> int:
     try:
-        seeds = load_seed_dir(seed_dir)
+        bundle = load_seed_dir(seed_dir)
     except SeedError as e:
         print("Seed validation failed; nothing was written:", file=sys.stderr)
         for problem in e.problems:
             print(f"  - {problem}", file=sys.stderr)
         return 1
-    apply_seed(session, seeds)
-    print(f"Seeded {len(seeds)} module(s) from {seed_dir}")
+    apply_seed(session, bundle.modules, bundle.prerequisites)
+    print(f"Seeded {len(bundle.modules)} module(s) and {len(bundle.prerequisites)} prerequisite(s) from {seed_dir}")
     return 0
 
 

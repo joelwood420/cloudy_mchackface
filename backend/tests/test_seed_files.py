@@ -1,29 +1,45 @@
 from app.seed.__main__ import DEFAULT_SEED_DIR
 from app.seed.loader import load_seed_dir
 
+FORBIDDEN_IN_NOTES = ("http", "calendly", "teams.microsoft", "zoom.us")
+
+
+def bundle():
+    return load_seed_dir(DEFAULT_SEED_DIR)
+
+
+def modules():
+    return {s.module.key: s for s in bundle().modules}
+
 
 def test_repo_seed_files_are_valid():
-    seeds = load_seed_dir(DEFAULT_SEED_DIR)
-    assert seeds, "expected at least one seed file"
+    b = bundle()
+    assert b.modules, "expected at least one module file"
+    assert b.prerequisites, "expected seed/prerequisites.yaml"
+
+
+def test_every_module_has_submodules():
+    assert all(s.submodules for s in bundle().modules)
 
 
 def test_ccc602_has_portal_link():
-    seeds = {s.module.key: s for s in load_seed_dir(DEFAULT_SEED_DIR)}
-    assert str(seeds["ccc602"].module.uplearn_url) == "https://yoobee.uplearn.education/course/view.php?id=548"
+    assert str(modules()["ccc602"].module.uplearn_url) == "https://yoobee.uplearn.education/course/view.php?id=548"
 
 
 def test_ccc602_covers_full_time_weeks_9_to_16():
-    seeds = {s.module.key: s for s in load_seed_dir(DEFAULT_SEED_DIR)}
-    ccc602 = seeds["ccc602"]
-    assert [w.week_number for w in ccc602.weeks] == list(range(9, 17))
-    assert all(w.tasks for w in ccc602.weeks), "every week should list at least one task"
+    weeks = modules()["ccc602"].all_weeks()
+    assert [w.week_number for w in weeks] == list(range(9, 17))
+    assert all(w.tasks for w in weeks), "every week should list at least one task"
 
 
-def test_lab_notes_point_to_access_without_secrets():
-    seeds = {s.module.key: s for s in load_seed_dir(DEFAULT_SEED_DIR)}
-    tasks = {t.key: t for s in seeds.values() for w in s.weeks for t in w.tasks}
-    assert "Teams tutor-only channel" in tasks["ccc602-w09-dp900-labs"].note
+def test_notes_point_to_access_without_secrets():
+    b = bundle()
+    tasks = {t.key: t for s in b.modules for w in s.all_weeks() for t in w.tasks}
+    prereqs = {p.key: p for p in b.prerequisites}
     assert "AWS Academy" in tasks["ccc602-w13-dea-lab-athena"].note
     assert "AWS Academy" in tasks["ccc603-w18-lab-kms"].note
-    for t in tasks.values():
-        assert t.note is None or not any(s in t.note.lower() for s in ("http", "calendly", "teams.microsoft"))
+    assert "Teams tutor-only channel" in prereqs["skillable-dp900"].note
+
+    notes = [t.note for t in tasks.values()] + [p.note for p in prereqs.values()]
+    for note in filter(None, notes):
+        assert not any(s in note.lower() for s in FORBIDDEN_IN_NOTES), note

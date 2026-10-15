@@ -1,12 +1,16 @@
+from collections.abc import Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
 import yaml
-from pydantic import ValidationError
-from sqlalchemy import select
+from pydantic import BaseModel, ValidationError
+from sqlalchemy import delete, insert, select
 from sqlalchemy.orm import Session
 
-from app.models import Assessment, Module, Task, Week
-from app.seed.schema import SeedFile
+from app.models import Assessment, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
+from app.seed.schema import SeedFile, SeedPrerequisite, SeedPrerequisiteFile
+
+PREREQUISITES_FILE = "prerequisites.yaml"
 
 
 class SeedError(Exception):
@@ -15,93 +19,147 @@ class SeedError(Exception):
         super().__init__("\n".join(problems))
 
 
-def load_seed_dir(path: Path) -> list[SeedFile]:
-    """Parse and validate every *.yaml file in `path`. Raises SeedError listing every problem."""
+@dataclass
+class SeedBundle:
+    modules: list[SeedFile]
+    prerequisites: list[SeedPrerequisite]
+
+
+def _parse(file: Path, schema: type[BaseModel], problems: list[str]) -> BaseModel | None:
+    try:
+        return schema.model_validate(yaml.safe_load(file.read_text(encoding="utf-8")))
+    except yaml.YAMLError as e:
+        problems.append(f"{file.name}: invalid YAML: {e}")
+    except ValidationError as e:
+        for err in e.errors():
+            loc = ".".join(str(part) for part in err["loc"])
+            problems.append(f"{file.name}: {loc}: {err['msg']}")
+    return None
+
+
+def load_seed_dir(path: Path) -> SeedBundle:
+    """Parse and validate seed/prerequisites.yaml and every module file in `path`.
+
+    Raises SeedError listing every problem, so nothing is written unless everything is valid."""
     files = sorted(path.glob("*.yaml"))
     if not files:
         raise SeedError([f"no .yaml files in {path}"])
+    module_files = [f for f in files if f.name != PREREQUISITES_FILE]
+    if not module_files:
+        raise SeedError([f"no module files in {path} (only {PREREQUISITES_FILE})"])
 
     problems: list[str] = []
-    parsed: list[tuple[str, SeedFile]] = []
-    for file in files:
-        try:
-            data = yaml.safe_load(file.read_text(encoding="utf-8"))
-            parsed.append((file.name, SeedFile.model_validate(data)))
-        except yaml.YAMLError as e:
-            problems.append(f"{file.name}: invalid YAML: {e}")
-        except ValidationError as e:
-            for err in e.errors():
-                loc = ".".join(str(part) for part in err["loc"])
-                problems.append(f"{file.name}: {loc}: {err['msg']}")
+    prereq_path = path / PREREQUISITES_FILE
+    prereq_file: SeedPrerequisiteFile | None = None
+    prereqs_ok = True
+    if prereq_path.exists():
+        prereq_file = _parse(prereq_path, SeedPrerequisiteFile, problems)
+        prereqs_ok = prereq_file is not None
+    modules = [(f.name, seed) for f in module_files if (seed := _parse(f, SeedFile, problems)) is not None]
 
+    named: list[tuple[str, SeedFile | SeedPrerequisiteFile]] = list(modules)
+    if prereq_file is not None:
+        named.insert(0, (PREREQUISITES_FILE, prereq_file))
     seen: dict[str, str] = {}
-    for name, seed in parsed:
+    for name, seed in named:
         for key in seed.keys():
             if key in seen:
                 problems.append(f"{name}: duplicate key '{key}' (also in {seen[key]})")
             else:
                 seen[key] = name
 
+    # Only check references when the prerequisites file itself was readable; otherwise every one would fail.
+    if prereqs_ok:
+        known = set(prereq_file.keys()) if prereq_file else set()
+        for name, seed in modules:
+            for i, sub in enumerate(seed.submodules):
+                for key in sub.prerequisites:
+                    if key not in known:
+                        problems.append(
+                            f"{name}: submodules.{i}.prerequisites: unknown prerequisite '{key}' "
+                            f"(submodule {sub.key}; define it in {PREREQUISITES_FILE})"
+                        )
+
     if problems:
         raise SeedError(problems)
-    return [seed for _, seed in parsed]
+    return SeedBundle([seed for _, seed in modules], prereq_file.prerequisites if prereq_file else [])
 
 
-def apply_seed(session: Session, seeds: list[SeedFile]) -> None:
-    """Upsert all seed content by key and delete anything no longer in the seed files."""
-    modules = {m.key: m for m in session.scalars(select(Module))}
-    weeks = {w.key: w for w in session.scalars(select(Week))}
-    tasks = {t.key: t for t in session.scalars(select(Task))}
-    assessments = {a.key: a for a in session.scalars(select(Assessment))}
-    kept: dict[str, set[str]] = {name: set() for name in ('modules', 'weeks', 'tasks', 'assessments')}
+def _url(value) -> str | None:
+    return str(value) if value else None
 
+
+def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[SeedPrerequisite] = ()) -> None:
+    """Upsert all seed content by key, then delete anything no longer in the seed files.
+
+    Rows keep their ids across re-seeds, so anything per-user that points at a task or prerequisite survives."""
+    models = (Prerequisite, Module, Submodule, Week, Task, Assessment)
+    existing = {model: {row.key: row for row in session.scalars(select(model))} for model in models}
+    kept: dict[type, set[str]] = {model: set() for model in models}
+
+    def upsert(model, key):
+        row = existing[model].get(key)
+        if row is None:
+            row = existing[model][key] = model(key=key)
+            session.add(row)
+        kept[model].add(key)
+        return row
+
+    for sp in prerequisites:
+        prereq = upsert(Prerequisite, sp.key)
+        prereq.title, prereq.note = sp.title, sp.note
+        prereq.external_url, prereq.uplearn_url = _url(sp.external_url), _url(sp.uplearn_url)
+
+    wanted_links: list[tuple[Submodule, str, int]] = []
     for seed in seeds:
         sm = seed.module
-        module = modules.get(sm.key) or Module(key=sm.key)
+        module = upsert(Module, sm.key)
         module.code, module.title, module.position = sm.code, sm.title, sm.order
-        module.uplearn_url = str(sm.uplearn_url) if sm.uplearn_url else None
-        session.add(module)
-        kept['modules'].add(sm.key)
+        module.uplearn_url = _url(sm.uplearn_url)
 
-        for w_pos, sw in enumerate(seed.weeks):
-            week = weeks.get(sw.key) or Week(key=sw.key)
-            session.add(week)
-            week.module = module
-            week.week_number, week.title, week.position = sw.week_number, sw.title, w_pos
-            kept['weeks'].add(sw.key)
+        week_position = 0  # module-wide, so the flat week list comes out in submodule order
+        for s_pos, ss in enumerate(seed.submodules):
+            submodule = upsert(Submodule, ss.key)
+            submodule.module = module
+            submodule.code, submodule.title, submodule.position = ss.code, ss.title, s_pos
+            submodule.uplearn_url = _url(ss.uplearn_url)
+            wanted_links += [(submodule, key, pos) for pos, key in enumerate(ss.prerequisites)]
 
-            for t_pos, st in enumerate(sw.tasks):
-                task = tasks.get(st.key) or Task(key=st.key)
-                session.add(task)
-                task.week = week
-                task.title, task.type, task.position = st.title, st.type, t_pos
-                task.external_url = str(st.external_url) if st.external_url else None
-                task.uplearn_url = str(st.uplearn_url) if st.uplearn_url else None
-                task.note = st.note
-                kept['tasks'].add(st.key)
+            for sw in ss.weeks:
+                week = upsert(Week, sw.key)
+                week.module, week.submodule = module, submodule
+                week.week_number, week.title, week.position = sw.week_number, sw.title, week_position
+                week_position += 1
+
+                for t_pos, st in enumerate(sw.tasks):
+                    task = upsert(Task, st.key)
+                    task.week = week
+                    task.title, task.type, task.position = st.title, st.type, t_pos
+                    task.external_url, task.uplearn_url = _url(st.external_url), _url(st.uplearn_url)
+                    task.note = st.note
 
         for sa in seed.assessments:
-            assessment = assessments.get(sa.key) or Assessment(key=sa.key)
-            session.add(assessment)
+            assessment = upsert(Assessment, sa.key)
             assessment.module = module
             assessment.title, assessment.due_date = sa.title, sa.due_date
-            assessment.uplearn_url = str(sa.uplearn_url) if sa.uplearn_url else None
-            kept['assessments'].add(sa.key)
+            assessment.uplearn_url = _url(sa.uplearn_url)
 
     session.flush()
-    # Children of a deleted parent are removed by the parent's delete (ORM cascade + DB ON DELETE CASCADE),
-    # so only delete objects whose parent is staying; each row is then deleted exactly once.
-    doomed_modules = {k for k in modules if k not in kept["modules"]}
-    doomed_weeks = {k for k, w in weeks.items() if k not in kept["weeks"] or w.module.key in doomed_modules}
-    for key, task in tasks.items():
-        if key not in kept["tasks"] and task.week.key not in doomed_weeks:
-            session.delete(task)
-    for key, assessment in assessments.items():
-        if key not in kept["assessments"] and assessment.module.key not in doomed_modules:
-            session.delete(assessment)
-    for key, week in weeks.items():
-        if key in doomed_weeks and week.module.key not in doomed_modules:
-            session.delete(week)
-    for key in doomed_modules:
-        session.delete(modules[key])
+
+    # One statement per table: rows under a removed parent go with it via ON DELETE CASCADE.
+    for model in (Module, Submodule, Week, Task, Assessment, Prerequisite):
+        session.execute(
+            delete(model).where(model.key.not_in(list(kept[model]))).execution_options(synchronize_session=False)
+        )
+
+    # Links carry no per-user data, so rebuild them from the seed files every time.
+    session.execute(delete(SubmodulePrerequisite))
+    rows = [
+        {"submodule_id": sub.id, "prerequisite_id": existing[Prerequisite][key].id, "position": pos}
+        for sub, key, pos in wanted_links
+    ]
+    if rows:
+        session.execute(insert(SubmodulePrerequisite), rows)
     session.flush()
+    # Bulk deletes bypass the identity map; drop cached state so later reads see the database.
+    session.expire_all()

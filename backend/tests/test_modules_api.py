@@ -1,13 +1,16 @@
 from datetime import date
 
-from app.models import Assessment, Module, Task, Week
+from app.models import Assessment, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
 
 
 def add_content(db):
     de = Module(key="ccc602", code="CCC602", title="Data Engineering", position=2, uplearn_url="https://up.test/602")
+    dp900 = Submodule(key="dp900", code="DP-900", title="Azure Data Fundamentals", position=0, uplearn_url="https://up.test/dp900")
+    dea = Submodule(key="dea", code="DEA-C01", title="AWS Data Engineer", position=1)
+    de.submodules = [dp900, dea]
     de.weeks = [
-        Week(key="w10", week_number=10, title="Empty", position=1),
-        Week(key="w9", week_number=9, title="DP-900", position=0, tasks=[
+        Week(key="w10", week_number=10, title="Empty", position=1, submodule=dea),
+        Week(key="w9", week_number=9, title="DP-900", position=0, submodule=dp900, tasks=[
             Task(key="t2", title="Labs", type="lab", external_url="https://lab.test", position=1, note="Key in Teams"),
             Task(key="t1", title="LP1", type="learning_path", external_url="https://learn.test", position=0),
         ]),
@@ -17,7 +20,10 @@ def add_content(db):
         Assessment(key="a3", title="Assessment 3", due_date=date(2026, 10, 25), uplearn_url="https://up.test"),
     ]
     admin = Module(key="ccc601", code="CCC601", title="Public Cloud Administration", position=1)
-    db.add_all([de, admin])
+    azure = Prerequisite(key="azure-account", title="Create an Azure account", note="Personal email", external_url="https://azure.test")
+    db.add_all([de, admin, azure])
+    db.flush()
+    db.add(SubmodulePrerequisite(submodule_id=dp900.id, prerequisite_id=azure.id, position=0))
     db.flush()
     db.expire_all()
 
