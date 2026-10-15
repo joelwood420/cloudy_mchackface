@@ -59,6 +59,7 @@ def apply_seed(session: Session, seeds: list[SeedFile]) -> None:
         sm = seed.module
         module = modules.get(sm.key) or Module(key=sm.key)
         module.code, module.title, module.position = sm.code, sm.title, sm.order
+        module.uplearn_url = str(sm.uplearn_url) if sm.uplearn_url else None
         session.add(module)
         kept['modules'].add(sm.key)
 

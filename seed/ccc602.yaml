@@ -3,6 +3,7 @@ module:
   code: CCC602
   title: Data Engineering in the Public Cloud
   order: 2
+  uplearn_url: https://yoobee.uplearn.education/course/view.php?id=548
 
 weeks:
   - key: ccc602-w09

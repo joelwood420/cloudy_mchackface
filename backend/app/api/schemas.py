@@ -13,6 +13,7 @@ class ModuleSummary(_Out):
     title: str
     week_count: int
     task_count: int
+    uplearn_url: str | None
 
 
 class TaskOut(_Out):
@@ -41,5 +42,6 @@ class ModuleDetail(_Out):
     key: str
     code: str
     title: str
+    uplearn_url: str | None
     weeks: list[WeekOut]
     assessments: list[AssessmentOut]

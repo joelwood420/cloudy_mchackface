@@ -4,7 +4,7 @@ from app.models import Assessment, Module, Task, Week
 
 
 def add_content(db):
-    de = Module(key="ccc602", code="CCC602", title="Data Engineering", position=2)
+    de = Module(key="ccc602", code="CCC602", title="Data Engineering", position=2, uplearn_url="https://up.test/602")
     de.weeks = [
         Week(key="w10", week_number=10, title="Empty", position=1),
         Week(key="w9", week_number=9, title="DP-900", position=0, tasks=[
@@ -27,8 +27,8 @@ def test_list_modules_in_order_with_counts(client, db):
     response = client.get("/api/modules")
     assert response.status_code == 200
     assert response.json() == [
-        {"key": "ccc601", "code": "CCC601", "title": "Public Cloud Administration", "week_count": 0, "task_count": 0},
-        {"key": "ccc602", "code": "CCC602", "title": "Data Engineering", "week_count": 2, "task_count": 2},
+        {"key": "ccc601", "code": "CCC601", "title": "Public Cloud Administration", "week_count": 0, "task_count": 0, "uplearn_url": None},
+        {"key": "ccc602", "code": "CCC602", "title": "Data Engineering", "week_count": 2, "task_count": 2, "uplearn_url": "https://up.test/602"},
     ]
 
 
@@ -39,6 +39,7 @@ def test_list_modules_when_empty(client):
 def test_module_detail(client, db):
     add_content(db)
     body = client.get("/api/modules/ccc602").json()
+    assert body["uplearn_url"] == "https://up.test/602"
     assert [w["key"] for w in body["weeks"]] == ["w9", "w10"]
     assert body["weeks"][0]["tasks"][0] == {
         "key": "t1", "title": "LP1", "type": "learning_path",

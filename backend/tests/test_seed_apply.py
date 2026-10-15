@@ -122,3 +122,18 @@ def test_key_that_changes_type_deletes_the_old_row(db):
 
     assert db.scalars(select(Task.key)).all() == []
     assert sorted(db.scalars(select(Week.key)).all()) == ["shared", "w9"]
+
+def test_module_uplearn_url_is_stored_and_cleared(db):
+    with_link = SeedFile.model_validate(
+        {
+            "module": {
+                "key": "ccc602", "code": "CCC602", "title": "Data Engineering", "order": 2,
+                "uplearn_url": "https://yoobee.uplearn.education/course/view.php?id=548",
+            }
+        }
+    )
+    apply_seed(db, [with_link])
+    assert db.scalars(select(Module.uplearn_url)).one() == "https://yoobee.uplearn.education/course/view.php?id=548"
+
+    apply_seed(db, [seed([])])
+    assert db.scalars(select(Module.uplearn_url)).one() is None

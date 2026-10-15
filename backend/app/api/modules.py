@@ -23,6 +23,7 @@ def list_modules(db: Session = Depends(get_db)) -> list[ModuleSummary]:
             title=m.title,
             week_count=len(m.weeks),
             task_count=sum(len(w.tasks) for w in m.weeks),
+            uplearn_url=m.uplearn_url,
         )
         for m in modules
     ]

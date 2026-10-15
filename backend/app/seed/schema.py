@@ -38,6 +38,7 @@ class SeedModule(_Strict):
     code: Annotated[str, StringConstraints(min_length=1, max_length=20)]
     title: Title
     order: int
+    uplearn_url: HttpUrl | None = None
 
 
 class SeedAssessment(_Strict):

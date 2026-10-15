@@ -14,6 +14,7 @@ class Module(Base):
     code: Mapped[str] = mapped_column(String(20))
     title: Mapped[str] = mapped_column(String(200))
     position: Mapped[int]
+    uplearn_url: Mapped[str | None] = mapped_column(String(1000))
 
     weeks: Mapped[list["Week"]] = relationship(
         back_populates="module", cascade="all, delete-orphan", passive_deletes=True,

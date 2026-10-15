@@ -7,6 +7,11 @@ def test_repo_seed_files_are_valid():
     assert seeds, "expected at least one seed file"
 
 
+def test_ccc602_has_portal_link():
+    seeds = {s.module.key: s for s in load_seed_dir(DEFAULT_SEED_DIR)}
+    assert str(seeds["ccc602"].module.uplearn_url) == "https://yoobee.uplearn.education/course/view.php?id=548"
+
+
 def test_ccc602_covers_full_time_weeks_9_to_16():
     seeds = {s.module.key: s for s in load_seed_dir(DEFAULT_SEED_DIR)}
     ccc602 = seeds["ccc602"]
