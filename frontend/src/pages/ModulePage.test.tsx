@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-import { jsonResponse, renderAt } from '../test/utils'
+import { describe, expect, it } from 'vitest'
+import { mockApi, renderAt } from '../test/utils'
 import { formatDueDate } from './ModulePage'
 
 const detail = {
@@ -27,7 +27,7 @@ const detail = {
 
 describe('ModulePage', () => {
   it('shows weeks with their tasks and links', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(detail)))
+    mockApi({ '/api/modules': [], '/api/modules/ccc602': detail })
     renderAt('/modules/ccc602')
 
     expect(await screen.findByRole('heading', { name: /Data Engineering in the Public Cloud/ })).toBeInTheDocument()
@@ -50,21 +50,21 @@ describe('ModulePage', () => {
       ...detail,
       weeks: [{ key: 'w1', week_number: 1, title: 'Intro', tasks: [detail.weeks[0].tasks[0]] }],
     }
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(single)))
+    mockApi({ '/api/modules': [], '/api/modules/ccc602': single })
     renderAt('/modules/ccc602')
     const week1 = (await screen.findByText('Week 1: Intro')).closest('details')!
     expect(within(week1).getByText('1 task')).toBeInTheDocument()
   })
 
   it('handles a week with no tasks', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(detail)))
+    mockApi({ '/api/modules': [], '/api/modules/ccc602': detail })
     renderAt('/modules/ccc602')
     const week10 = (await screen.findByText('Week 10: Quiet week')).closest('details')!
     expect(within(week10).getByText('No tasks listed for this week.')).toBeInTheDocument()
   })
 
   it('lists assessments with due dates', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse(detail)))
+    mockApi({ '/api/modules': [], '/api/modules/ccc602': detail })
     renderAt('/modules/ccc602')
     const a3 = (await screen.findByText('Assessment 3')).closest('li')!
     expect(a3).toHaveTextContent(/25 Oct 2026/)
@@ -73,7 +73,7 @@ describe('ModulePage', () => {
   })
 
   it('shows "Module not found" for an unknown key', async () => {
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(jsonResponse({ detail: 'Module not found' }, 404)))
+    mockApi({ '/api/modules': [] })
     renderAt('/modules/nope')
     expect(await screen.findByRole('heading', { name: 'Module not found' })).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Back to modules' })).toHaveAttribute('href', '/')

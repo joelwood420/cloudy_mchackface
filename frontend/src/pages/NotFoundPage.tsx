@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 export function NotFoundPage() {
   return (
-    <main>
+    <main className="page">
       <h1>Page not found</h1>
       <Link to="/">Back to modules</Link>
     </main>
