@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ApiError } from './api'
 import { ModulePage } from './pages/ModulePage'
 import { ModulesPage } from './pages/ModulesPage'
+import { NotFoundPage } from './pages/NotFoundPage'
 
 /** Never retry client errors (4xx); retry everything else once. */
 export function shouldRetry(failureCount: number, error: Error): boolean {
@@ -17,6 +18,7 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<ModulesPage />} />
       <Route path="/modules/:key" element={<ModulePage />} />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   )
 }
