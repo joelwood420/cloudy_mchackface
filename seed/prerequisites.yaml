@@ -1,0 +1,63 @@
+# One-off setup items, defined once and referenced by key from submodules in the module files.
+# uplearn_url points to the how-to post on UPLearn (most include a video walkthrough).
+# Never put training keys, passwords or Teams/Calendly/Zoom links here.
+prerequisites:
+  - key: programme-start
+    title: "Complete the Programme Overview start-up steps"
+    note: "Read 'Start Here' and the 'Things to know' posts in course 00 before week 1."
+    uplearn_url: https://yoobee.uplearn.education/course/view.php?id=704
+  - key: aws-academy-cloud-foundations
+    title: "Accept the AWS Academy Cloud Foundations invite"
+    note: "The invite is sent to your Yoobee email."
+    external_url: https://awsacademy.instructure.com/
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49392
+  - key: aws-academy-cloud-architecting
+    title: "Accept the AWS Academy Cloud Architecting invite"
+    note: "The invite is sent to your Yoobee email."
+    external_url: https://awsacademy.instructure.com/
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49392
+  - key: aws-academy-data-engineering
+    title: "Accept the AWS Academy Data Engineering invite"
+    note: "The invite is sent to your Yoobee email at the start of week 13."
+    external_url: https://awsacademy.instructure.com/
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49392
+  - key: aws-academy-security
+    title: "Accept the AWS Academy Cloud Security invite"
+    note: "The invite is sent to your Yoobee email at the start of week 17."
+    external_url: https://awsacademy.instructure.com/
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49397
+  - key: aws-console-account
+    title: "Create an AWS console account (personal email)"
+    note: "Use a personal email not linked to any other AWS account. A card is needed for verification."
+    external_url: https://aws.amazon.com/resources/create-account/
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49393
+  - key: aws-budget
+    title: "Set an AWS budget limit"
+    note: "Do this before building anything, so unexpected charges alert you."
+    external_url: https://console.aws.amazon.com/
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49394
+  - key: azure-account
+    title: "Create an Azure free account (personal email)"
+    note: "$200 credit for 30 days, then pay-as-you-go. Create it when the Azure content starts, not before."
+    external_url: https://azure.microsoft.com/free
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49395
+  - key: skillable-az900
+    title: "Register for the AZ-900 Skillable class"
+    note: "The training key is in the Teams tutor-only channel."
+    external_url: https://msle.learnondemand.net/User/Dashboard
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49396
+  - key: skillable-az104
+    title: "Register for the AZ-104 Skillable class"
+    note: "The training key is in the Teams tutor-only channel."
+    external_url: https://msle.learnondemand.net/User/Dashboard
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49396
+  - key: skillable-dp900
+    title: "Register for the DP-900 Skillable class"
+    note: "The training key is in the Teams tutor-only channel."
+    external_url: https://msle.learnondemand.net/User/Login?returnUrl=%2FClass%2F692793
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49396
+  - key: forticloud-account
+    title: "Create a FortiCloud account and enrol at the Fortinet Training Institute"
+    note: "Sign up for FortiCloud first, then log in to training.fortinet.com to enrol."
+    external_url: https://support.fortinet.com/cred/#/sign-up
+    uplearn_url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49397

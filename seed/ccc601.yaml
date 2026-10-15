@@ -2,388 +2,412 @@
 # tiles AWS Cloud Practitioner (section 9686), AWS Cloud Architect (9687),
 # Microsoft Azure Fundamentals (9688), Microsoft Azure Administrator (9681),
 # Assessments (9689). Collected 2026-10-16.
+# Structure: module > submodules (certification tracks) > weeks > tasks.
+# Submodule prerequisite keys refer to seed/prerequisites.yaml.
 module:
   key: ccc601
   code: CCC601
-  title: Public Cloud Administration
+  title: "Public Cloud Administration"
   order: 1
   uplearn_url: https://yoobee.uplearn.education/course/view.php?id=552
-weeks:
-  - key: ccc601-w01
-    week_number: 1
-    title: "AWS Cloud Foundations Modules 1–5"
-    tasks:
-      - key: ccc601-w01-setup
-        title: "Complete the Programme Overview start-up steps and AWS Academy access"
-        type: learning_path
-        uplearn_url: https://yoobee.uplearn.education/course/view.php?id=704
-      - key: ccc601-w01-clf-m1
-        title: "Cloud Foundations M1: Cloud concepts overview"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/whitepapers/latest/aws-overview/introduction.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w01-clf-m2
-        title: "Cloud Foundations M2: Cloud economics and billing"
-        type: learning_path
-        external_url: https://aws.amazon.com/economics/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w01-clf-m3
-        title: "Cloud Foundations M3: AWS global infrastructure overview"
-        type: learning_path
-        external_url: https://aws.amazon.com/about-aws/global-infrastructure/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w01-clf-m4
-        title: "Cloud Foundations M4: AWS cloud security"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/security/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w01-clf-m5
-        title: "Cloud Foundations M5: Networking and content delivery"
-        type: learning_path
-        external_url: https://aws.amazon.com/products/networking/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w01-a1-start
-        title: "Start Assessment 1: read the brief"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
-  - key: ccc601-w02
-    week_number: 2
-    title: "AWS Cloud Foundations Modules 6–10"
-    tasks:
-      - key: ccc601-w02-clf-m6
-        title: "Cloud Foundations M6: Compute"
-        type: learning_path
-        external_url: https://aws.amazon.com/products/compute/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w02-clf-m7
-        title: "Cloud Foundations M7: Storage (EBS, S3, EFS)"
-        type: learning_path
-        external_url: https://aws.amazon.com/products/storage/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w02-clf-m8
-        title: "Cloud Foundations M8: Databases"
-        type: learning_path
-        external_url: https://aws.amazon.com/products/databases/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w02-clf-m9
-        title: "Cloud Foundations M9: Cloud architecture"
-        type: learning_path
-        external_url: https://aws.amazon.com/architecture/well-architected/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w02-clf-m10
-        title: "Cloud Foundations M10: Auto Scaling and monitoring"
-        type: learning_path
-        external_url: https://aws.amazon.com/autoscaling/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
-      - key: ccc601-w02-a1-t1
-        title: "Complete Task 1 of Assessment 1 (Cloud-based virtualisation solution evaluation)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
-  - key: ccc601-w03
-    week_number: 3
-    title: "AWS Cloud Architecting Modules 1–9"
-    tasks:
-      - key: ccc601-w03-saa-m1-2
-        title: "Architecting M1–2: Pre-course survey and AWS Academy Cloud Architecting"
-        type: learning_path
-        external_url: https://aws.amazon.com/training/awsacademy/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w03-saa-m3-4
-        title: "Architecting M3–4: Secure access and adding a storage layer with S3"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w03-saa-m5-6
-        title: "Architecting M5–6: Adding compute (EC2) and database layers"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/ec2/index.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w03-saa-m7-8
-        title: "Architecting M7–8: Creating and connecting networks"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/vpc/index.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w03-saa-m9
-        title: "Architecting M9: Securing user, application and data access"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/security/index.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w03-a1-t2
-        title: "Complete Task 2 of Assessment 1 (Virtualisation architecture design)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
-      - key: ccc601-w03-a1-t3
-        title: "Complete Task 3 of Assessment 1 (Virtual machines and storage services)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
-  - key: ccc601-w04
-    week_number: 4
-    title: "AWS Cloud Architecting Modules 10–17"
-    tasks:
-      - key: ccc601-w04-saa-m10
-        title: "Architecting M10: Monitoring, elasticity and high availability"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/cloudwatch/index.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w04-saa-m11-12
-        title: "Architecting M11–12: Automating your architecture and caching content"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/cloudformation/index.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w04-saa-m13-14
-        title: "Architecting M13–14: Decoupled and serverless architectures"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/lambda/index.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w04-saa-m15-16
-        title: "Architecting M15–16: Data engineering patterns and disaster recovery"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/introduction.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w04-saa-m17
-        title: "Architecting M17: Bridging to certification"
-        type: learning_path
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-      - key: ccc601-w04-a1-t4
-        title: "Complete Task 4 of Assessment 1 (Optimisation and security)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
-      - key: ccc601-w04-a1-submit
-        title: "Submit Assessment 1"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
-  - key: ccc601-w05
-    week_number: 5
-    title: "AZ-900 Modules 0–3"
-    tasks:
-      - key: ccc601-w05-skillable-register
-        title: "Register for AZ-900 and AZ-104 Skillable labs"
-        type: lab
-        note: "Skillable lab: the training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w05-azure-account
-        title: "Create an Azure free tier account (personal email)"
-        type: lab
-        external_url: https://azure.microsoft.com/en-us/pricing/purchase-options/azure-account
-      - key: ccc601-w05-az900-m1
-        title: "AZ-900 M1: Describe cloud concepts"
-        type: learning_path
-        external_url: https://learn.microsoft.com/training/paths/microsoft-azure-fundamentals-describe-cloud-concepts/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
-      - key: ccc601-w05-az900-lab01
-        title: "AZ-900 Lab 01: Deploy a static website with Azure Blob Storage"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w05-az900-m2
-        title: "AZ-900 M2: Describe Azure architecture and services"
-        type: learning_path
-        external_url: https://learn.microsoft.com/training/paths/azure-fundamentals-describe-azure-architecture-services/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
-      - key: ccc601-w05-az900-lab02
-        title: "AZ-900 Lab 02: Organize and protect resources with tags and locks"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w05-az900-lab03
-        title: "AZ-900 Lab 03: Build a simple website endpoint with Azure Functions"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w05-az900-lab04
-        title: "AZ-900 Lab 04: Set up new employee access with Entra ID and RBAC"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w05-az900-lab05
-        title: "AZ-900 Lab 05: Share files securely"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w05-az900-m3
-        title: "AZ-900 M3: Describe Azure management and governance"
-        type: learning_path
-        external_url: https://learn.microsoft.com/training/paths/describe-azure-management-governance/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
-      - key: ccc601-w05-az900-lab06
-        title: "AZ-900 Lab 06: Set up cost guardrails in Azure"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w05-az900-lab07
-        title: "AZ-900 Lab 07: Monitor Azure with Service Health and Activity Log alerts"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w05-az900-lab08
-        title: "AZ-900 Lab 08: Manage Azure resources with Cloud Shell and the Azure CLI"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w05-a2-start
-        title: "Start Assessment 2: read the brief"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
-  - key: ccc601-w06
-    week_number: 6
-    title: "AZ-104 Modules 0–4"
-    tasks:
-      - key: ccc601-w06-az104-m0
-        title: "AZ-104 M0: Course introduction"
-        type: learning_path
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w06-az104-m1
-        title: "AZ-104 M1: Administer identity"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-identities-governance/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w06-az104-lab01
-        title: "AZ-104 Lab 01: Manage Microsoft Entra ID identities"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w06-az104-m2
-        title: "AZ-104 M2: Administer governance and compliance"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/training/paths/describe-azure-management-governance
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w06-az104-lab02a
-        title: "AZ-104 Lab 02a: Manage subscriptions and RBAC"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w06-az104-lab02b
-        title: "AZ-104 Lab 02b: Manage governance via Azure Policy"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w06-az104-m3
-        title: "AZ-104 M3: Administer Azure resources"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/training/modules/describe-features-tools-manage-deploy-azure-resources/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w06-az104-lab03b
-        title: "AZ-104 Lab 03b: Manage Azure resources with ARM templates"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w06-az104-m4
-        title: "AZ-104 M4: Administer virtual networking"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-virtual-networks/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w06-az104-lab04
-        title: "AZ-104 Lab 04: Implement virtual networking"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w06-a2-t1
-        title: "Complete Task 1 of Assessment 2 (Cloud infrastructure planning and cost optimisation)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
-  - key: ccc601-w07
-    week_number: 7
-    title: "AZ-104 Modules 5–8"
-    tasks:
-      - key: ccc601-w07-az104-m5
-        title: "AZ-104 M5: Administer intersite connectivity"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/training/modules/configure-vnet-peering/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w07-az104-lab05
-        title: "AZ-104 Lab 05: Implement intersite connectivity"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w07-az104-m6
-        title: "AZ-104 M6: Administer network traffic management"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-overview
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w07-az104-lab06
-        title: "AZ-104 Lab 06: Implement network traffic management"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w07-az104-m7
-        title: "AZ-104 M7: Administer Azure Storage"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-storage/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w07-az104-lab07
-        title: "AZ-104 Lab 07: Manage Azure Storage"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w07-az104-m8
-        title: "AZ-104 M8: Administer virtual machines"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-compute-resources/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w07-az104-lab08
-        title: "AZ-104 Lab 08: Manage virtual machines"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w07-a2-t2
-        title: "Complete Task 2 of Assessment 2 (Active Directory migration to Azure)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
-      - key: ccc601-w07-a2-t3
-        title: "Complete Task 3 of Assessment 2 (High availability with a load balancer)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
-  - key: ccc601-w08
-    week_number: 8
-    title: "AZ-104 Modules 9–11"
-    tasks:
-      - key: ccc601-w08-az104-m9
-        title: "AZ-104 M9: Administer PaaS compute solutions"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/training/modules/configure-azure-app-services/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w08-az104-lab09a
-        title: "AZ-104 Lab 09a: Implement Web Apps"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w08-az104-lab09b
-        title: "AZ-104 Lab 09b: Implement Azure Container Instances"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w08-az104-lab09c
-        title: "AZ-104 Lab 09c: Implement Azure Container Apps"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w08-az104-m10
-        title: "AZ-104 M10: Administer data protection"
-        type: learning_path
-        external_url: https://learn.microsoft.com/en-us/training/paths/az-104-monitor-backup-resources/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w08-az104-lab10
-        title: "AZ-104 Lab 10: Implement data protection"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w08-az104-m11
-        title: "AZ-104 M11: Administer monitoring"
-        type: learning_path
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
-      - key: ccc601-w08-az104-lab11
-        title: "AZ-104 Lab 11: Implement monitoring"
-        type: lab
-        note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
-        external_url: https://msle.learnondemand.net/User/Dashboard
-      - key: ccc601-w08-a2-t4
-        title: "Complete Task 4 of Assessment 2 (File share for multi-user access)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
-      - key: ccc601-w08-a2-submit
-        title: "Submit Assessment 2"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
+submodules:
+  - key: ccc601-clf
+    code: "CLF-C02"
+    title: "AWS Cloud Practitioner (AWS Academy Cloud Foundations)"
+    uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+    prerequisites:
+      - programme-start
+      - aws-academy-cloud-foundations
+      - aws-console-account
+      - aws-budget
+    weeks:
+      - key: ccc601-w01
+        week_number: 1
+        title: "AWS Cloud Foundations Modules 1–5"
+        tasks:
+          - key: ccc601-w01-clf-m1
+            title: "Cloud Foundations M1: Cloud concepts overview"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/whitepapers/latest/aws-overview/introduction.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w01-clf-m2
+            title: "Cloud Foundations M2: Cloud economics and billing"
+            type: learning_path
+            external_url: https://aws.amazon.com/economics/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w01-clf-m3
+            title: "Cloud Foundations M3: AWS global infrastructure overview"
+            type: learning_path
+            external_url: https://aws.amazon.com/about-aws/global-infrastructure/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w01-clf-m4
+            title: "Cloud Foundations M4: AWS cloud security"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/security/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w01-clf-m5
+            title: "Cloud Foundations M5: Networking and content delivery"
+            type: learning_path
+            external_url: https://aws.amazon.com/products/networking/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w01-a1-start
+            title: "Start Assessment 1: read the brief"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
+      - key: ccc601-w02
+        week_number: 2
+        title: "AWS Cloud Foundations Modules 6–10"
+        tasks:
+          - key: ccc601-w02-clf-m6
+            title: "Cloud Foundations M6: Compute"
+            type: learning_path
+            external_url: https://aws.amazon.com/products/compute/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w02-clf-m7
+            title: "Cloud Foundations M7: Storage (EBS, S3, EFS)"
+            type: learning_path
+            external_url: https://aws.amazon.com/products/storage/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w02-clf-m8
+            title: "Cloud Foundations M8: Databases"
+            type: learning_path
+            external_url: https://aws.amazon.com/products/databases/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w02-clf-m9
+            title: "Cloud Foundations M9: Cloud architecture"
+            type: learning_path
+            external_url: https://aws.amazon.com/architecture/well-architected/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w02-clf-m10
+            title: "Cloud Foundations M10: Auto Scaling and monitoring"
+            type: learning_path
+            external_url: https://aws.amazon.com/autoscaling/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w02-a1-t1
+            title: "Complete Task 1 of Assessment 1 (Cloud-based virtualisation solution evaluation)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
+  - key: ccc601-saa
+    code: "SAA-C03"
+    title: "AWS Solutions Architect (AWS Academy Cloud Architecting)"
+    uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+    prerequisites:
+      - aws-academy-cloud-architecting
+      - aws-console-account
+      - aws-budget
+    weeks:
+      - key: ccc601-w03
+        week_number: 3
+        title: "AWS Cloud Architecting Modules 1–9"
+        tasks:
+          - key: ccc601-w03-saa-m1-2
+            title: "Architecting M1–2: Pre-course survey and AWS Academy Cloud Architecting"
+            type: learning_path
+            external_url: https://aws.amazon.com/training/awsacademy/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-m3-4
+            title: "Architecting M3–4: Secure access and adding a storage layer with S3"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-m5-6
+            title: "Architecting M5–6: Adding compute (EC2) and database layers"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/ec2/index.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-m7-8
+            title: "Architecting M7–8: Creating and connecting networks"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/vpc/index.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-m9
+            title: "Architecting M9: Securing user, application and data access"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/security/index.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-a1-t2
+            title: "Complete Task 2 of Assessment 1 (Virtualisation architecture design)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
+          - key: ccc601-w03-a1-t3
+            title: "Complete Task 3 of Assessment 1 (Virtual machines and storage services)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
+      - key: ccc601-w04
+        week_number: 4
+        title: "AWS Cloud Architecting Modules 10–17"
+        tasks:
+          - key: ccc601-w04-saa-m10
+            title: "Architecting M10: Monitoring, elasticity and high availability"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/cloudwatch/index.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-saa-m11-12
+            title: "Architecting M11–12: Automating your architecture and caching content"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/cloudformation/index.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-saa-m13-14
+            title: "Architecting M13–14: Decoupled and serverless architectures"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/lambda/index.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-saa-m15-16
+            title: "Architecting M15–16: Data engineering patterns and disaster recovery"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/introduction.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-saa-m17
+            title: "Architecting M17: Bridging to certification"
+            type: learning_path
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-a1-t4
+            title: "Complete Task 4 of Assessment 1 (Optimisation and security)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
+          - key: ccc601-w04-a1-submit
+            title: "Submit Assessment 1"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
+  - key: ccc601-az900
+    code: "AZ-900"
+    title: "Microsoft Azure Fundamentals"
+    uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
+    prerequisites:
+      - azure-account
+      - skillable-az900
+    weeks:
+      - key: ccc601-w05
+        week_number: 5
+        title: "AZ-900 Modules 0–3"
+        tasks:
+          - key: ccc601-w05-az900-m1
+            title: "AZ-900 M1: Describe cloud concepts"
+            type: learning_path
+            external_url: https://learn.microsoft.com/training/paths/microsoft-azure-fundamentals-describe-cloud-concepts/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
+          - key: ccc601-w05-az900-lab01
+            title: "AZ-900 Lab 01: Deploy a static website with Azure Blob Storage"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w05-az900-m2
+            title: "AZ-900 M2: Describe Azure architecture and services"
+            type: learning_path
+            external_url: https://learn.microsoft.com/training/paths/azure-fundamentals-describe-azure-architecture-services/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
+          - key: ccc601-w05-az900-lab02
+            title: "AZ-900 Lab 02: Organize and protect resources with tags and locks"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w05-az900-lab03
+            title: "AZ-900 Lab 03: Build a simple website endpoint with Azure Functions"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w05-az900-lab04
+            title: "AZ-900 Lab 04: Set up new employee access with Entra ID and RBAC"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w05-az900-lab05
+            title: "AZ-900 Lab 05: Share files securely"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w05-az900-m3
+            title: "AZ-900 M3: Describe Azure management and governance"
+            type: learning_path
+            external_url: https://learn.microsoft.com/training/paths/describe-azure-management-governance/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9688
+          - key: ccc601-w05-az900-lab06
+            title: "AZ-900 Lab 06: Set up cost guardrails in Azure"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w05-az900-lab07
+            title: "AZ-900 Lab 07: Monitor Azure with Service Health and Activity Log alerts"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w05-az900-lab08
+            title: "AZ-900 Lab 08: Manage Azure resources with Cloud Shell and the Azure CLI"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-900 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w05-a2-start
+            title: "Start Assessment 2: read the brief"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
+  - key: ccc601-az104
+    code: "AZ-104"
+    title: "Microsoft Azure Administrator"
+    uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+    prerequisites:
+      - azure-account
+      - skillable-az104
+    weeks:
+      - key: ccc601-w06
+        week_number: 6
+        title: "AZ-104 Modules 0–4"
+        tasks:
+          - key: ccc601-w06-az104-m0
+            title: "AZ-104 M0: Course introduction"
+            type: learning_path
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w06-az104-m1
+            title: "AZ-104 M1: Administer identity"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-identities-governance/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w06-az104-lab01
+            title: "AZ-104 Lab 01: Manage Microsoft Entra ID identities"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w06-az104-m2
+            title: "AZ-104 M2: Administer governance and compliance"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/training/paths/describe-azure-management-governance
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w06-az104-lab02a
+            title: "AZ-104 Lab 02a: Manage subscriptions and RBAC"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w06-az104-lab02b
+            title: "AZ-104 Lab 02b: Manage governance via Azure Policy"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w06-az104-m3
+            title: "AZ-104 M3: Administer Azure resources"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/training/modules/describe-features-tools-manage-deploy-azure-resources/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w06-az104-lab03b
+            title: "AZ-104 Lab 03b: Manage Azure resources with ARM templates"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w06-az104-m4
+            title: "AZ-104 M4: Administer virtual networking"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-virtual-networks/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w06-az104-lab04
+            title: "AZ-104 Lab 04: Implement virtual networking"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w06-a2-t1
+            title: "Complete Task 1 of Assessment 2 (Cloud infrastructure planning and cost optimisation)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
+      - key: ccc601-w07
+        week_number: 7
+        title: "AZ-104 Modules 5–8"
+        tasks:
+          - key: ccc601-w07-az104-m5
+            title: "AZ-104 M5: Administer intersite connectivity"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/training/modules/configure-vnet-peering/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w07-az104-lab05
+            title: "AZ-104 Lab 05: Implement intersite connectivity"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w07-az104-m6
+            title: "AZ-104 M6: Administer network traffic management"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-overview
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w07-az104-lab06
+            title: "AZ-104 Lab 06: Implement network traffic management"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w07-az104-m7
+            title: "AZ-104 M7: Administer Azure Storage"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-storage/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w07-az104-lab07
+            title: "AZ-104 Lab 07: Manage Azure Storage"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w07-az104-m8
+            title: "AZ-104 M8: Administer virtual machines"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/training/paths/az-104-manage-compute-resources/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w07-az104-lab08
+            title: "AZ-104 Lab 08: Manage virtual machines"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w07-a2-t2
+            title: "Complete Task 2 of Assessment 2 (Active Directory migration to Azure)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
+          - key: ccc601-w07-a2-t3
+            title: "Complete Task 3 of Assessment 2 (High availability with a load balancer)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
+      - key: ccc601-w08
+        week_number: 8
+        title: "AZ-104 Modules 9–11"
+        tasks:
+          - key: ccc601-w08-az104-m9
+            title: "AZ-104 M9: Administer PaaS compute solutions"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/training/modules/configure-azure-app-services/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w08-az104-lab09a
+            title: "AZ-104 Lab 09a: Implement Web Apps"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w08-az104-lab09b
+            title: "AZ-104 Lab 09b: Implement Azure Container Instances"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w08-az104-lab09c
+            title: "AZ-104 Lab 09c: Implement Azure Container Apps"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w08-az104-m10
+            title: "AZ-104 M10: Administer data protection"
+            type: learning_path
+            external_url: https://learn.microsoft.com/en-us/training/paths/az-104-monitor-backup-resources/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w08-az104-lab10
+            title: "AZ-104 Lab 10: Implement data protection"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w08-az104-m11
+            title: "AZ-104 M11: Administer monitoring"
+            type: learning_path
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9681
+          - key: ccc601-w08-az104-lab11
+            title: "AZ-104 Lab 11: Implement monitoring"
+            type: lab
+            note: "Skillable lab in the CCC601 AZ-104 class. The training key is in the Teams tutor-only channel."
+            external_url: https://msle.learnondemand.net/User/Dashboard
+          - key: ccc601-w08-a2-t4
+            title: "Complete Task 4 of Assessment 2 (File share for multi-user access)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
+          - key: ccc601-w08-a2-submit
+            title: "Submit Assessment 2"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
 assessments:
   - key: ccc601-a1
     title: "Assessment 1: AWS Theoretical and Practical Scenario Evaluation"

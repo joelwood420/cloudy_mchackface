@@ -1,248 +1,262 @@
 # Source: UPLearn course 03 (id=553), FT schedule forum (mod/forum id=74594),
 # tiles SCS_C02 (section 9699), NSE 1/2 (9700), NSE 3 (9701), NSE 7 (9702),
 # Assessments (9691). Collected 2026-10-16.
+# Structure: module > submodules (certification tracks) > weeks > tasks.
+# Submodule prerequisite keys refer to seed/prerequisites.yaml.
 module:
   key: ccc603
   code: CCC603
-  title: Cyber Security in the Cloud
+  title: "Cyber Security in the Cloud"
   order: 3
   uplearn_url: https://yoobee.uplearn.education/course/view.php?id=553
-weeks:
-  - key: ccc603-w17
-    week_number: 17
-    title: "AWS Security (SCS-C02) Modules 1–4"
-    tasks:
-      - key: ccc603-w17-fortinet-account
-        title: "Create a FortiCloud account and enrol at the Fortinet Training Institute"
-        type: lab
-        external_url: https://training.fortinet.com/
-      - key: ccc603-w17-scs-m1
-        title: "AWS Security M1: Course welcome"
-        type: learning_path
-        external_url: https://aws.amazon.com/certification/certified-security-specialty/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w17-scs-m2
-        title: "AWS Security M2: Introduction to security on AWS"
-        type: learning_path
-        external_url: https://aws.amazon.com/compliance/shared-responsibility-model/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w17-scs-m3
-        title: "AWS Security M3: Securing access to cloud resources"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w17-lab-s3-policy
-        title: "Lab: Using resource-based policies to secure an S3 bucket"
-        type: lab
-        note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-        external_url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w17-scs-m4
-        title: "AWS Security M4: Securing your infrastructure"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w17-lab-security-groups
-        title: "Lab 4.1: Securing VPC resources by using security groups"
-        type: lab
-        note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-        external_url: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w17-a5-start
-        title: "Start Assessment 5: read the brief"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
-  - key: ccc603-w18
-    week_number: 18
-    title: "AWS Security (SCS-C02) Modules 5–8"
-    tasks:
-      - key: ccc603-w18-scs-m5
-        title: "AWS Security M5: Protecting data in your application"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/kms/latest/developerguide/overview.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w18-lab-kms
-        title: "Lab: Encrypting data at rest by using AWS KMS"
-        type: lab
-        note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w18-scs-m6
-        title: "AWS Security M6: Logging and monitoring"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/whitepapers/latest/logging-monitoring-aws/logging-monitoring-aws.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w18-scs-m7
-        title: "AWS Security M7: Responding to and managing an incident"
-        type: learning_path
-        external_url: https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/aws-security-incident-response-guide.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w18-lab-config-lambda
-        title: "Lab: Remediating an incident by using AWS Config and Lambda"
-        type: lab
-        note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-        external_url: https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w18-scs-m8
-        title: "AWS Security M8: Bridging to certification"
-        type: learning_path
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
-      - key: ccc603-w18-a5-t1
-        title: "Complete Task 1 of Assessment 5 (Secure VPC setup and architecture design)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
-      - key: ccc603-w18-a5-t2
-        title: "Complete Task 2 of Assessment 5 (VPN tunnel configuration)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
-  - key: ccc603-w19
-    week_number: 19
-    title: "Fortinet Certified Fundamentals (NSE 1–2)"
-    tasks:
-      - key: ccc603-w19-fcf-m1
-        title: "FCF M1: Introduction to the threat landscape"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9700
-      - key: ccc603-w19-fcf-m2
-        title: "FCF M2: Getting started in cyber security"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9700
-      - key: ccc603-w19-fcf-m3
-        title: "FCF M3: Technical introduction to cyber security"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9700
-      - key: ccc603-w19-a5-t3
-        title: "Complete Task 3 of Assessment 5 (Secure connectivity testing)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
-  - key: ccc603-w20
-    week_number: 20
-    title: "Assessment 5"
-    tasks:
-      - key: ccc603-w20-a5-t4
-        title: "Complete Task 4 of Assessment 5 (Risk mitigation, best practices and report)"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
-      - key: ccc603-w20-a5-submit
-        title: "Submit Assessment 5"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
-  - key: ccc603-w21
-    week_number: 21
-    title: "FortiGate Operator (NSE 3) Modules 1–6"
-    tasks:
-      - key: ccc603-w21-fca-m1
-        title: "FortiGate M1: FortiGate overview"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w21-fca-m2
-        title: "FortiGate M2: Configuring interfaces and routing"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w21-fca-m3
-        title: "FortiGate M3: Firewall policies"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w21-fca-m4
-        title: "FortiGate M4: Authenticating network users"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w21-fca-m5
-        title: "FortiGate M5: Inspecting SSL traffic"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w21-fca-m6
-        title: "FortiGate M6: Blocking malware"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w21-a6-start
-        title: "Start Assessment 6: read the brief"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
-  - key: ccc603-w22
-    week_number: 22
-    title: "FortiGate Operator (NSE 3) Modules 7–13"
-    tasks:
-      - key: ccc603-w22-fca-m7
-        title: "FortiGate M7: Controlling web access using web filtering"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w22-fca-m8
-        title: "FortiGate M8: Configuring the FortiGate intrusion prevention system"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w22-fca-m9
-        title: "FortiGate M9: Controlling application access"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w22-fca-m10
-        title: "FortiGate M10: Creating IPsec VPNs"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w22-fca-m11
-        title: "FortiGate M11: Configuring FortiGate SSL VPN"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w22-fca-m12
-        title: "FortiGate M12: System maintenance and monitoring"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w22-fca-m13
-        title: "FortiGate M13: Configuring the Fortinet Security Fabric"
-        type: learning_path
-        external_url: https://training.fortinet.com/
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
-      - key: ccc603-w22-a6-t1
-        title: "Complete Task 1 of Assessment 6"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
-      - key: ccc603-w22-a6-t2
-        title: "Complete Task 2 of Assessment 6"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
-  - key: ccc603-w23
-    week_number: 23
-    title: "NSE 7 Public Cloud Security Architect"
-    tasks:
-      - key: ccc603-w23-nse7
-        title: "NSE 7: Public Cloud Security Architect learning library"
-        type: learning_path
-        external_url: https://training.fortinet.com/local/staticpage/view.php?page=library_public-cloud-security-architect
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9702
-      - key: ccc603-w23-nse7-labs
-        title: "NSE 7 lab demos"
-        type: lab
-        uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9702
-      - key: ccc603-w23-a6-t3
-        title: "Complete Task 3 of Assessment 6"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
-  - key: ccc603-w24
-    week_number: 24
-    title: "Assessment 6"
-    tasks:
-      - key: ccc603-w24-a6-t4
-        title: "Complete Task 4 of Assessment 6"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
-      - key: ccc603-w24-a6-submit
-        title: "Submit Assessment 6"
-        type: assessment_step
-        uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
+submodules:
+  - key: ccc603-scs
+    code: "SCS-C02"
+    title: "AWS Certified Security Specialty"
+    uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+    prerequisites:
+      - aws-academy-security
+      - aws-console-account
+      - aws-budget
+    weeks:
+      - key: ccc603-w17
+        week_number: 17
+        title: "AWS Security (SCS-C02) Modules 1–4"
+        tasks:
+          - key: ccc603-w17-scs-m1
+            title: "AWS Security M1: Course welcome"
+            type: learning_path
+            external_url: https://aws.amazon.com/certification/certified-security-specialty/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w17-scs-m2
+            title: "AWS Security M2: Introduction to security on AWS"
+            type: learning_path
+            external_url: https://aws.amazon.com/compliance/shared-responsibility-model/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w17-scs-m3
+            title: "AWS Security M3: Securing access to cloud resources"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w17-lab-s3-policy
+            title: "Lab: Using resource-based policies to secure an S3 bucket"
+            type: lab
+            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
+            external_url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w17-scs-m4
+            title: "AWS Security M4: Securing your infrastructure"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w17-lab-security-groups
+            title: "Lab 4.1: Securing VPC resources by using security groups"
+            type: lab
+            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
+            external_url: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w17-a5-start
+            title: "Start Assessment 5: read the brief"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
+      - key: ccc603-w18
+        week_number: 18
+        title: "AWS Security (SCS-C02) Modules 5–8"
+        tasks:
+          - key: ccc603-w18-scs-m5
+            title: "AWS Security M5: Protecting data in your application"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/kms/latest/developerguide/overview.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w18-lab-kms
+            title: "Lab: Encrypting data at rest by using AWS KMS"
+            type: lab
+            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w18-scs-m6
+            title: "AWS Security M6: Logging and monitoring"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/whitepapers/latest/logging-monitoring-aws/logging-monitoring-aws.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w18-scs-m7
+            title: "AWS Security M7: Responding to and managing an incident"
+            type: learning_path
+            external_url: https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/aws-security-incident-response-guide.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w18-lab-config-lambda
+            title: "Lab: Remediating an incident by using AWS Config and Lambda"
+            type: lab
+            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
+            external_url: https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w18-scs-m8
+            title: "AWS Security M8: Bridging to certification"
+            type: learning_path
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w18-a5-t1
+            title: "Complete Task 1 of Assessment 5 (Secure VPC setup and architecture design)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
+          - key: ccc603-w18-a5-t2
+            title: "Complete Task 2 of Assessment 5 (VPN tunnel configuration)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
+  - key: ccc603-fortinet
+    code: "Fortinet"
+    title: "Fortinet FCF, FortiGate Operator and NSE 7 Public Cloud Security"
+    uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9700
+    prerequisites:
+      - forticloud-account
+    weeks:
+      - key: ccc603-w19
+        week_number: 19
+        title: "Fortinet Certified Fundamentals (NSE 1–2)"
+        tasks:
+          - key: ccc603-w19-fcf-m1
+            title: "FCF M1: Introduction to the threat landscape"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9700
+          - key: ccc603-w19-fcf-m2
+            title: "FCF M2: Getting started in cyber security"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9700
+          - key: ccc603-w19-fcf-m3
+            title: "FCF M3: Technical introduction to cyber security"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9700
+          - key: ccc603-w19-a5-t3
+            title: "Complete Task 3 of Assessment 5 (Secure connectivity testing)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
+      - key: ccc603-w20
+        week_number: 20
+        title: "Assessment 5"
+        tasks:
+          - key: ccc603-w20-a5-t4
+            title: "Complete Task 4 of Assessment 5 (Risk mitigation, best practices and report)"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
+          - key: ccc603-w20-a5-submit
+            title: "Submit Assessment 5"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
+      - key: ccc603-w21
+        week_number: 21
+        title: "FortiGate Operator (NSE 3) Modules 1–6"
+        tasks:
+          - key: ccc603-w21-fca-m1
+            title: "FortiGate M1: FortiGate overview"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w21-fca-m2
+            title: "FortiGate M2: Configuring interfaces and routing"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w21-fca-m3
+            title: "FortiGate M3: Firewall policies"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w21-fca-m4
+            title: "FortiGate M4: Authenticating network users"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w21-fca-m5
+            title: "FortiGate M5: Inspecting SSL traffic"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w21-fca-m6
+            title: "FortiGate M6: Blocking malware"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w21-a6-start
+            title: "Start Assessment 6: read the brief"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
+      - key: ccc603-w22
+        week_number: 22
+        title: "FortiGate Operator (NSE 3) Modules 7–13"
+        tasks:
+          - key: ccc603-w22-fca-m7
+            title: "FortiGate M7: Controlling web access using web filtering"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w22-fca-m8
+            title: "FortiGate M8: Configuring the FortiGate intrusion prevention system"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w22-fca-m9
+            title: "FortiGate M9: Controlling application access"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w22-fca-m10
+            title: "FortiGate M10: Creating IPsec VPNs"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w22-fca-m11
+            title: "FortiGate M11: Configuring FortiGate SSL VPN"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w22-fca-m12
+            title: "FortiGate M12: System maintenance and monitoring"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w22-fca-m13
+            title: "FortiGate M13: Configuring the Fortinet Security Fabric"
+            type: learning_path
+            external_url: https://training.fortinet.com/
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9701
+          - key: ccc603-w22-a6-t1
+            title: "Complete Task 1 of Assessment 6"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
+          - key: ccc603-w22-a6-t2
+            title: "Complete Task 2 of Assessment 6"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
+      - key: ccc603-w23
+        week_number: 23
+        title: "NSE 7 Public Cloud Security Architect"
+        tasks:
+          - key: ccc603-w23-nse7
+            title: "NSE 7: Public Cloud Security Architect learning library"
+            type: learning_path
+            external_url: https://training.fortinet.com/local/staticpage/view.php?page=library_public-cloud-security-architect
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9702
+          - key: ccc603-w23-nse7-labs
+            title: "NSE 7 lab demos"
+            type: lab
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9702
+          - key: ccc603-w23-a6-t3
+            title: "Complete Task 3 of Assessment 6"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
+      - key: ccc603-w24
+        week_number: 24
+        title: "Assessment 6"
+        tasks:
+          - key: ccc603-w24-a6-t4
+            title: "Complete Task 4 of Assessment 6"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
+          - key: ccc603-w24-a6-submit
+            title: "Submit Assessment 6"
+            type: assessment_step
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
 assessments:
   - key: ccc603-a5
     title: "Assessment 5: Practical Demonstration (AWS Certified Security SCS-C02)"
