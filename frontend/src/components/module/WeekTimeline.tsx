@@ -14,10 +14,21 @@ export function TaskRow({ task }: { task: Task }) {
   const id = `task-${task.key}`
   return (
     <li className="task-row">
-      <input type="checkbox" id={id} disabled title="Ticking arrives with sign-in" />
-      <label htmlFor={id} className="task-title">
-        {task.title}
-      </label>
+      <input type="checkbox" id={id} disabled title="Ticking arrives with sign-in" aria-describedby={task.note ? `${id}-note` : undefined} />
+      <span className="task-main">
+        <label htmlFor={id} className="task-title">
+          {task.title}
+        </label>
+        {task.note && (
+          <span id={`${id}-note`} className="task-note">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 11v5M12 8h.01" />
+            </svg>
+            {task.note}
+          </span>
+        )}
+      </span>
       <span className="tag">{TYPE_LABELS[task.type]}</span>
       <span className="task-links">
         {task.external_url && <ExternalLink href={task.external_url}>Open</ExternalLink>}

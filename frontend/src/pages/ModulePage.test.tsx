@@ -17,8 +17,15 @@ const detail = {
       week_number: 9,
       title: 'DP-900 Learning Paths 1–4',
       tasks: [
-        { key: 't1', title: 'DP-900 LP1', type: 'learning_path', external_url: 'https://learn.test/lp1', uplearn_url: null },
-        { key: 't2', title: 'Read the A3 brief', type: 'assessment_step', external_url: null, uplearn_url: 'https://up.test/a3' },
+        {
+          key: 't1',
+          title: 'DP-900 LP1',
+          type: 'learning_path',
+          external_url: 'https://learn.test/lp1',
+          uplearn_url: null,
+          note: 'Skillable lab: the training key is in the Teams tutor-only channel.',
+        },
+        { key: 't2', title: 'Read the A3 brief', type: 'assessment_step', external_url: null, uplearn_url: 'https://up.test/a3', note: null },
       ],
     },
     { key: 'ccc602-w10', week_number: 10, title: 'Quiet week', tasks: [] },
@@ -90,6 +97,20 @@ describe('ModulePage', () => {
     expect(within(brief).getByText('Assessment')).toBeInTheDocument()
     expect(within(brief).queryByRole('link', { name: 'Open' })).toBeNull()
     expect(within(brief).getByRole('link', { name: 'UPLearn' })).toHaveAttribute('href', 'https://up.test/a3')
+  })
+
+  it('shows a task note as a hint under the title', async () => {
+    const main = await open()
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+
+    const lp1 = within(main).getByText('DP-900 LP1').closest('li')!
+    expect(within(lp1).getByText('Skillable lab: the training key is in the Teams tutor-only channel.')).toBeInTheDocument()
+    const box = within(lp1).getByRole('checkbox', { name: 'DP-900 LP1' })
+    expect(box).toHaveAccessibleDescription('Skillable lab: the training key is in the Teams tutor-only channel.')
+
+    const brief = within(main).getByText('Read the A3 brief').closest('li')!
+    expect(brief.querySelector('.task-note')).toBeNull()
+    expect(within(brief).getByRole('checkbox', { name: 'Read the A3 brief' })).not.toHaveAttribute('aria-describedby')
   })
 
   it('shows the assessments rail and the portal button', async () => {

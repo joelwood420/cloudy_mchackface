@@ -15,6 +15,7 @@ export interface Task {
   type: TaskType
   external_url: string | null
   uplearn_url: string | null
+  note: string | null
 }
 
 export interface Week {
