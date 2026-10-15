@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { countdownLabel, countdownTone, daysUntil, formatDueDate, plural, weekSummary } from './format'
+import { countdownLabel, countdownTone, daysUntil, formatDueDate, plural, weekRange, weekSummary } from './format'
 
 describe('format', () => {
   it('formats due dates without shifting the day', () => {
@@ -40,5 +40,12 @@ describe('format', () => {
     expect(countdownTone(7)).toBe('is-soon')
     expect(countdownTone(0)).toBe('is-soon')
     expect(countdownTone(-1)).toBe('is-overdue')
+  })
+})
+
+describe('weekRange', () => {
+  it('names one week or a range', () => {
+    expect(weekRange(9, 9)).toBe('Week 9')
+    expect(weekRange(10, 12)).toBe('Weeks 10–12')
   })
 })

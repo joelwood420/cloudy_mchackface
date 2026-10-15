@@ -4,6 +4,7 @@ export interface ModuleSummary {
   key: string
   code: string
   title: string
+  submodule_count: number
   week_count: number
   task_count: number
   uplearn_url: string | null
@@ -20,9 +21,28 @@ export interface Task {
 
 export interface Week {
   key: string
+  submodule_key: string
   week_number: number
   title: string
   tasks: Task[]
+}
+
+export interface Prerequisite {
+  key: string
+  title: string
+  note: string | null
+  external_url: string | null
+  uplearn_url: string | null
+}
+
+export interface Submodule {
+  key: string
+  code: string
+  title: string
+  uplearn_url: string | null
+  first_week: number | null
+  last_week: number | null
+  prerequisites: Prerequisite[]
 }
 
 export interface Assessment {
@@ -37,6 +57,7 @@ export interface ModuleDetail {
   code: string
   title: string
   uplearn_url: string | null
+  submodules: Submodule[]
   weeks: Week[]
   assessments: Assessment[]
 }

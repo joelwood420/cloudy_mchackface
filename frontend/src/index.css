@@ -123,7 +123,7 @@ button.button-secondary { cursor: pointer; }
 .timeline-dot { position: relative; margin-top: 22px; width: 32px; height: 32px; border-radius: 50%; background: var(--bg); border: 2px solid var(--dot-border); color: var(--muted); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 12px; font-weight: 500; }
 .week-card { flex: 1 1 auto; min-width: 0; margin: 8px 0; }
 .week-card.is-open { border-color: var(--accent); box-shadow: var(--shadow-open); }
-.week-heading { font: inherit; }
+.week-heading { font: inherit; margin: 0; }
 .week-toggle { width: 100%; min-height: 60px; padding: 14px 18px; background: transparent; border: 0; border-radius: 12px; cursor: pointer; color: inherit; text-align: left; display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
 .week-label { flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .week-title { font-weight: 600; font-size: 16px; line-height: 1.35; }
@@ -149,3 +149,16 @@ button.button-secondary { cursor: pointer; }
 .countdown { font-family: var(--font-display); font-weight: 600; font-size: 18px; }
 .countdown.is-soon { color: var(--soon); }
 .countdown.is-overdue { color: var(--overdue); }
+
+/* Submodules and prerequisites */
+.submodule { display: flex; flex-direction: column; gap: 12px; }
+.submodule + .submodule { margin-top: 20px; }
+.submodule-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.submodule-head h3 { font-size: 17px; font-weight: 600; }
+.submodule-head a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 500; }
+.prereq-box { padding: 14px 18px; border-radius: 12px; background: var(--accent-tint); border: 1px solid var(--accent-line); }
+.prereq-box h4 { margin: 0 0 4px; font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-strong); }
+.prereq-list { list-style: none; margin: 0; padding: 0; }
+.prereq-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 6px 0; }
+.prereq-item + .prereq-item { border-top: 1px solid var(--accent-line); }
+.prereq-title { font-weight: 500; }

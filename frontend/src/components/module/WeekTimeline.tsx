@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import type { Task, TaskType, Week } from '../../api'
-import { plural } from '../../format'
+import type { Submodule, Task, TaskType, Week } from '../../api'
+import { plural, weekRange } from '../../format'
 import { ExternalLink } from '../ExternalLink'
 import { ProgressBar } from '../ProgressBar'
+import { PrerequisiteBox } from './PrerequisiteBox'
 
 const TYPE_LABELS: Record<TaskType, string> = {
   learning_path: 'Learning path',
@@ -57,7 +58,7 @@ export function WeekCard({
         <span className="timeline-dot">{week.week_number}</span>
       </div>
       <div className={`card week-card${open ? ' is-open' : ''}`}>
-        <h3 className="week-heading">
+        <h4 className="week-heading">
           <button type="button" className="week-toggle" aria-expanded={open} aria-controls={panelId} onClick={onToggle}>
             <span className="week-label">
               <span className="mono small muted">Week {week.week_number}</span>
@@ -71,7 +72,7 @@ export function WeekCard({
               <path d="M6 9l6 6 6-6" />
             </svg>
           </button>
-        </h3>
+        </h4>
         {open && (
           <div id={panelId} className="week-panel">
             {week.tasks.length === 0 ? (
@@ -90,28 +91,72 @@ export function WeekCard({
   )
 }
 
-export function WeekTimeline({ weeks }: { weeks: Week[] }) {
+interface WeekGroup {
+  submodule: Submodule | null
+  weeks: Week[]
+}
+
+/** Weeks grouped by submodule, in submodule order. Weeks with an unknown submodule go in a last, unnamed group. */
+function groupWeeks(weeks: Week[], submodules: Submodule[]): WeekGroup[] {
+  const known = new Set(submodules.map((s) => s.key))
+  const groups: WeekGroup[] = submodules.map((s) => ({ submodule: s, weeks: weeks.filter((w) => w.submodule_key === s.key) }))
+  const orphans = weeks.filter((w) => !known.has(w.submodule_key))
+  if (orphans.length > 0) groups.push({ submodule: null, weeks: orphans })
+  return groups
+}
+
+function SubmoduleHead({ submodule }: { submodule: Submodule }) {
+  const { first_week: first, last_week: last } = submodule
+  return (
+    <header className="submodule-head">
+      <h3 id={`submodule-${submodule.key}`}>
+        <span className="mono">{submodule.code}</span> · {submodule.title}
+      </h3>
+      {first !== null && last !== null && <span className="small muted">{weekRange(first, last)}</span>}
+      {submodule.uplearn_url && (
+        <ExternalLink href={submodule.uplearn_url} label={`${submodule.code} on UPLearn`}>
+          UPLearn
+        </ExternalLink>
+      )}
+    </header>
+  )
+}
+
+export function WeekTimeline({ weeks, submodules }: { weeks: Week[]; submodules: Submodule[] }) {
   const [openKey, setOpenKey] = useState<string | null>(null)
+  const toggle = (key: string) => setOpenKey(openKey === key ? null : key)
   return (
     <section className="timeline" aria-labelledby="timeline-heading">
       <div className="section-head">
         <h2 id="timeline-heading">Weekly timeline</h2>
         <span className="small muted">Select a week to see its tasks</span>
       </div>
-      {weeks.length === 0 ? (
+      {weeks.length === 0 && submodules.length === 0 ? (
         <p className="muted">No weeks listed yet.</p>
       ) : (
-        <ol className="timeline-list">
-          {weeks.map((week, i) => (
-            <WeekCard
-              key={week.key}
-              week={week}
-              open={openKey === week.key}
-              isLast={i === weeks.length - 1}
-              onToggle={() => setOpenKey(openKey === week.key ? null : week.key)}
-            />
-          ))}
-        </ol>
+        groupWeeks(weeks, submodules).map((group) => (
+          <section
+            key={group.submodule?.key ?? 'other'}
+            className="submodule"
+            aria-labelledby={group.submodule ? `submodule-${group.submodule.key}` : undefined}
+          >
+            {group.submodule && <SubmoduleHead submodule={group.submodule} />}
+            {group.submodule && <PrerequisiteBox submodule={group.submodule} />}
+            {group.weeks.length > 0 && (
+              <ol className="timeline-list">
+                {group.weeks.map((week, i) => (
+                  <WeekCard
+                    key={week.key}
+                    week={week}
+                    open={openKey === week.key}
+                    isLast={i === group.weeks.length - 1}
+                    onToggle={() => toggle(week.key)}
+                  />
+                ))}
+              </ol>
+            )}
+          </section>
+        ))
       )}
     </section>
   )

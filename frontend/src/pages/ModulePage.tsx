@@ -41,7 +41,7 @@ export function ModulePage() {
       <ModuleHeader code={mod.code} title={mod.title} weeks={mod.weeks} />
       <ProgressCard taskCount={taskCount} weekCount={mod.weeks.length} />
       <div className="module-columns">
-        <WeekTimeline key={mod.key} weeks={mod.weeks} />
+        <WeekTimeline key={mod.key} weeks={mod.weeks} submodules={mod.submodules} />
         <AssessmentsRail code={mod.code} assessments={mod.assessments} portalUrl={mod.uplearn_url} />
       </div>
     </main>

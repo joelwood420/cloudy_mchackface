@@ -6,6 +6,14 @@ import { jsonResponse, mockApi, renderAt } from '../test/utils'
 const summary = [
   { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 2, task_count: 2, uplearn_url: 'https://up.test/602' },
 ]
+const azure = {
+  key: 'azure-account',
+  title: 'Create an Azure account',
+  note: 'Use a personal email.',
+  external_url: 'https://azure.test/free',
+  uplearn_url: 'https://up.test/how-azure',
+}
+
 const detail = {
   key: 'ccc602',
   code: 'CCC602',
@@ -14,6 +22,7 @@ const detail = {
   weeks: [
     {
       key: 'ccc602-w09',
+      submodule_key: 'dp900',
       week_number: 9,
       title: 'DP-900 Learning Paths 1–4',
       tasks: [
@@ -28,7 +37,22 @@ const detail = {
         { key: 't2', title: 'Read the A3 brief', type: 'assessment_step', external_url: null, uplearn_url: 'https://up.test/a3', note: null },
       ],
     },
-    { key: 'ccc602-w10', week_number: 10, title: 'Quiet week', tasks: [] },
+    { key: 'ccc602-w10', submodule_key: 'dp203', week_number: 10, title: 'Quiet week', tasks: [] },
+  ],
+  submodules: [
+    {
+      key: 'dp900',
+      code: 'DP-900',
+      title: 'Azure Data Fundamentals',
+      uplearn_url: 'https://up.test/dp900',
+      first_week: 9,
+      last_week: 9,
+      prerequisites: [
+        azure,
+        { key: 'skillable-dp900', title: 'Register for the DP-900 Skillable class', note: null, external_url: null, uplearn_url: 'https://up.test/how-skillable' },
+      ],
+    },
+    { key: 'dp203', code: 'DP-203', title: 'Azure Data Engineer', uplearn_url: null, first_week: 10, last_week: 10, prerequisites: [azure] },
   ],
   assessments: [
     { key: 'a3', title: 'Assessment 3', due_date: '2026-10-25', uplearn_url: 'https://up.test/a3' },
@@ -138,5 +162,54 @@ describe('ModulePage', () => {
     renderAt('/modules/ccc602')
     expect(await screen.findByRole('alert')).toHaveTextContent('Boom')
     expect(screen.getByRole('button', { name: 'Try again' })).toBeInTheDocument()
+  })
+
+  it('groups weeks under submodule headings with their week range', async () => {
+    const main = await open()
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+    expect(dp900.querySelector('.submodule-head')).toHaveTextContent('Week 9')
+    expect(within(dp900).getByRole('button', { name: /Week 9/ })).toBeInTheDocument()
+    expect(within(dp900).queryByRole('button', { name: /Week 10/ })).toBeNull()
+    expect(within(dp900).getByRole('link', { name: 'DP-900 on UPLearn' })).toHaveAttribute('href', 'https://up.test/dp900')
+
+    const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
+    expect(within(dp203).getByRole('button', { name: /Week 10/ })).toBeInTheDocument()
+    expect(within(dp203).queryByRole('link', { name: /on UPLearn/ })).toBeNull()
+  })
+
+  it('shows a Before you start box with links for each prerequisite', async () => {
+    const main = await open()
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+    expect(within(dp900).getByRole('heading', { name: 'Before you start' })).toBeInTheDocument()
+
+    const azureItem = within(dp900).getByText('Create an Azure account').closest('li')!
+    expect(within(azureItem).getByText('Use a personal email.')).toBeInTheDocument()
+    const doIt = within(azureItem).getByRole('link', { name: 'Do it: Create an Azure account' })
+    expect(doIt).toHaveAttribute('href', 'https://azure.test/free')
+    expect(doIt).toHaveAttribute('rel', 'noopener noreferrer')
+    expect(within(azureItem).getByRole('link', { name: 'Watch the guide: Create an Azure account' })).toHaveAttribute(
+      'href',
+      'https://up.test/how-azure',
+    )
+
+    const skillable = within(dp900).getByText('Register for the DP-900 Skillable class').closest('li')!
+    expect(within(skillable).queryByRole('link', { name: /^Do it/ })).toBeNull()
+    expect(within(skillable).getByRole('link', { name: /^Watch the guide/ })).toBeInTheDocument()
+  })
+
+  it('shows a shared prerequisite under every submodule that uses it', async () => {
+    const main = await open()
+    expect(within(main).getAllByText('Create an Azure account')).toHaveLength(2)
+  })
+
+  it('leaves out the box when a submodule has no prerequisites', async () => {
+    const main = await open({ ...detail, submodules: [detail.submodules[0], { ...detail.submodules[1], prerequisites: [] }] })
+    const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
+    expect(within(dp203).queryByRole('heading', { name: 'Before you start' })).toBeNull()
+  })
+
+  it('still shows weeks whose submodule is missing from the list', async () => {
+    const main = await open({ ...detail, submodules: [detail.submodules[0]] })
+    expect(within(main).getByRole('button', { name: /Week 10/ })).toBeInTheDocument()
   })
 })

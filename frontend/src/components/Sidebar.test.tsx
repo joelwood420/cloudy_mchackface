@@ -6,7 +6,7 @@ const modules = [
   { key: 'ccc601', code: 'CCC601', title: 'Public Cloud Administration', week_count: 0, task_count: 0, uplearn_url: null },
   { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 8, task_count: 40, uplearn_url: 'https://up.test/602' },
 ]
-const detail = { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', uplearn_url: null, weeks: [], assessments: [] }
+const detail = { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', uplearn_url: null, submodules: [], weeks: [], assessments: [] }
 
 const nav = () => screen.getByRole('navigation', { name: 'Main' })
 

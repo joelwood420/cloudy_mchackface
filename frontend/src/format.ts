@@ -13,11 +13,13 @@ export function plural(n: number, word: string): string {
   return `${n} ${n === 1 ? word : `${word}s`}`
 }
 
+export function weekRange(first: number, last: number): string {
+  return first === last ? `Week ${first}` : `Weeks ${first}–${last}`
+}
+
 export function weekSummary(weekNumbers: number[], taskCount: number): string {
   if (weekNumbers.length === 0) return 'No weeks yet'
-  const first = Math.min(...weekNumbers)
-  const last = Math.max(...weekNumbers)
-  const range = first === last ? `Week ${first}` : `Weeks ${first}–${last}`
+  const range = weekRange(Math.min(...weekNumbers), Math.max(...weekNumbers))
   return `${range} · ${plural(weekNumbers.length, 'week')} · ${plural(taskCount, 'task')}`
 }
 
