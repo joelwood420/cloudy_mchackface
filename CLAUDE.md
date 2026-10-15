@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A study tracker for the Yoobee Colleges **Diploma in Cloud Computing and Cyber Security (Level 6)**. The Yoobee UPLearn portal (https://yoobee.uplearn.education/, a Moodle site) is hard to navigate, so this app shows week by week what to work on, upcoming assessments, and progress bars per course and for the whole programme. It's built for the owner first, with the aim of opening it to other students later.
 
-Status: Phase 1 done + UI redesign — CCC602 browsable locally in the new layout; no accounts or ticking yet.
+Status: Phase 1 done + UI redesign + submodules — CCC601–603 browsable locally, grouped by certification track with shared prerequisites; no accounts or ticking yet.
 
 ## Stack and layout
 
@@ -16,10 +16,10 @@ Monorepo, built and run locally first; Fly.io deployment comes later (phase 5):
 
 - `frontend/`: React + Vite + TypeScript, TanStack Query. Vite proxies `/api` to the backend in dev.
 - `backend/`: FastAPI, SQLAlchemy, Alembic, pytest. Serves the API under `/api`.
-- `seed/`: YAML content files, one per module, loaded by a CLI seed loader.
+- `seed/`: YAML content files, one per module plus `prerequisites.yaml` (shared one-off setup steps), loaded by a CLI seed loader.
 - Database: Neon. Dev branch via `DATABASE_URL`, separate test branch via `TEST_DATABASE_URL`, both in git-ignored `backend/.env`.
 
-Structure is **Module → Week → Task**, one tick per task. Every seed item has a stable `key`; the loader upserts by key so re-seeding doesn't break users' ticks. Progress is computed from completions, never stored.
+Structure is **Module → Submodule (certification track) → Week → Task**, one tick per task. Submodules list shared prerequisites by key; prerequisites are never counted in progress. Every seed item has a stable `key`; the loader upserts by key so re-seeding doesn't break users' ticks. Progress is computed from completions, never stored.
 
 ## Commands
 
@@ -37,6 +37,7 @@ uv run python -m app.seed                  # validate + load seed/*.yaml
 
 - On a fresh database run `uv run alembic upgrade head` before the seed loader.
 - `uv run python -m app.seed [dir]` deletes any module not present in that folder.
+- Migration 0005 clears content tables; re-run the seed loader after upgrading an older database.
 
 Frontend (run in `frontend/`):
 
