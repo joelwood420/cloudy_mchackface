@@ -8,7 +8,7 @@ def add_content(db):
     de.weeks = [
         Week(key="w10", week_number=10, title="Empty", position=1),
         Week(key="w9", week_number=9, title="DP-900", position=0, tasks=[
-            Task(key="t2", title="Labs", type="lab", external_url="https://lab.test", position=1),
+            Task(key="t2", title="Labs", type="lab", external_url="https://lab.test", position=1, note="Key in Teams"),
             Task(key="t1", title="LP1", type="learning_path", external_url="https://learn.test", position=0),
         ]),
     ]
@@ -43,8 +43,9 @@ def test_module_detail(client, db):
     assert [w["key"] for w in body["weeks"]] == ["w9", "w10"]
     assert body["weeks"][0]["tasks"][0] == {
         "key": "t1", "title": "LP1", "type": "learning_path",
-        "external_url": "https://learn.test", "uplearn_url": None,
+        "external_url": "https://learn.test", "uplearn_url": None, "note": None,
     }
+    assert body["weeks"][0]["tasks"][1]["note"] == "Key in Teams"
     assert body["weeks"][1]["tasks"] == []
     assert body["assessments"] == [
         {"key": "a3", "title": "Assessment 3", "due_date": "2026-10-25", "uplearn_url": "https://up.test"},

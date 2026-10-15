@@ -77,6 +77,7 @@ def apply_seed(session: Session, seeds: list[SeedFile]) -> None:
                 task.title, task.type, task.position = st.title, st.type, t_pos
                 task.external_url = str(st.external_url) if st.external_url else None
                 task.uplearn_url = str(st.uplearn_url) if st.uplearn_url else None
+                task.note = st.note
                 kept['tasks'].add(st.key)
 
         for sa in seed.assessments:

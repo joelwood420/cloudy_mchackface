@@ -22,6 +22,7 @@ class TaskOut(_Out):
     type: str
     external_url: str | None
     uplearn_url: str | None
+    note: str | None
 
 
 class WeekOut(_Out):

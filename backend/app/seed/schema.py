@@ -18,6 +18,7 @@ class SeedTask(_Strict):
     type: TaskType
     external_url: HttpUrl | None = None
     uplearn_url: HttpUrl | None = None
+    note: Annotated[str, StringConstraints(min_length=1, max_length=300, strip_whitespace=True)] | None = None
 
     @model_validator(mode="after")
     def needs_a_link(self) -> "SeedTask":

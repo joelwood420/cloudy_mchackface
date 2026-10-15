@@ -138,3 +138,12 @@ def test_module_uplearn_url_is_stored_and_cleared(db):
 
     apply_seed(db, [seed([])])
     assert db.scalars(select(Module.uplearn_url)).one() is None
+
+
+def test_task_note_is_stored_and_cleared(db):
+    with_note = {**task("t1"), "note": "Training key is in the Teams tutor-only channel."}
+    apply_seed(db, [seed([{"key": "w9", "week_number": 9, "title": "W", "tasks": [with_note]}])])
+    assert db.scalars(select(Task.note)).one() == "Training key is in the Teams tutor-only channel."
+
+    apply_seed(db, [seed([{"key": "w9", "week_number": 9, "title": "W", "tasks": [task("t1")]}])])
+    assert db.scalars(select(Task.note)).one() is None

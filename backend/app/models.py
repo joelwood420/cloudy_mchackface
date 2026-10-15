@@ -52,6 +52,7 @@ class Task(Base):
     type: Mapped[str] = mapped_column(String(20))
     external_url: Mapped[str | None] = mapped_column(String(1000))
     uplearn_url: Mapped[str | None] = mapped_column(String(1000))
+    note: Mapped[str | None] = mapped_column(String(300))
     position: Mapped[int]
 
     week: Mapped[Week] = relationship(back_populates="tasks")

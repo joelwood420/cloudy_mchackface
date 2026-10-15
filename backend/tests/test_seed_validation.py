@@ -99,3 +99,16 @@ def test_unknown_field_is_rejected(tmp_path):
     with pytest.raises(SeedError) as exc:
         load_seed_dir(tmp_path)
     assert any("module.colour" in p for p in exc.value.problems)
+
+
+def test_task_note_is_optional_and_length_limited(tmp_path):
+    with_note = VALID.replace(
+        "        type: learning_path\n", "        type: learning_path\n        note: Use your personal email\n", 1
+    )
+    write(tmp_path, "ccc602.yaml", with_note)
+    [seed] = load_seed_dir(tmp_path)
+    assert seed.weeks[0].tasks[0].note == "Use your personal email"
+
+    write(tmp_path, "ccc602.yaml", with_note.replace("Use your personal email", "x" * 301))
+    with pytest.raises(SeedError):
+        load_seed_dir(tmp_path)
