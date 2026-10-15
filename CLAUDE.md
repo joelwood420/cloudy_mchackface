@@ -21,6 +21,30 @@ Monorepo, built and run locally first; Fly.io deployment comes later (phase 5):
 
 Structure is **Module → Week → Task**, one tick per task. Every seed item has a stable `key`; the loader upserts by key so re-seeding doesn't break users' ticks. Progress is computed from completions, never stored.
 
+## Commands
+
+Backend (run in `backend/`; needs `backend/.env`, see `.env.example`):
+
+```bash
+uv sync                                    # install deps
+uv run uvicorn app.main:app --reload       # API on :8000
+uv run pytest                              # all tests (uses TEST_DATABASE_URL)
+uv run pytest tests/test_seed_apply.py::test_rerun_is_idempotent -v   # single test
+uv run alembic upgrade head                # apply migrations to DATABASE_URL
+uv run alembic check                       # confirm models match migrations
+uv run python -m app.seed                  # validate + load seed/*.yaml
+```
+
+Frontend (run in `frontend/`):
+
+```bash
+npm install
+npm run dev                                # http://localhost:5173, proxies /api to :8000
+npm test                                   # vitest
+npx vitest run src/pages/ModulePage.test.tsx   # single file
+npm run build                              # type check + build
+```
+
 ## MVP scope
 
 1. **This week:** the current week's modules (with Microsoft Learn/AWS links), labs and live sessions.
