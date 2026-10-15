@@ -22,4 +22,14 @@ describe('ProgressBar', () => {
     render(<ProgressBar value={0} label="Week 9 progress" size="sm" />)
     expect(screen.getByRole('progressbar')).toHaveClass('progress', 'progress-sm')
   })
+
+  it('hides a decorative bar from assistive tech', () => {
+    const { container } = render(<ProgressBar value={50} label="x" decorative />)
+    const bar = container.querySelector('.progress')
+    expect(bar).toHaveAttribute('aria-hidden', 'true')
+    expect(bar).not.toHaveAttribute('role')
+    expect(bar).not.toHaveAttribute('aria-label')
+    expect(bar).not.toHaveAttribute('aria-valuenow')
+    expect(screen.queryByRole('progressbar')).toBeNull()
+  })
 })

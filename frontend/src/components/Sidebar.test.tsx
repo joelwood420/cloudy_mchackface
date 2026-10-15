@@ -17,7 +17,8 @@ describe('Sidebar', () => {
     expect(within(nav()).getByText('Cloudy McHackface')).toBeInTheDocument()
     const link = await within(nav()).findByRole('link', { name: /Data Engineering in the Public Cloud/ })
     expect(link).toHaveAttribute('href', '/modules/ccc602')
-    expect(within(nav()).getByRole('progressbar', { name: 'CCC602 progress' })).toHaveAttribute('aria-valuenow', '0')
+    expect(link.querySelector('.progress')).toHaveAttribute('aria-hidden', 'true')
+    expect(within(nav()).queryByRole('progressbar')).toBeNull()
   })
 
   it('marks Modules as current and shows This week and Assessments as coming soon', async () => {
@@ -36,6 +37,16 @@ describe('Sidebar', () => {
     const current = await within(nav()).findByRole('link', { name: /Data Engineering in the Public Cloud/ })
     expect(current).toHaveAttribute('aria-current', 'page')
     expect(within(nav()).getByRole('link', { name: /Public Cloud Administration/ })).not.toHaveAttribute('aria-current')
+    expect(within(nav()).getByRole('link', { name: 'Modules' })).toHaveAttribute('aria-current', 'true')
+  })
+
+  it('renders a skip link that targets the main content', async () => {
+    mockApi({ '/api/modules': modules })
+    const { container } = renderAt('/')
+    const skip = screen.getByRole('link', { name: 'Skip to content' })
+    expect(skip).toHaveAttribute('href', '#main-content')
+    expect(container.querySelector('#main-content')).not.toBeNull()
+    await within(nav()).findByRole('link', { name: /Data Engineering/ })
   })
 
   it('stays quiet when the module list fails', async () => {
@@ -43,6 +54,7 @@ describe('Sidebar', () => {
     renderAt('/modules/ccc602')
     expect(await screen.findByRole('heading', { level: 1 })).toBeInTheDocument()
     expect(within(nav()).queryByRole('alert')).toBeNull()
+    expect(screen.queryByRole('alert')).toBeNull()
     expect(within(nav()).queryByText('Your modules')).toBeNull()
   })
 })
