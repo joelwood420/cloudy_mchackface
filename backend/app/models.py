@@ -30,7 +30,7 @@ class Week(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     key: Mapped[str] = mapped_column(String(100), unique=True)
-    module_id: Mapped[int] = mapped_column(ForeignKey("modules.id", ondelete="CASCADE"))
+    module_id: Mapped[int] = mapped_column(ForeignKey("modules.id", ondelete="CASCADE"), index=True)
     week_number: Mapped[int]
     title: Mapped[str] = mapped_column(String(200))
     position: Mapped[int]
@@ -47,7 +47,7 @@ class Task(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     key: Mapped[str] = mapped_column(String(100), unique=True)
-    week_id: Mapped[int] = mapped_column(ForeignKey("weeks.id", ondelete="CASCADE"))
+    week_id: Mapped[int] = mapped_column(ForeignKey("weeks.id", ondelete="CASCADE"), index=True)
     title: Mapped[str] = mapped_column(String(300))
     type: Mapped[str] = mapped_column(String(20))
     external_url: Mapped[str | None] = mapped_column(String(1000))
@@ -63,7 +63,7 @@ class Assessment(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     key: Mapped[str] = mapped_column(String(100), unique=True)
-    module_id: Mapped[int] = mapped_column(ForeignKey("modules.id", ondelete="CASCADE"))
+    module_id: Mapped[int] = mapped_column(ForeignKey("modules.id", ondelete="CASCADE"), index=True)
     title: Mapped[str] = mapped_column(String(300))
     due_date: Mapped[date | None] = mapped_column(Date)
     uplearn_url: Mapped[str | None] = mapped_column(String(1000))

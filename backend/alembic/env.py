@@ -1,18 +1,25 @@
 from alembic import context
-from sqlalchemy import engine_from_config, pool
+from sqlalchemy import create_engine, pool
 
 import app.models  # noqa: F401
 from app.config import get_settings, sqlalchemy_url
 from app.db import Base
 
 config = context.config
-config.set_main_option("sqlalchemy.url", sqlalchemy_url(get_settings().database_url).replace("%", "%%"))
 target_metadata = Base.metadata
 
-connectable = engine_from_config(
-    config.get_section(config.config_ini_section, {}), prefix="sqlalchemy.", poolclass=pool.NullPool
-)
-with connectable.connect() as connection:
+
+def run(connection) -> None:
     context.configure(connection=connection, target_metadata=target_metadata)
     with context.begin_transaction():
         context.run_migrations()
+
+
+# Tests pass their own connection (on the test branch); the CLI uses DATABASE_URL.
+connection = config.attributes.get("connection")
+if connection is not None:
+    run(connection)
+else:
+    engine = create_engine(sqlalchemy_url(get_settings().database_url), poolclass=pool.NullPool)
+    with engine.connect() as conn:
+        run(conn)
