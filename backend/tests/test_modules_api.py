@@ -33,8 +33,8 @@ def test_list_modules_in_order_with_counts(client, db):
     response = client.get("/api/modules")
     assert response.status_code == 200
     assert response.json() == [
-        {"key": "ccc601", "code": "CCC601", "title": "Public Cloud Administration", "week_count": 0, "task_count": 0, "uplearn_url": None},
-        {"key": "ccc602", "code": "CCC602", "title": "Data Engineering", "week_count": 2, "task_count": 2, "uplearn_url": "https://up.test/602"},
+        {"key": "ccc601", "code": "CCC601", "title": "Public Cloud Administration", "submodule_count": 0, "week_count": 0, "task_count": 0, "uplearn_url": None},
+        {"key": "ccc602", "code": "CCC602", "title": "Data Engineering", "submodule_count": 2, "week_count": 2, "task_count": 2, "uplearn_url": "https://up.test/602"},
     ]
 
 
@@ -63,3 +63,33 @@ def test_unknown_module_is_404(client):
     response = client.get("/api/modules/nope")
     assert response.status_code == 404
     assert response.json() == {"detail": "Module not found"}
+
+
+def test_module_detail_lists_submodules_with_prerequisites(client, db):
+    add_content(db)
+    body = client.get("/api/modules/ccc602").json()
+    assert body["submodules"] == [
+        {
+            "key": "dp900", "code": "DP-900", "title": "Azure Data Fundamentals",
+            "uplearn_url": "https://up.test/dp900", "first_week": 9, "last_week": 9,
+            "prerequisites": [{
+                "key": "azure-account", "title": "Create an Azure account", "note": "Personal email",
+                "external_url": "https://azure.test", "uplearn_url": None,
+            }],
+        },
+        {
+            "key": "dea", "code": "DEA-C01", "title": "AWS Data Engineer",
+            "uplearn_url": None, "first_week": 10, "last_week": 10, "prerequisites": [],
+        },
+    ]
+    assert [(w["key"], w["submodule_key"]) for w in body["weeks"]] == [("w9", "dp900"), ("w10", "dea")]
+
+
+def test_submodule_without_weeks_has_no_week_range(client, db):
+    db.add(Module(key="m", code="M", title="M", position=1, submodules=[
+        Submodule(key="empty", code="E", title="Empty", position=0),
+    ]))
+    db.flush()
+    db.expire_all()
+    [sub] = client.get("/api/modules/m").json()["submodules"]
+    assert (sub["first_week"], sub["last_week"]) == (None, None)
