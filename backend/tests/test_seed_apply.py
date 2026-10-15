@@ -123,6 +123,7 @@ def test_key_that_changes_type_deletes_the_old_row(db):
     assert db.scalars(select(Task.key)).all() == []
     assert sorted(db.scalars(select(Week.key)).all()) == ["shared", "w9"]
 
+
 def test_module_uplearn_url_is_stored_and_cleared(db):
     with_link = SeedFile.model_validate(
         {
