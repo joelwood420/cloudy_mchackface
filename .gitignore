@@ -5,3 +5,6 @@ __pycache__/
 node_modules/
 dist/
 .pytest_cache/
+
+# Personal copies of Yoobee assessment files. Never commit (academic integrity / IP).
+docs/assessments/
