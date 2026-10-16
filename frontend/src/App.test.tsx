@@ -23,4 +23,12 @@ describe('shouldRetry', () => {
     expect(shouldRetry(1, new ApiError(500, 'Server exploded'))).toBe(false)
     expect(shouldRetry(1, new TypeError('Failed to fetch'))).toBe(false)
   })
+
+  it('does not retry a 401', () => {
+    expect(shouldRetry(0, new ApiError(401, 'Not logged in'))).toBe(false)
+  })
+
+  it('retries a network error (status 0) once', () => {
+    expect(shouldRetry(0, new ApiError(0, "Can't reach the server."))).toBe(true)
+  })
 })

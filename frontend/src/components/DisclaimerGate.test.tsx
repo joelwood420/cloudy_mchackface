@@ -46,7 +46,7 @@ describe('DisclaimerPage', () => {
   it('can be re-read from the sidebar after accepting', async () => {
     mockApi({ '/api/modules': [] })
     renderAt('/')
-    await userEvent.click(screen.getByRole('link', { name: 'Disclaimer' }))
+    await userEvent.click(await screen.findByRole('link', { name: 'Disclaimer' }))
     expect(screen.getByRole('heading', { name: 'Disclaimer' })).toBeInTheDocument()
     expect(screen.getByText(/UPLearn is the source of truth/)).toBeInTheDocument()
   })

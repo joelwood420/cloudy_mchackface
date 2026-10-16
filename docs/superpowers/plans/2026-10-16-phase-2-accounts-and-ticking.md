@@ -2,16 +2,26 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Students sign up with email and password, tick tasks off, pick their current week, and see real progress bars for each week, each module and the whole programme.
+**Goal:** Students sign up with email and password, tick tasks and prerequisites off, pick their current week, and see real progress bars for each week, each module and the whole programme.
 
-**Architecture:** FastAPI gains `users`, `sessions`, `task_completions` and `user_settings` tables, an `app/auth` package (argon2 passwords, hashed session tokens in an HTTP-only cookie, an in-memory rate limiter) and new `/auth`, `/me` and `/tasks` routes. The module routes now need a login and return each user's ticks and counts. Progress is worked out from those ticks on every request and never stored. The React app puts every page except log in and sign up behind a `RequireAuth` route. Ticks are applied to the cached module straight away and rolled back if the server says no. A Settings page sets the current week.
+**Architecture:** FastAPI gains `users`, `sessions`, `task_completions`, `prerequisite_completions` and `user_settings` tables, an `app/auth` package (argon2 passwords, hashed session tokens in an HTTP-only cookie, an in-memory rate limiter) and new `/auth`, `/me`, `/tasks` and `/prerequisites` routes. The module routes now need a login and return each user's ticks and counts. Progress is worked out from task ticks on every request and never stored. Prerequisite ticks are kept separately and never count. The React app puts every page except log in and sign up behind a `RequireAuth` route. Ticks are applied to the cached module straight away and rolled back if the server says no. Ticked prerequisites disappear from every "Before you start" box that shares them. A Settings page sets the current week.
 
 **Tech Stack:** FastAPI, SQLAlchemy 2, Alembic, argon2-cffi, pytest on a Neon test branch; React 19, TanStack Query 5, React Router 7, Vitest + Testing Library.
 
-**Spec:** `docs/superpowers/specs/2026-10-15-yoobee-study-guide-design.md` (phase 2), UI per `docs/superpowers/specs/2026-10-15-ui-redesign-design.md`.
+**Spec:** `docs/superpowers/specs/2026-10-15-yoobee-study-guide-design.md` (phase 2), `docs/superpowers/specs/2026-10-16-submodules-prerequisites-handoff.md` (prerequisite ticking), UI per `docs/superpowers/specs/2026-10-15-ui-redesign-design.md`.
+
+**Starting point (already on `main`):**
+- Structure is Module → Submodule → Week → Task, with shared prerequisites. Migrations go up to `0005`.
+- The metadata naming convention is in place: constraint names match Postgres defaults, and check constraints must be given a `name`.
+- FK indexes exist, and `tests/test_migrations.py` compares migrations with models and checks every FK is indexed.
+- Seed checks cover column lengths and duplicate week numbers.
+- `ExternalLink` takes an optional `label`.
+- `WeekTimeline({ weeks, submodules })` groups weeks under submodule headings, each with a `PrerequisiteBox`.
 
 ## Global Constraints
 
+- Work on branch `phase-2` in the worktree `.claude/worktrees/phase-2`. It's already created from `main`, and `backend/.env` is already copied. Run `uv sync` and `npm install` there first. Merge or push only when the owner says so.
+- Migrations: this plan adds only `0006` (`down_revision = "0005"`).
 - Passwords hashed with argon2; minimum length 10 (we also cap it at 256 so huge inputs aren't hashed).
 - Sessions: random token in an HTTP-only, SameSite=Lax cookie; only a SHA-256 hash of the token is stored; sessions expire after 30 days.
 - Login and signup are rate-limited per IP and per email.
@@ -19,23 +29,25 @@
 - Email is stored lowercased (and trimmed).
 - API errors: 401 not logged in, 404 unknown key, 409 email taken on signup, 422 invalid input, 429 rate-limited.
 - Every route needs a login except `/api/health`, `/api/auth/signup`, `/api/auth/login` and `/api/auth/logout`. Module reads need a login from now on.
-- Progress is computed from completions, never stored. An empty week or module shows 0%. Progress only reaches 100% when everything is done, so round down.
+- Progress is computed from task completions, never stored. An empty week or module shows 0%. Progress only reaches 100% when everything is done, so round down.
+- Prerequisite ticks live in their own table and are **never** counted in any progress bar or count.
 - `study_mode` stays a per-user setting (`FT` default, `PT` allowed) even though only FT content exists.
 - The current week is chosen by hand. It is never worked out from dates.
 - Never store or show lab training keys, tutor Teams/Calendly links or portal logins. No Yoobee-owned files.
 - Tests wipe `TEST_DATABASE_URL` only. No test may touch `DATABASE_URL`.
-- Don't touch `seed/*.yaml` or `docs/portal-extras.md`. A separate session is editing them. Always `git add` by path, never `git add -A` or `git add .`.
-- Never kill whatever is on port 5173 (the owner's other project). In Git Bash, `taskkill` needs `//PID`.
+- Every `Week` needs a `Submodule` (`weeks.submodule_id` is NOT NULL). Test fixtures that build weeks directly must attach one.
+- Don't edit `seed/*.yaml` or `docs/portal-extras.md`; a separate session owns content. Always `git add` by path, never `git add -A` or `git add .`.
+- Never kill whatever is on port 5173 (the owner's other project). Old main-checkout servers may hold 8000 and 5174–5176; leave them alone and use other ports. In Git Bash, `taskkill` needs `//PID`.
 - Backend commands run in `backend/` with `uv run ...`. Frontend commands run in `frontend/`.
 - Commit messages end with `Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>`.
 
 ## Review Focus
 
-1. **Email typed in a different case or with spaces.** Someone who signs up as ` Joel@Example.com ` and logs in as `joel@example.com` gets in, and can't sign up a second time with the other spelling. Tested in Task 5.
-2. **A garbage, expired or logged-out session cookie.** The API answers 401, never 500, and the frontend sends the user to the login page, including when a session runs out mid-visit. Tested in Tasks 4, 5 and 7.
-3. **A ticked task removed from the seed files.** The tick disappears with the task, and progress never counts a task that no longer exists. Tested in Task 3.
-4. **Ticking twice, or unticking something that isn't ticked.** Both return 204 and leave exactly zero or one row. Clicking fast in the UI ends in the server's real state. Tested in Tasks 6 and 8.
-5. **Another user's ticks.** One user's ticks never show up in another user's progress. Tested in Task 6.
+1. **Email typed in a different case or with spaces.** Someone who signs up as ` Joel@Example.com ` and logs in as `joel@example.com` gets in, and can't sign up a second time with the other spelling. Tested in Task 3.
+2. **A garbage, expired or logged-out session cookie.** The API answers 401, never 500, and the frontend sends the user to the login page, including when a session runs out mid-visit. Tested in Tasks 2, 3 and 5.
+3. **A ticked task or prerequisite removed from the seed files.** The tick disappears with it, and progress never counts a task that no longer exists. Tested in Task 1.
+4. **Ticking twice, or unticking something that isn't ticked** (tasks and prerequisites). Both return 204 and leave exactly zero or one row. Clicking fast in the UI ends in the server's real state. Tested in Tasks 4 and 6.
+5. **A prerequisite shared by several submodules.** Ticking it under one submodule hides it under all of them, and it never moves a progress bar. Another user's ticks never show up for you. Tested in Tasks 4 and 7.
 
 ---
 
@@ -45,29 +57,24 @@ Backend (`backend/`):
 
 | File | Responsibility |
 |---|---|
-| `app/db.py` (modify) | Base metadata with a naming convention that matches Postgres defaults |
-| `app/models.py` (modify) | FK indexes; `User`, `UserSession`, `TaskCompletion`, `UserSettings` |
+| `app/models.py` (modify) | `User`, `UserSession`, `TaskCompletion`, `PrerequisiteCompletion`, `UserSettings` |
 | `app/config.py` (modify) | `cookie_secure` setting |
-| `alembic/env.py` (modify) | Accept a connection passed in by tests |
-| `alembic/versions/0004_fk_indexes.py` (create) | Indexes on existing FK columns |
-| `alembic/versions/0005_accounts.py` (create) | Account and completion tables |
-| `app/seed/schema.py` (modify) | Field limits match the DB columns; no duplicate week numbers in a module |
+| `alembic/versions/0006_accounts.py` (create) | Account and completion tables |
 | `app/auth/__init__.py` (create) | Empty package marker |
 | `app/auth/passwords.py` (create) | argon2 hash and verify |
 | `app/auth/sessions.py` (create) | Session token create, look up, end |
 | `app/auth/ratelimit.py` (create) | Sliding-window rate limiter plus the two shared instances |
 | `app/auth/deps.py` (create) | `current_user` FastAPI dependency |
 | `app/api/auth.py` (create) | `/auth/*`, `/me`, `/me/settings` |
-| `app/api/tasks.py` (create) | `/tasks/{key}/complete` PUT and DELETE |
+| `app/api/tasks.py` (create) | `/tasks/{key}/complete` and `/prerequisites/{key}/complete`, PUT and DELETE |
 | `app/api/modules.py` (modify) | Login required; ticks and counts |
 | `app/api/schemas.py` (modify) | New request and response models |
 | `app/main.py` (modify) | Register the routers |
 | `tests/conftest.py` (modify) | Reset the rate limiters; `user_client` fixture |
-| `tests/test_migrations.py` (create) | Migrations build exactly the model schema, and downgrade cleanly |
 | `tests/test_accounts_models.py` (create) | Cascades for the account tables |
 | `tests/test_auth_core.py` (create) | Password, session and limiter unit tests |
 | `tests/test_auth_api.py` (create) | Auth and settings endpoints |
-| `tests/test_tasks_api.py` (create) | Ticking and progress counts |
+| `tests/test_tasks_api.py` (create) | Task and prerequisite ticking, progress counts |
 
 Frontend (`frontend/src/`):
 
@@ -75,369 +82,35 @@ Frontend (`frontend/src/`):
 |---|---|
 | `api.ts` (modify) | Typed client: methods, JSON bodies, network errors, new endpoints |
 | `App.tsx` (modify) | Query client factory with 401 handling; routes |
-| `progress.ts` (create) | Progress maths, optimistic tick helper, week options |
+| `progress.ts` (create) | Progress maths, optimistic tick helpers, week options |
 | `usePageTitle.ts` (create) | Sets `document.title` |
 | `hooks/useMe.ts` (create) | Current user query |
-| `hooks/useTickTask.ts` (create) | Optimistic tick mutation |
+| `hooks/useTickTask.ts` (create) | Optimistic tick mutations for tasks and prerequisites |
 | `components/RequireAuth.tsx` (create) | Sends logged-out users to `/login` |
 | `pages/AuthPage.tsx` (create) | Log in and sign up form |
 | `pages/SettingsPage.tsx` (create) | Current week picker |
 | `components/Sidebar.tsx` (modify) | Settings link, current week, email, log out, real % |
-| `components/module/*.tsx`, `pages/ModulePage.tsx`, `pages/ModulesPage.tsx`, `components/AssessmentsRail.tsx`, `components/ExternalLink.tsx` (modify) | Real ticking and progress, a11y fixes |
-| `index.css` (modify) | Form, button, auth, settings and current-week styles |
+| `components/module/PrerequisiteBox.tsx` (modify) | Tick boxes, hide done, "Show done", ready message |
+| `components/module/*.tsx`, `pages/ModulePage.tsx`, `pages/ModulesPage.tsx`, `components/AssessmentsRail.tsx` (modify) | Real ticking and progress, a11y fixes |
+| `index.css` (modify) | Form, button, auth, settings, prerequisite and current-week styles |
 | `test/utils.tsx` (modify) | Method-aware `mockApi` with a default signed-in `/api/me` |
 
 ---
 
-### Task 1: Database hardening — naming convention, FK indexes, migration test
-
-**Files:**
-- Modify: `backend/app/db.py`
-- Modify: `backend/app/models.py`
-- Modify: `backend/alembic/env.py`
-- Create: `backend/alembic/versions/0004_fk_indexes.py`
-- Test: `backend/tests/test_migrations.py`
-
-**Interfaces:**
-- Produces: `Base.metadata` with `NAMING_CONVENTION` (constraint names match Postgres defaults, so existing databases need no renames). `alembic/env.py` uses `config.attributes["connection"]` when one is passed in. Later migrations rely on unnamed constraints getting Postgres default names.
-
-- [ ] **Step 1: Write the failing test**
-
-Create `backend/tests/test_migrations.py`:
-
-```python
-from alembic import command
-from alembic.autogenerate import compare_metadata
-from alembic.config import Config
-from alembic.migration import MigrationContext
-from sqlalchemy import text
-
-from app.config import BACKEND_DIR
-from app.db import Base
-
-SCHEMA = "migration_check"
-
-
-def alembic_config(connection) -> Config:
-    cfg = Config(str(BACKEND_DIR / "alembic.ini"))
-    cfg.set_main_option("script_location", str(BACKEND_DIR / "alembic"))
-    cfg.attributes["connection"] = connection
-    return cfg
-
-
-def test_migrations_build_the_model_schema_and_downgrade_cleanly(engine):
-    """Run every migration in a throwaway schema inside one transaction, then roll it all back."""
-    with engine.connect() as conn:
-        trans = conn.begin()
-        try:
-            conn.execute(text(f"CREATE SCHEMA {SCHEMA}"))
-            conn.execute(text(f"SET LOCAL search_path TO {SCHEMA}"))
-
-            command.upgrade(alembic_config(conn), "head")
-            diff = compare_metadata(MigrationContext.configure(conn), Base.metadata)
-            assert diff == [], f"models and migrations differ: {diff}"
-
-            command.downgrade(alembic_config(conn), "base")
-            tables = conn.execute(
-                text("select table_name from information_schema.tables where table_schema = :s"), {"s": SCHEMA}
-            ).scalars().all()
-            assert tables == ["alembic_version"]
-        finally:
-            trans.rollback()
-
-
-def test_foreign_keys_are_indexed():
-    for table in Base.metadata.tables.values():
-        indexed = {tuple(c.name for c in ix.columns) for ix in table.indexes}
-        if table.primary_key is not None:
-            indexed.add(tuple(c.name for c in table.primary_key.columns))
-        for fk in table.foreign_keys:
-            col = fk.parent.name
-            assert any(cols[0] == col for cols in indexed), f"{table.name}.{col} has no index"
-
-
-def test_constraint_names_match_postgres_defaults():
-    weeks = Base.metadata.tables["weeks"]
-    names = {c.name for c in weeks.constraints}
-    assert {"weeks_pkey", "weeks_key_key", "weeks_module_id_fkey"} <= names
-```
-
-- [ ] **Step 2: Run tests to verify they fail**
-
-Run only the two tests that don't touch a database. The migration test must not run until `env.py` is fixed in Step 6, because the current `env.py` ignores the passed connection and would point Alembic at `DATABASE_URL`.
-
-Run: `uv run pytest tests/test_migrations.py -v -k "indexed or postgres_defaults"`
-Expected: FAIL. `test_foreign_keys_are_indexed` fails with "weeks.module_id has no index". `test_constraint_names_match_postgres_defaults` fails because the names are `None`.
-
-- [ ] **Step 3: Add the naming convention**
-
-Replace the `Base` class in `backend/app/db.py`:
-
-```python
-from collections.abc import Iterator
-
-from sqlalchemy import MetaData, create_engine
-from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
-
-from app.config import get_settings, sqlalchemy_url
-
-engine = create_engine(sqlalchemy_url(get_settings().database_url), pool_pre_ping=True)
-SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
-
-# Same names Postgres picks for unnamed constraints, so existing databases match without renames.
-NAMING_CONVENTION = {
-    "ix": "ix_%(column_0_label)s",
-    "uq": "%(table_name)s_%(column_0_name)s_key",
-    "ck": "%(table_name)s_%(constraint_name)s_check",
-    "fk": "%(table_name)s_%(column_0_name)s_fkey",
-    "pk": "%(table_name)s_pkey",
-}
-
-
-class Base(DeclarativeBase):
-    metadata = MetaData(naming_convention=NAMING_CONVENTION)
-
-
-def get_db() -> Iterator[Session]:
-    with SessionLocal() as session:
-        yield session
-```
-
-- [ ] **Step 4: Index the FK columns in the models**
-
-In `backend/app/models.py` add `index=True` to the three FK columns:
-
-```python
-    module_id: Mapped[int] = mapped_column(ForeignKey("modules.id", ondelete="CASCADE"), index=True)
-```
-
-(on `Week.module_id` and `Assessment.module_id`) and
-
-```python
-    week_id: Mapped[int] = mapped_column(ForeignKey("weeks.id", ondelete="CASCADE"), index=True)
-```
-
-(on `Task.week_id`).
-
-- [ ] **Step 5: Write migration 0004**
-
-Create `backend/alembic/versions/0004_fk_indexes.py`:
-
-```python
-"""index foreign keys
-
-Revision ID: 0004
-Revises: 0003
-"""
-from alembic import op
-
-revision = "0004"
-down_revision = "0003"
-branch_labels = None
-depends_on = None
-
-
-def upgrade() -> None:
-    op.create_index("ix_weeks_module_id", "weeks", ["module_id"])
-    op.create_index("ix_tasks_week_id", "tasks", ["week_id"])
-    op.create_index("ix_assessments_module_id", "assessments", ["module_id"])
-
-
-def downgrade() -> None:
-    op.drop_index("ix_assessments_module_id", table_name="assessments")
-    op.drop_index("ix_tasks_week_id", table_name="tasks")
-    op.drop_index("ix_weeks_module_id", table_name="weeks")
-```
-
-- [ ] **Step 6: Let env.py take a connection**
-
-Replace `backend/alembic/env.py`:
-
-```python
-from alembic import context
-from sqlalchemy import create_engine, pool
-
-import app.models  # noqa: F401
-from app.config import get_settings, sqlalchemy_url
-from app.db import Base
-
-config = context.config
-target_metadata = Base.metadata
-
-
-def run(connection) -> None:
-    context.configure(connection=connection, target_metadata=target_metadata)
-    with context.begin_transaction():
-        context.run_migrations()
-
-
-# Tests pass their own connection (on the test branch); the CLI uses DATABASE_URL.
-connection = config.attributes.get("connection")
-if connection is not None:
-    run(connection)
-else:
-    engine = create_engine(sqlalchemy_url(get_settings().database_url), poolclass=pool.NullPool)
-    with engine.connect() as conn:
-        run(conn)
-```
-
-- [ ] **Step 7: Run tests to verify they pass**
-
-Run: `uv run pytest tests/test_migrations.py -v`
-Expected: 3 PASS.
-
-Then run: `uv run pytest`
-Expected: all PASS.
-
-- [ ] **Step 8: Apply to the dev branch and confirm no drift**
-
-Run: `uv run alembic upgrade head` and then `uv run alembic check`
-Expected: upgrade runs `0003 -> 0004`; check prints `No new upgrade operations detected.`
-
-- [ ] **Step 9: Commit**
-
-```bash
-git add backend/app/db.py backend/app/models.py backend/alembic/env.py backend/alembic/versions/0004_fk_indexes.py backend/tests/test_migrations.py
-git commit -m "feat(db): naming convention, FK indexes and a migration test"
-```
-
----
-
-### Task 2: Seed validation matches the database
-
-**Files:**
-- Modify: `backend/app/seed/schema.py`
-- Test: `backend/tests/test_seed_validation.py`
-
-**Interfaces:**
-- Consumes: column lengths in `app/models.py` (module/week title 200, task/assessment title 300, code 20, note 300, URLs 1000, key 100).
-- Produces: `load_seed_dir` rejects too-long values and duplicate `week_number` inside one module, with file and location in the message. Two modules may share a week number, because the "This week" view spans modules.
-
-- [ ] **Step 1: Write the failing tests**
-
-Append to `backend/tests/test_seed_validation.py`:
-
-```python
-def test_week_and_module_titles_fit_their_columns(tmp_path):
-    write(tmp_path, "ccc602.yaml", VALID.replace("title: Empty week", "title: " + "w" * 201))
-    with pytest.raises(SeedError) as exc:
-        load_seed_dir(tmp_path)
-    assert any(p.startswith("ccc602.yaml: weeks.1.title") for p in exc.value.problems)
-
-    write(tmp_path, "ccc602.yaml", VALID.replace("title: Data Engineering in the Public Cloud", "title: " + "m" * 201))
-    with pytest.raises(SeedError) as exc:
-        load_seed_dir(tmp_path)
-    assert any(p.startswith("ccc602.yaml: module.title") for p in exc.value.problems)
-
-
-def test_task_title_may_use_its_full_column(tmp_path):
-    write(tmp_path, "ccc602.yaml", VALID.replace("title: Explore core data concepts", "title: " + "t" * 300))
-    [seed] = load_seed_dir(tmp_path)
-    assert len(seed.weeks[0].tasks[0].title) == 300
-
-
-def test_url_longer_than_its_column_is_rejected(tmp_path):
-    long_url = "https://learn.microsoft.com/" + "a" * 1000
-    write(tmp_path, "ccc602.yaml", VALID.replace(
-        "https://learn.microsoft.com/en-us/training/paths/azure-data-fundamentals-explore-core-data-concepts/", long_url
-    ))
-    with pytest.raises(SeedError) as exc:
-        load_seed_dir(tmp_path)
-    assert any("weeks.0.tasks.0.external_url" in p for p in exc.value.problems)
-
-
-def test_duplicate_week_number_in_one_module_is_rejected(tmp_path):
-    write(tmp_path, "ccc602.yaml", VALID.replace("week_number: 10", "week_number: 9"))
-    with pytest.raises(SeedError) as exc:
-        load_seed_dir(tmp_path)
-    assert any("ccc602.yaml" in p and "week_number 9" in p for p in exc.value.problems)
-
-
-def test_two_modules_may_share_a_week_number(tmp_path):
-    write(tmp_path, "a.yaml", VALID)
-    write(tmp_path, "b.yaml", VALID.replace("key: ccc602", "key: other"))  # renames every key, keeps week numbers
-    assert len(load_seed_dir(tmp_path)) == 2
-```
-
-- [ ] **Step 2: Run tests to verify they fail**
-
-Run: `uv run pytest tests/test_seed_validation.py -v`
-Expected: the title, URL and duplicate-week tests FAIL. `test_task_title_may_use_its_full_column` and `test_two_modules_may_share_a_week_number` PASS already.
-
-- [ ] **Step 3: Implement**
-
-In `backend/app/seed/schema.py`, replace the type aliases at the top and use them:
-
-```python
-from datetime import date
-from typing import Annotated, Literal
-
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl, StringConstraints, model_validator
-
-# Limits mirror the column sizes in app/models.py; a value that passes here always fits the database.
-Key = Annotated[str, StringConstraints(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$", max_length=100)]
-ShortTitle = Annotated[str, StringConstraints(min_length=1, max_length=200, strip_whitespace=True)]
-Title = Annotated[str, StringConstraints(min_length=1, max_length=300, strip_whitespace=True)]
-TaskType = Literal["learning_path", "lab", "assessment_step"]
-
-
-def _fits_url_column(url: HttpUrl) -> HttpUrl:
-    if len(str(url)) > 1000:
-        raise ValueError("URL is longer than 1000 characters")
-    return url
-
-
-Url = Annotated[HttpUrl, AfterValidator(_fits_url_column)]
-```
-
-Then:
-- `SeedTask.external_url` and `SeedTask.uplearn_url`: `Url | None = None`
-- `SeedWeek.title`: `ShortTitle`
-- `SeedModule.title`: `ShortTitle`; `SeedModule.uplearn_url`: `Url | None = None`
-- `SeedAssessment.uplearn_url`: `Url | None = None`
-
-Add a validator to `SeedFile`:
-
-```python
-    @model_validator(mode="after")
-    def unique_week_numbers(self) -> "SeedFile":
-        seen: set[int] = set()
-        for week in self.weeks:
-            if week.week_number in seen:
-                raise ValueError(f"week_number {week.week_number} is used by more than one week")
-            seen.add(week.week_number)
-        return self
-```
-
-The loader already turns a `ValidationError` into `"<file>: <loc>: <msg>"`. For a model-level error the location is empty, so the message is `"ccc602.yaml: : Value error, week_number 9 is used by more than one week"`. That contains both strings the test checks.
-
-- [ ] **Step 4: Run tests to verify they pass**
-
-Run: `uv run pytest tests/test_seed_validation.py tests/test_seed_files.py -v`
-Expected: all PASS (the repo seed files still validate).
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add backend/app/seed/schema.py backend/tests/test_seed_validation.py
-git commit -m "feat(seed): match field limits to columns, reject duplicate week numbers"
-```
-
----
-
-### Task 3: Account and completion tables
+### Task 1: Account and completion tables
 
 **Files:**
 - Modify: `backend/app/models.py`
-- Create: `backend/alembic/versions/0005_accounts.py`
+- Create: `backend/alembic/versions/0006_accounts.py`
 - Test: `backend/tests/test_accounts_models.py`
 
 **Interfaces:**
-- Consumes: `Base` with the naming convention (Task 1).
+- Consumes: `Base` (naming convention), `Task`, `Prerequisite`, `apply_seed(session, seeds, prerequisites)` and `SeedFile` / `SeedPrerequisite`, all already on `main`.
 - Produces:
   - `User(id, email, password_hash, created_at, settings: UserSettings)`
   - `UserSession(token_hash: str PK, user_id, created_at, expires_at, user: User)` (table `sessions`)
   - `TaskCompletion(user_id PK, task_id PK, completed_at)`
+  - `PrerequisiteCompletion(user_id PK, prerequisite_id PK, completed_at)` (table `prerequisite_completions`)
   - `UserSettings(user_id PK, current_week: int | None, study_mode: str = "FT", user: User)`
   - `Task.completions` relationship (cascade + `passive_deletes=True`)
 
@@ -450,9 +123,11 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import func, select
 
-from app.models import Module, Task, TaskCompletion, User, UserSession, UserSettings, Week
+from app.models import (
+    Module, Prerequisite, PrerequisiteCompletion, Task, TaskCompletion, User, UserSession, UserSettings, Week,
+)
 from app.seed.loader import apply_seed
-from app.seed.schema import SeedFile
+from app.seed.schema import SeedFile, SeedPrerequisite
 
 
 def make_user(db, email="joel@example.com"):
@@ -462,13 +137,21 @@ def make_user(db, email="joel@example.com"):
     return user
 
 
-def seed(task_keys):
-    return SeedFile.model_validate({
+def seed(task_keys, prerequisite_keys=()):
+    module = SeedFile.model_validate({
         "module": {"key": "ccc602", "code": "CCC602", "title": "DE", "order": 2},
-        "weeks": [{"key": "w9", "week_number": 9, "title": "W9", "tasks": [
-            {"key": k, "title": k, "type": "lab", "external_url": "https://x.test/" + k} for k in task_keys
-        ]}],
+        "submodules": [{
+            "key": "dp900", "code": "DP-900", "title": "DP-900", "prerequisites": list(prerequisite_keys),
+            "weeks": [{"key": "w9", "week_number": 9, "title": "W9", "tasks": [
+                {"key": k, "title": k, "type": "lab", "external_url": "https://x.test/" + k} for k in task_keys
+            ]}],
+        }],
     })
+    prerequisites = [
+        SeedPrerequisite.model_validate({"key": k, "title": k, "external_url": "https://x.test/" + k})
+        for k in prerequisite_keys
+    ]
+    return [module], prerequisites
 
 
 def count(db, model):
@@ -485,21 +168,46 @@ def test_new_user_gets_default_settings(db):
 
 
 def test_removing_a_ticked_task_from_seed_deletes_its_tick(db):
-    apply_seed(db, [seed(["t1", "t2"])])
+    apply_seed(db, *seed(["t1", "t2"]))
     user = make_user(db)
     for key in ("t1", "t2"):
         task_id = db.scalar(select(Task.id).where(Task.key == key))
         db.add(TaskCompletion(user_id=user.id, task_id=task_id))
     db.flush()
 
-    apply_seed(db, [seed(["t2"])])
-    db.expire_all()
+    apply_seed(db, *seed(["t2"]))
     remaining = db.scalars(select(Task.key).join(TaskCompletion, TaskCompletion.task_id == Task.id)).all()
     assert remaining == ["t2"]
 
 
+def test_removing_a_ticked_prerequisite_from_seed_deletes_its_tick(db):
+    apply_seed(db, *seed(["t1"], ["azure", "aws"]))
+    user = make_user(db)
+    for key in ("azure", "aws"):
+        prereq_id = db.scalar(select(Prerequisite.id).where(Prerequisite.key == key))
+        db.add(PrerequisiteCompletion(user_id=user.id, prerequisite_id=prereq_id))
+    db.flush()
+
+    apply_seed(db, *seed(["t1"], ["aws"]))
+    remaining = db.scalars(
+        select(Prerequisite.key).join(PrerequisiteCompletion, PrerequisiteCompletion.prerequisite_id == Prerequisite.id)
+    ).all()
+    assert remaining == ["aws"]
+
+
+def test_reseeding_keeps_ticks_on_unchanged_content(db):
+    apply_seed(db, *seed(["t1"], ["azure"]))
+    user = make_user(db)
+    db.add(TaskCompletion(user_id=user.id, task_id=db.scalar(select(Task.id))))
+    db.add(PrerequisiteCompletion(user_id=user.id, prerequisite_id=db.scalar(select(Prerequisite.id))))
+    db.flush()
+
+    apply_seed(db, *seed(["t1"], ["azure"]))
+    assert (count(db, TaskCompletion), count(db, PrerequisiteCompletion)) == (1, 1)
+
+
 def test_deleting_a_module_deletes_ticks_on_its_tasks(db):
-    apply_seed(db, [seed(["t1"])])
+    apply_seed(db, *seed(["t1"]))
     user = make_user(db)
     db.add(TaskCompletion(user_id=user.id, task_id=db.scalar(select(Task.id))))
     db.flush()
@@ -511,9 +219,10 @@ def test_deleting_a_module_deletes_ticks_on_its_tasks(db):
 
 
 def test_deleting_a_user_deletes_their_sessions_ticks_and_settings(db):
-    apply_seed(db, [seed(["t1"])])
+    apply_seed(db, *seed(["t1"], ["azure"]))
     user = make_user(db)
     db.add(TaskCompletion(user_id=user.id, task_id=db.scalar(select(Task.id))))
+    db.add(PrerequisiteCompletion(user_id=user.id, prerequisite_id=db.scalar(select(Prerequisite.id))))
     db.add(UserSession(token_hash="a" * 64, user_id=user.id, expires_at=datetime.now(UTC) + timedelta(days=1)))
     db.flush()
     db.expire_all()
@@ -521,16 +230,17 @@ def test_deleting_a_user_deletes_their_sessions_ticks_and_settings(db):
     db.delete(db.get(User, user.id))
     db.flush()
     assert (count(db, UserSession), count(db, TaskCompletion), count(db, UserSettings)) == (0, 0, 0)
+    assert count(db, PrerequisiteCompletion) == 0
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run: `uv run pytest tests/test_accounts_models.py -v`
-Expected: FAIL with `ImportError: cannot import name 'TaskCompletion'`.
+Expected: FAIL with `ImportError: cannot import name 'PrerequisiteCompletion'`.
 
 - [ ] **Step 3: Add the models**
 
-In `backend/app/models.py`, change the imports and add to `Task`:
+In `backend/app/models.py`, change the imports:
 
 ```python
 from datetime import date, datetime
@@ -566,6 +276,9 @@ class User(Base):
     completions: Mapped[list["TaskCompletion"]] = relationship(
         cascade="all, delete-orphan", passive_deletes=True
     )
+    prerequisite_completions: Mapped[list["PrerequisiteCompletion"]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True
+    )
 
 
 class UserSession(Base):
@@ -587,6 +300,18 @@ class TaskCompletion(Base):
     completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class PrerequisiteCompletion(Base):
+    """A user's tick on a one-off setup step. Kept apart from TaskCompletion so progress never counts it."""
+
+    __tablename__ = "prerequisite_completions"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    prerequisite_id: Mapped[int] = mapped_column(
+        ForeignKey("prerequisites.id", ondelete="CASCADE"), primary_key=True, index=True
+    )
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class UserSettings(Base):
     __tablename__ = "user_settings"
     __table_args__ = (CheckConstraint("study_mode IN ('FT', 'PT')", name="study_mode"),)
@@ -598,21 +323,23 @@ class UserSettings(Base):
     user: Mapped[User] = relationship(back_populates="settings")
 ```
 
-- [ ] **Step 4: Write migration 0005**
+(`apply_seed` deletes removed tasks and prerequisites with bulk SQL `DELETE`, so it's the database's `ON DELETE CASCADE` that removes their ticks. The ORM relationships only matter for ORM deletes.)
 
-Create `backend/alembic/versions/0005_accounts.py`:
+- [ ] **Step 4: Write migration 0006**
+
+Create `backend/alembic/versions/0006_accounts.py`:
 
 ```python
 """accounts, sessions, completions, settings
 
-Revision ID: 0005
-Revises: 0004
+Revision ID: 0006
+Revises: 0005
 """
 from alembic import op
 import sqlalchemy as sa
 
-revision = "0005"
-down_revision = "0004"
+revision = "0006"
+down_revision = "0005"
 branch_labels = None
 depends_on = None
 
@@ -641,6 +368,17 @@ def upgrade() -> None:
     )
     op.create_index("ix_task_completions_task_id", "task_completions", ["task_id"])
     op.create_table(
+        "prerequisite_completions",
+        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+        sa.Column(
+            "prerequisite_id", sa.Integer(), sa.ForeignKey("prerequisites.id", ondelete="CASCADE"), primary_key=True
+        ),
+        sa.Column("completed_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+    )
+    op.create_index(
+        "ix_prerequisite_completions_prerequisite_id", "prerequisite_completions", ["prerequisite_id"]
+    )
+    op.create_table(
         "user_settings",
         sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
         sa.Column("current_week", sa.Integer(), nullable=True),
@@ -651,6 +389,8 @@ def upgrade() -> None:
 
 def downgrade() -> None:
     op.drop_table("user_settings")
+    op.drop_index("ix_prerequisite_completions_prerequisite_id", table_name="prerequisite_completions")
+    op.drop_table("prerequisite_completions")
     op.drop_index("ix_task_completions_task_id", table_name="task_completions")
     op.drop_table("task_completions")
     op.drop_index("ix_sessions_user_id", table_name="sessions")
@@ -661,26 +401,26 @@ def downgrade() -> None:
 - [ ] **Step 5: Run tests to verify they pass**
 
 Run: `uv run pytest tests/test_accounts_models.py tests/test_migrations.py -v`
-Expected: all PASS. `test_migrations` now proves migration 0005 matches the new models. `test_foreign_keys_are_indexed` passes because `task_completions.user_id` is the first PK column and the other FKs have indexes.
+Expected: all PASS. `test_migrations` proves that 0006 matches the models and that every new FK is indexed.
 
 Then run: `uv run pytest`
 Expected: all PASS.
 
 - [ ] **Step 6: Apply to dev and confirm no drift**
 
-Run: `uv run alembic upgrade head` and then `uv run alembic check`
-Expected: `0004 -> 0005`; `No new upgrade operations detected.`
+Run: `uv run alembic upgrade head`, then `uv run alembic check`
+Expected: `0005 -> 0006`; `No new upgrade operations detected.`
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add backend/app/models.py backend/alembic/versions/0005_accounts.py backend/tests/test_accounts_models.py
-git commit -m "feat(db): users, sessions, task completions and settings"
+git add backend/app/models.py backend/alembic/versions/0006_accounts.py backend/tests/test_accounts_models.py
+git commit -m "feat(db): users, sessions, task and prerequisite completions, settings"
 ```
 
 ---
 
-### Task 4: Auth core — passwords, sessions, rate limiter
+### Task 2: Auth core — passwords, sessions, rate limiter
 
 **Files:**
 - Modify: `backend/pyproject.toml` (via `uv add`)
@@ -690,7 +430,7 @@ git commit -m "feat(db): users, sessions, task completions and settings"
 - Test: `backend/tests/test_auth_core.py`
 
 **Interfaces:**
-- Consumes: `User`, `UserSession` (Task 3).
+- Consumes: `User`, `UserSession` (Task 1).
 - Produces:
   - `hash_password(password: str) -> str`
   - `verify_password(password_hash: str | None, password: str) -> bool` (with `None` it still does the hashing work and returns False)
@@ -973,7 +713,7 @@ git commit -m "feat(auth): argon2 passwords, hashed session tokens, rate limiter
 
 ---
 
-### Task 5: Auth and settings API
+### Task 3: Auth and settings API
 
 **Files:**
 - Create: `backend/app/api/auth.py`
@@ -983,7 +723,7 @@ git commit -m "feat(auth): argon2 passwords, hashed session tokens, rate limiter
 - Test: `backend/tests/test_auth_api.py`
 
 **Interfaces:**
-- Consumes: everything Task 4 produces.
+- Consumes: everything Task 2 produces.
 - Produces (all under `/api`):
   - `POST /auth/signup` body `{email, password}` → 201 `MeOut` plus cookie; 409 `EMAIL_TAKEN`; 422; 429
   - `POST /auth/login` body `{email, password}` → 200 `MeOut` plus cookie; 401 `"Email or password is incorrect."`; 429
@@ -1021,7 +761,7 @@ Create `backend/tests/test_auth_api.py`:
 
 ```python
 from app.auth.ratelimit import email_limiter
-from app.models import Module, Week
+from app.models import Module, Submodule, Week
 from tests.conftest import PASSWORD
 
 
@@ -1105,8 +845,9 @@ def test_login_is_rate_limited_per_email(client):
 
 
 def add_weeks(db):
-    db.add(Module(key="m", code="M", title="M", position=1, weeks=[
-        Week(key="w9", week_number=9, title="W9", position=0),
+    sub = Submodule(key="s", code="S", title="S", position=0)
+    db.add(Module(key="m", code="M", title="M", position=1, submodules=[sub], weeks=[
+        Week(key="w9", week_number=9, title="W9", position=0, submodule=sub),
     ]))
     db.flush()
 
@@ -1291,23 +1032,23 @@ git commit -m "feat(api): signup, login, logout, me and current week setting"
 
 ---
 
-### Task 6: Ticking and progress API
+### Task 4: Ticking and progress API
 
 **Files:**
 - Create: `backend/app/api/tasks.py`
-- Modify: `backend/app/api/modules.py`
-- Modify: `backend/app/api/schemas.py`
-- Modify: `backend/app/main.py`
+- Modify: `backend/app/api/modules.py`, `backend/app/api/schemas.py`, `backend/app/main.py`
 - Modify: `backend/tests/test_modules_api.py`
 - Test: `backend/tests/test_tasks_api.py`
 
 **Interfaces:**
-- Consumes: `current_user` (Task 4), `TaskCompletion` (Task 3), the `user_client` fixture (Task 5).
+- Consumes: `current_user` (Task 2), `TaskCompletion` and `PrerequisiteCompletion` (Task 1), the `user_client` fixture (Task 3). The current `app/api/modules.py` on `main` already builds `ModuleDetail` explicitly with `_submodule_out`.
 - Produces:
   - `PUT /api/tasks/{key}/complete` → 204 (idempotent); 404 `"Task not found"`; 401
   - `DELETE /api/tasks/{key}/complete` → 204 (idempotent); 404; 401
-  - `GET /api/modules` now needs a login; each item adds `completed_count: int` and `week_numbers: list[int]` (in week order)
-  - `GET /api/modules/{key}` now needs a login; each task adds `done: bool`
+  - `PUT /api/prerequisites/{key}/complete` → 204 (idempotent); 404 `"Prerequisite not found"`; 401
+  - `DELETE /api/prerequisites/{key}/complete` → 204 (idempotent); 404; 401
+  - `GET /api/modules` now needs a login; each item adds `completed_count: int` (tasks only) and `week_numbers: list[int]` (in week order)
+  - `GET /api/modules/{key}` now needs a login; each task adds `done: bool`; each prerequisite in `submodules[].prerequisites` adds `completed: bool`
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -1316,49 +1057,67 @@ Create `backend/tests/test_tasks_api.py`:
 ```python
 from sqlalchemy import func, select
 
-from app.models import Module, Task, TaskCompletion, Week
+from app.models import (
+    Module, Prerequisite, PrerequisiteCompletion, Submodule, SubmodulePrerequisite, Task, TaskCompletion, Week,
+)
 from tests.conftest import PASSWORD
 
 
 def add_content(db):
-    db.add(Module(key="ccc602", code="CCC602", title="DE", position=2, weeks=[
-        Week(key="w9", week_number=9, title="W9", position=0, tasks=[
+    dp900 = Submodule(key="dp900", code="DP-900", title="DP-900", position=0)
+    dp203 = Submodule(key="dp203", code="DP-203", title="DP-203", position=1)
+    db.add(Module(key="ccc602", code="CCC602", title="DE", position=2, submodules=[dp900, dp203], weeks=[
+        Week(key="w9", week_number=9, title="W9", position=0, submodule=dp900, tasks=[
             Task(key="t1", title="T1", type="lab", external_url="https://x.test/1", position=0),
             Task(key="t2", title="T2", type="lab", external_url="https://x.test/2", position=1),
         ]),
-        Week(key="w10", week_number=10, title="W10", position=1, tasks=[
+        Week(key="w10", week_number=10, title="W10", position=1, submodule=dp203, tasks=[
             Task(key="t3", title="T3", type="lab", external_url="https://x.test/3", position=0),
         ]),
     ]))
+    azure = Prerequisite(key="azure-account", title="Azure", external_url="https://azure.test")
+    db.add(azure)
+    db.flush()
+    db.add_all([  # shared by both submodules
+        SubmodulePrerequisite(submodule_id=dp900.id, prerequisite_id=azure.id, position=0),
+        SubmodulePrerequisite(submodule_id=dp203.id, prerequisite_id=azure.id, position=0),
+    ])
     db.flush()
 
 
-def ticks(db):
-    return db.scalar(select(func.count()).select_from(TaskCompletion))
+def count(db, model):
+    return db.scalar(select(func.count()).select_from(model))
+
+
+def prerequisite_flags(client):
+    detail = client.get("/api/modules/ccc602").json()
+    return [[p["completed"] for p in s["prerequisites"]] for s in detail["submodules"]]
 
 
 def test_tick_and_untick_are_idempotent(user_client, db):
     add_content(db)
     assert user_client.put("/api/tasks/t1/complete").status_code == 204
     assert user_client.put("/api/tasks/t1/complete").status_code == 204
-    assert ticks(db) == 1
+    assert count(db, TaskCompletion) == 1
     assert user_client.delete("/api/tasks/t1/complete").status_code == 204
     assert user_client.delete("/api/tasks/t1/complete").status_code == 204
-    assert ticks(db) == 0
+    assert count(db, TaskCompletion) == 0
 
 
-def test_unknown_task_is_404(user_client, db):
+def test_unknown_task_or_prerequisite_is_404(user_client, db):
     add_content(db)
     for method in (user_client.put, user_client.delete):
-        response = method("/api/tasks/nope/complete")
+        assert method("/api/tasks/nope/complete").json() == {"detail": "Task not found"}
+        response = method("/api/prerequisites/nope/complete")
         assert response.status_code == 404
-        assert response.json() == {"detail": "Task not found"}
+        assert response.json() == {"detail": "Prerequisite not found"}
 
 
 def test_ticking_needs_a_session(client, db):
     add_content(db)
-    assert client.put("/api/tasks/t1/complete").status_code == 401
-    assert client.delete("/api/tasks/t1/complete").status_code == 401
+    for path in ("/api/tasks/t1/complete", "/api/prerequisites/azure-account/complete"):
+        assert client.put(path).status_code == 401
+        assert client.delete(path).status_code == 401
 
 
 def test_module_reads_need_a_session(client, db):
@@ -1381,9 +1140,25 @@ def test_progress_counts_and_done_flags(user_client, db):
     assert [[t["done"] for t in w["tasks"]] for w in detail["weeks"]] == [[True, False], [True]]
 
 
+def test_shared_prerequisite_tick_shows_everywhere_and_never_counts(user_client, db):
+    add_content(db)
+    assert prerequisite_flags(user_client) == [[False], [False]]
+
+    assert user_client.put("/api/prerequisites/azure-account/complete").status_code == 204
+    assert user_client.put("/api/prerequisites/azure-account/complete").status_code == 204
+    assert count(db, PrerequisiteCompletion) == 1
+    assert prerequisite_flags(user_client) == [[True], [True]]
+    assert user_client.get("/api/modules").json()[0]["completed_count"] == 0
+
+    assert user_client.delete("/api/prerequisites/azure-account/complete").status_code == 204
+    assert user_client.delete("/api/prerequisites/azure-account/complete").status_code == 204
+    assert prerequisite_flags(user_client) == [[False], [False]]
+
+
 def test_one_users_ticks_never_show_for_another(user_client, db):
     add_content(db)
     user_client.put("/api/tasks/t1/complete")
+    user_client.put("/api/prerequisites/azure-account/complete")
     user_client.post("/api/auth/logout")
 
     other = user_client.post("/api/auth/signup", json={"email": "other@example.com", "password": PASSWORD})
@@ -1391,12 +1166,13 @@ def test_one_users_ticks_never_show_for_another(user_client, db):
     assert user_client.get("/api/modules").json()[0]["completed_count"] == 0
     detail = user_client.get("/api/modules/ccc602").json()
     assert not any(t["done"] for w in detail["weeks"] for t in w["tasks"])
+    assert prerequisite_flags(user_client) == [[False], [False]]
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
 
 Run: `uv run pytest tests/test_tasks_api.py -v`
-Expected: FAIL (404 on `/api/tasks/...`, 200 instead of 401 on the module reads, missing keys).
+Expected: FAIL (404 on `/api/tasks/...`, 200 instead of 401 on module reads, missing keys).
 
 - [ ] **Step 3: Implement the tick routes**
 
@@ -1410,114 +1186,116 @@ from sqlalchemy.orm import Session
 
 from app.auth.deps import current_user
 from app.db import get_db
-from app.models import Task, TaskCompletion, User
+from app.models import Prerequisite, PrerequisiteCompletion, Task, TaskCompletion, User
 
-router = APIRouter(prefix="/tasks", tags=["tasks"])
-
-
-def _task_id(db: Session, key: str) -> int:
-    task_id = db.scalar(select(Task.id).where(Task.key == key))
-    if task_id is None:
-        raise HTTPException(status_code=404, detail="Task not found")
-    return task_id
+router = APIRouter(tags=["ticks"])
 
 
-@router.put("/{key}/complete", status_code=204)
-def complete(key: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> None:
-    task_id = _task_id(db, key)
+def _id(db: Session, model, key: str, label: str) -> int:
+    row_id = db.scalar(select(model.id).where(model.key == key))
+    if row_id is None:
+        raise HTTPException(status_code=404, detail=f"{label} not found")
+    return row_id
+
+
+@router.put("/tasks/{key}/complete", status_code=204)
+def complete_task(key: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> None:
+    task_id = _id(db, Task, key, "Task")
     db.execute(insert(TaskCompletion).values(user_id=user.id, task_id=task_id).on_conflict_do_nothing())
     db.commit()
 
 
-@router.delete("/{key}/complete", status_code=204)
-def uncomplete(key: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> None:
-    task_id = _task_id(db, key)
+@router.delete("/tasks/{key}/complete", status_code=204)
+def uncomplete_task(key: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> None:
+    task_id = _id(db, Task, key, "Task")
     db.execute(delete(TaskCompletion).where(TaskCompletion.user_id == user.id, TaskCompletion.task_id == task_id))
+    db.commit()
+
+
+@router.put("/prerequisites/{key}/complete", status_code=204)
+def complete_prerequisite(key: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> None:
+    prereq_id = _id(db, Prerequisite, key, "Prerequisite")
+    db.execute(
+        insert(PrerequisiteCompletion).values(user_id=user.id, prerequisite_id=prereq_id).on_conflict_do_nothing()
+    )
+    db.commit()
+
+
+@router.delete("/prerequisites/{key}/complete", status_code=204)
+def uncomplete_prerequisite(key: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> None:
+    prereq_id = _id(db, Prerequisite, key, "Prerequisite")
+    db.execute(
+        delete(PrerequisiteCompletion).where(
+            PrerequisiteCompletion.user_id == user.id, PrerequisiteCompletion.prerequisite_id == prereq_id
+        )
+    )
     db.commit()
 ```
 
 Register it in `backend/app/main.py`: `from app.api import auth, modules, tasks` and `api.include_router(tasks.router)`.
 
-- [ ] **Step 4: Add the progress fields and the login check to the module routes**
+- [ ] **Step 4: Add progress fields and the login check to the module routes**
 
 In `backend/app/api/schemas.py`:
 - `ModuleSummary`: add `completed_count: int` and `week_numbers: list[int]`
 - `TaskOut`: add `done: bool = False`
+- `PrerequisiteOut`: add `completed: bool = False`
 
-Replace `backend/app/api/modules.py`:
+In `backend/app/api/modules.py` (keep everything else as it is on `main`):
+- Imports: add `from app.auth.deps import current_user` and add `PrerequisiteCompletion, TaskCompletion, User` to the `app.models` import.
+- Add helpers below `router = ...`:
 
 ```python
-from datetime import date
-
-from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy import select
-from sqlalchemy.orm import Session, selectinload
-
-from app.api.schemas import ModuleDetail, ModuleSummary
-from app.auth.deps import current_user
-from app.db import get_db
-from app.models import Module, TaskCompletion, User, Week
-
-router = APIRouter(prefix="/modules", tags=["modules"])
-
-
 def _done_task_ids(db: Session, user: User) -> set[int]:
     return set(db.scalars(select(TaskCompletion.task_id).where(TaskCompletion.user_id == user.id)))
 
 
-@router.get("", response_model=list[ModuleSummary])
-def list_modules(user: User = Depends(current_user), db: Session = Depends(get_db)) -> list[ModuleSummary]:
-    done = _done_task_ids(db, user)
-    modules = db.scalars(
-        select(Module).options(selectinload(Module.weeks).selectinload(Week.tasks)).order_by(Module.position)
-    ).all()
-    return [
-        ModuleSummary(
-            key=m.key,
-            code=m.code,
-            title=m.title,
-            week_count=len(m.weeks),
-            task_count=sum(len(w.tasks) for w in m.weeks),
+def _done_prerequisite_ids(db: Session, user: User) -> set[int]:
+    return set(
+        db.scalars(select(PrerequisiteCompletion.prerequisite_id).where(PrerequisiteCompletion.user_id == user.id))
+    )
+```
+
+- `list_modules(user: User = Depends(current_user), db: Session = Depends(get_db))`: compute `done = _done_task_ids(db, user)` first, and add to each `ModuleSummary(...)`:
+
+```python
             completed_count=sum(1 for w in m.weeks for t in w.tasks if t.id in done),
             week_numbers=[w.week_number for w in m.weeks],
-            uplearn_url=m.uplearn_url,
-        )
-        for m in modules
-    ]
-
-
-@router.get("/{key}", response_model=ModuleDetail)
-def get_module(key: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> ModuleDetail:
-    module = db.scalars(
-        select(Module)
-        .where(Module.key == key)
-        .options(selectinload(Module.weeks).selectinload(Week.tasks), selectinload(Module.assessments))
-    ).one_or_none()
-    if module is None:
-        raise HTTPException(status_code=404, detail="Module not found")
-    done = _done_task_ids(db, user)
-    detail = ModuleDetail.model_validate(module)
-    for week, week_out in zip(module.weeks, detail.weeks):
-        for task, task_out in zip(week.tasks, week_out.tasks):
-            task_out.done = task.id in done
-    detail.assessments.sort(key=lambda a: (a.due_date is None, a.due_date or date.max, a.title))
-    return detail
 ```
+
+- `_submodule_out(sub: Submodule, done_prereqs: set[int])`: the prerequisites list becomes:
+
+```python
+        prerequisites=[
+            PrerequisiteOut.model_validate(link.prerequisite).model_copy(
+                update={"completed": link.prerequisite_id in done_prereqs}
+            )
+            for link in sub.prerequisite_links
+        ],
+```
+
+- `get_module(key: str, user: User = Depends(current_user), db: Session = Depends(get_db))`: after the 404 check, compute both sets and build the weeks with `done` flags:
+
+```python
+    done_tasks = _done_task_ids(db, user)
+    done_prereqs = _done_prerequisite_ids(db, user)
+    weeks = []
+    for week in module.weeks:
+        week_out = WeekOut.model_validate(week)
+        for task, task_out in zip(week.tasks, week_out.tasks):
+            task_out.done = task.id in done_tasks
+        weeks.append(week_out)
+```
+
+  Then pass `submodules=[_submodule_out(s, done_prereqs) for s in module.submodules]` and `weeks=weeks` to `ModuleDetail(...)`.
 
 - [ ] **Step 5: Update the existing module API tests**
 
 In `backend/tests/test_modules_api.py`:
-- Replace the `client` parameter with `user_client` in every test (and the `client.get` calls inside them with `user_client.get`).
-- In `test_list_modules_in_order_with_counts`, the expected dicts become:
-
-```python
-        {"key": "ccc601", "code": "CCC601", "title": "Public Cloud Administration", "week_count": 0, "task_count": 0,
-         "completed_count": 0, "week_numbers": [], "uplearn_url": None},
-        {"key": "ccc602", "code": "CCC602", "title": "Data Engineering", "week_count": 2, "task_count": 2,
-         "completed_count": 0, "week_numbers": [9, 10], "uplearn_url": "https://up.test/602"},
-```
-
+- Replace the `client` parameter with `user_client` in every test, and the `client.get` calls inside them with `user_client.get`.
+- In `test_list_modules_in_order_with_counts`, add `"completed_count": 0, "week_numbers": []` to the `ccc601` dict and `"completed_count": 0, "week_numbers": [9, 10]` to the `ccc602` dict.
 - In `test_module_detail`, the first task dict gains `"done": False`.
+- In `test_module_detail_lists_submodules_with_prerequisites`, the `azure-account` prerequisite dict gains `"completed": False`.
 
 - [ ] **Step 6: Run tests to verify they pass**
 
@@ -1528,12 +1306,12 @@ Expected: all PASS.
 
 ```bash
 git add backend/app/api/tasks.py backend/app/api/modules.py backend/app/api/schemas.py backend/app/main.py backend/tests/test_modules_api.py backend/tests/test_tasks_api.py
-git commit -m "feat(api): tick and untick tasks, per-user progress, login for module reads"
+git commit -m "feat(api): tick tasks and prerequisites, per-user progress, login for module reads"
 ```
 
 ---
 
-### Task 7: Frontend sign-in flow
+### Task 5: Frontend sign-in flow
 
 **Files:**
 - Modify: `frontend/src/api.ts`
@@ -1546,12 +1324,12 @@ git commit -m "feat(api): tick and untick tasks, per-user progress, login for mo
 - Test: `frontend/src/pages/AuthPage.test.tsx`
 
 **Interfaces:**
-- Consumes: the backend API from Tasks 5 and 6.
+- Consumes: the backend API from Tasks 3 and 4.
 - Produces (`api.ts`):
   - `interface Me { email: string; current_week: number | null; study_mode: 'FT' | 'PT' }`
-  - `ModuleSummary` gains `completed_count: number; week_numbers: number[]`; `Task` gains `done: boolean`
+  - `ModuleSummary` gains `completed_count: number; week_numbers: number[]`; `Task` gains `done: boolean`; `Prerequisite` gains `completed: boolean`
   - `ApiError` (status `0` = network error, message `"Can't reach the server. Check your connection and try again."`), `isUnauthorized(error: unknown): boolean`
-  - `fetchMe()`, `signup(email, password)`, `login(email, password)` (all `Promise<Me>`), `logout(): Promise<void>`, `updateSettings(body: { current_week: number | null }): Promise<Me>`, `setTaskDone(key: string, done: boolean): Promise<void>`, `fetchModules`, `fetchModule`
+  - `fetchMe()`, `signup(email, password)`, `login(email, password)` (all `Promise<Me>`), `logout(): Promise<void>`, `updateSettings(body: { current_week: number | null }): Promise<Me>`, `setTaskDone(key: string, done: boolean): Promise<void>`, `setPrerequisiteDone(key: string, done: boolean): Promise<void>`, `fetchModules`, `fetchModule`
 - Produces (other files):
   - `useMe()` (query key `['me']`, `staleTime: Infinity`)
   - `makeQueryClient(retry?)` from `App.tsx`; a 401 on any query or mutation re-checks `['me']`
@@ -1768,6 +1546,7 @@ export interface ModuleSummary {
   key: string
   code: string
   title: string
+  submodule_count: number
   week_count: number
   task_count: number
   completed_count: number
@@ -1787,9 +1566,29 @@ export interface Task {
 
 export interface Week {
   key: string
+  submodule_key: string
   week_number: number
   title: string
   tasks: Task[]
+}
+
+export interface Prerequisite {
+  key: string
+  title: string
+  note: string | null
+  external_url: string | null
+  uplearn_url: string | null
+  completed: boolean
+}
+
+export interface Submodule {
+  key: string
+  code: string
+  title: string
+  uplearn_url: string | null
+  first_week: number | null
+  last_week: number | null
+  prerequisites: Prerequisite[]
 }
 
 export interface Assessment {
@@ -1804,6 +1603,7 @@ export interface ModuleDetail {
   code: string
   title: string
   uplearn_url: string | null
+  submodules: Submodule[]
   weeks: Week[]
   assessments: Assessment[]
 }
@@ -1861,6 +1661,8 @@ export const logout = () => request<void>('POST', '/auth/logout')
 export const updateSettings = (body: { current_week: number | null }) => request<Me>('PATCH', '/me/settings', body)
 export const setTaskDone = (key: string, done: boolean) =>
   request<void>(done ? 'PUT' : 'DELETE', `/tasks/${encodeURIComponent(key)}/complete`)
+export const setPrerequisiteDone = (key: string, done: boolean) =>
+  request<void>(done ? 'PUT' : 'DELETE', `/prerequisites/${encodeURIComponent(key)}/complete`)
 ```
 
 - [ ] **Step 5: Add the hooks, guard and page**
@@ -2150,7 +1952,7 @@ Append to `frontend/src/index.css`:
 
 - `frontend/src/pages/ModulesPage.test.tsx`: add `completed_count: 0, week_numbers: []` to every module summary fixture (in the `modules` array and the inline `ccc603` one). Give `ccc602` `week_numbers: [9, 10, 11, 12, 13, 14, 15, 16]`. Change the "backend is unreachable" expectation from `'Failed to fetch'` to `"Can't reach the server. Check your connection and try again."`.
 - `frontend/src/components/Sidebar.test.tsx`: add `completed_count: 0, week_numbers: []` to each module summary.
-- `frontend/src/pages/ModulePage.test.tsx`: add `completed_count: 0, week_numbers: [9, 10]` to the summary, and `done: false` to each task in `detail`.
+- `frontend/src/pages/ModulePage.test.tsx`: add `completed_count: 0, week_numbers: [9, 10]` to the summary, `done: false` to each task in `detail`, and `completed: false` to each prerequisite (the shared `azure` object and the Skillable one).
 
 - [ ] **Step 10: Run all frontend checks**
 
@@ -2166,15 +1968,15 @@ git commit -m "feat(frontend): log in, sign up, log out and session handling"
 
 ---
 
-### Task 8: Frontend ticking and real progress
+### Task 6: Frontend ticking and real progress
 
 **Files:**
 - Create: `frontend/src/progress.ts`, `frontend/src/progress.test.ts`, `frontend/src/hooks/useTickTask.ts`
-- Modify: `frontend/src/components/module/WeekTimeline.tsx`, `frontend/src/components/module/ProgressCard.tsx`, `frontend/src/pages/ModulePage.tsx`, `frontend/src/pages/ModulesPage.tsx`, `frontend/src/components/Sidebar.tsx`, `frontend/src/components/ExternalLink.tsx`, `frontend/src/components/AssessmentsRail.tsx`, `frontend/src/index.css`
+- Modify: `frontend/src/components/module/WeekTimeline.tsx`, `frontend/src/components/module/ProgressCard.tsx`, `frontend/src/pages/ModulePage.tsx`, `frontend/src/pages/ModulesPage.tsx`, `frontend/src/components/Sidebar.tsx`, `frontend/src/components/AssessmentsRail.tsx`, `frontend/src/index.css`
 - Test: `frontend/src/pages/ModulePage.test.tsx`, `frontend/src/pages/ModulesPage.test.tsx`, `frontend/src/components/Sidebar.test.tsx`, `frontend/src/components/AssessmentsRail.test.tsx`
 
 **Interfaces:**
-- Consumes: `setTaskDone`, `ModuleDetail`, `ModuleSummary` (Task 7).
+- Consumes: `setTaskDone`, `ModuleDetail`, `ModuleSummary` (Task 5).
 - Produces (`progress.ts`):
   - `percent(done: number, total: number): number`, which rounds down so 100 means all done, and gives 0 when the total is 0
   - `weekDone(week: Week): number`
@@ -2182,8 +1984,8 @@ git commit -m "feat(frontend): log in, sign up, log out and session handling"
   - `programmeProgress(modules: ModuleSummary[]): { done: number; total: number; pct: number }`
   - `withTaskDone(mod: ModuleDetail, taskKey: string, done: boolean): ModuleDetail` (doesn't change its input)
 - Produces: `useTickTask(moduleKey: string)`, a mutation taking `{ taskKey, done }`. It updates `['module', key]` straight away, rolls back on error, and refetches the module and `['modules']` once the last tick in flight has finished.
-- `ExternalLink` gains an optional `label?: string` (sets `aria-label`).
-- `WeekTimeline` props: `{ weeks, onToggleTask: (taskKey: string, done: boolean) => void }`. Task 9 adds `currentWeek`.
+- `ExternalLink` already takes an optional `label` (on `main`).
+- `WeekTimeline` props: `{ weeks, submodules, onToggleTask: (taskKey: string, done: boolean) => void }`. Task 7 adds `onTogglePrerequisite`; Task 8 adds `currentWeek`.
 
 - [ ] **Step 1: Write the failing progress tests**
 
@@ -2197,11 +1999,11 @@ import { moduleProgress, percent, programmeProgress, withTaskDone } from './prog
 const task = (key: string, done: boolean) => ({ key, title: key, type: 'lab' as const, external_url: null, uplearn_url: 'https://up.test', note: null, done })
 
 const mod: ModuleDetail = {
-  key: 'm', code: 'M', title: 'M', uplearn_url: null, assessments: [],
+  key: 'm', code: 'M', title: 'M', uplearn_url: null, assessments: [], submodules: [],
   weeks: [
-    { key: 'w1', week_number: 1, title: 'W1', tasks: [task('a', true), task('b', true)] },
-    { key: 'w2', week_number: 2, title: 'W2', tasks: [task('c', true), task('d', false)] },
-    { key: 'w3', week_number: 3, title: 'W3', tasks: [] },
+    { key: 'w1', submodule_key: 's', week_number: 1, title: 'W1', tasks: [task('a', true), task('b', true)] },
+    { key: 'w2', submodule_key: 's', week_number: 2, title: 'W2', tasks: [task('c', true), task('d', false)] },
+    { key: 'w3', submodule_key: 's', week_number: 3, title: 'W3', tasks: [] },
   ],
 }
 
@@ -2446,18 +2248,6 @@ export function useTickTask(moduleKey: string) {
 
 - [ ] **Step 7: Update the components**
 
-`frontend/src/components/ExternalLink.tsx`:
-
-```tsx
-export function ExternalLink({ href, children, label }: { href: string; children: string; label?: string }) {
-  return (
-    <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label}>
-      {children}
-    </a>
-  )
-}
-```
-
 `frontend/src/components/module/WeekTimeline.tsx`. Changes:
 - import `weekDone` from `../../progress`
 - `TaskRow` takes `onToggle: (taskKey: string, done: boolean) => void`; the checkbox becomes:
@@ -2496,14 +2286,16 @@ export function ExternalLink({ href, children, label }: { href: string; children
 ```tsx
 export function WeekTimeline({
   weeks,
+  submodules,
   onToggleTask,
 }: {
   weeks: Week[]
+  submodules: Submodule[]
   onToggleTask: (taskKey: string, done: boolean) => void
 }) {
 ```
 
-  Pass `onToggleTask` to each `WeekCard`.
+  Keep the existing grouping (`groupWeeks`, `SubmoduleHead`, `PrerequisiteBox`) and pass `onToggleTask` to each `WeekCard` inside the groups.
 
 `frontend/src/components/module/ProgressCard.tsx`:
 
@@ -2576,7 +2368,12 @@ The success render:
         </p>
       )}
       <div className="module-columns">
-        <WeekTimeline key={mod.key} weeks={mod.weeks} onToggleTask={(taskKey, done) => tick.mutate({ taskKey, done })} />
+        <WeekTimeline
+          key={mod.key}
+          weeks={mod.weeks}
+          submodules={mod.submodules}
+          onToggleTask={(taskKey, done) => tick.mutate({ taskKey, done })}
+        />
         <AssessmentsRail code={mod.code} assessments={mod.assessments} portalUrl={mod.uplearn_url} />
       </div>
     </main>
@@ -2651,13 +2448,273 @@ Expected: all PASS, clean.
 - [ ] **Step 9: Commit**
 
 ```bash
-git add frontend/src/progress.ts frontend/src/progress.test.ts frontend/src/hooks/useTickTask.ts frontend/src/components/module/WeekTimeline.tsx frontend/src/components/module/ProgressCard.tsx frontend/src/pages/ModulePage.tsx frontend/src/pages/ModulesPage.tsx frontend/src/components/Sidebar.tsx frontend/src/components/ExternalLink.tsx frontend/src/components/AssessmentsRail.tsx frontend/src/index.css frontend/src/pages/ModulePage.test.tsx frontend/src/pages/ModulesPage.test.tsx frontend/src/components/Sidebar.test.tsx frontend/src/components/AssessmentsRail.test.tsx
+git add frontend/src/progress.ts frontend/src/progress.test.ts frontend/src/hooks/useTickTask.ts frontend/src/components/module/WeekTimeline.tsx frontend/src/components/module/ProgressCard.tsx frontend/src/pages/ModulePage.tsx frontend/src/pages/ModulesPage.tsx frontend/src/components/Sidebar.tsx frontend/src/components/AssessmentsRail.tsx frontend/src/index.css frontend/src/pages/ModulePage.test.tsx frontend/src/pages/ModulesPage.test.tsx frontend/src/components/Sidebar.test.tsx frontend/src/components/AssessmentsRail.test.tsx
 git commit -m "feat(frontend): tick tasks and show real progress everywhere"
 ```
 
 ---
 
-### Task 9: Settings page and current week
+### Task 7: Frontend prerequisite ticks
+
+The owner wants it to work like this:
+- Each item in "Before you start" gets a tick box.
+- A ticked item disappears, and because prerequisites are shared, it disappears everywhere the same prerequisite appears, including other modules.
+- A small "Show done (n)" button brings done items back so a mistake can be unticked.
+- When every item in a box is done, the list is replaced by "You're ready to start learning."
+- Prerequisite ticks never move a progress bar.
+
+**Files:**
+- Modify: `frontend/src/progress.ts`, `frontend/src/progress.test.ts`, `frontend/src/hooks/useTickTask.ts`, `frontend/src/components/module/PrerequisiteBox.tsx`, `frontend/src/components/module/WeekTimeline.tsx`, `frontend/src/pages/ModulePage.tsx`, `frontend/src/index.css`
+- Test: `frontend/src/pages/ModulePage.test.tsx`
+
+**Interfaces:**
+- Consumes: `setPrerequisiteDone` and `Prerequisite.completed` (Task 5); `useTickTask` and its `['tick', moduleKey]` mutation key (Task 6); `WeekTimeline({ weeks, submodules, onToggleTask })` (Task 6).
+- Produces:
+  - `withPrerequisiteDone(mod: ModuleDetail, prerequisiteKey: string, completed: boolean): ModuleDetail`. It updates every submodule listing that key and doesn't change its input.
+  - `useTickPrerequisite(moduleKey: string)`, a mutation taking `{ prerequisiteKey, completed }`. It updates the open module straight away, rolls back on error, and when the last tick settles it refetches **every** cached module (`['module']` prefix), because the same prerequisite can appear in other modules.
+  - `PrerequisiteBox({ submodule, onToggle: (prerequisiteKey: string, completed: boolean) => void })`
+  - `WeekTimeline` gains `onTogglePrerequisite: (prerequisiteKey: string, completed: boolean) => void`
+
+- [ ] **Step 1: Write the failing tests**
+
+Append to `frontend/src/progress.test.ts` (merge `withPrerequisiteDone` into the existing `./progress` import, and add `Submodule` to the type import from `./api`):
+
+```ts
+describe('withPrerequisiteDone', () => {
+  const prereq = (key: string) => ({ key, title: key, note: null, external_url: 'https://x.test', uplearn_url: null, completed: false })
+  const sub = (key: string, keys: string[]): Submodule => ({
+    key, code: key, title: key, uplearn_url: null, first_week: 1, last_week: 1, prerequisites: keys.map(prereq),
+  })
+  const withSubs: ModuleDetail = { ...mod, submodules: [sub('a', ['azure', 'skillable']), sub('b', ['azure']), sub('c', ['aws'])] }
+
+  it('ticks a shared prerequisite in every submodule and leaves others alone', () => {
+    const next = withPrerequisiteDone(withSubs, 'azure', true)
+    expect(next.submodules[0].prerequisites.map((p) => p.completed)).toEqual([true, false])
+    expect(next.submodules[1].prerequisites[0].completed).toBe(true)
+    expect(next.submodules[2]).toBe(withSubs.submodules[2])
+    expect(withSubs.submodules[0].prerequisites[0].completed).toBe(false)
+  })
+})
+```
+
+In `frontend/src/pages/ModulePage.test.tsx`, import `withPrerequisiteDone` from `../progress` and append inside the `describe`:
+
+```tsx
+  it('ticks a prerequisite and hides it everywhere it is shared, without moving progress', async () => {
+    let azureDone = false
+    const fetchMock = mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': () => jsonResponse(withPrerequisiteDone(detail as ModuleDetail, 'azure-account', azureDone)),
+      'PUT /api/prerequisites/azure-account/complete': () => {
+        azureDone = true
+        return new Response(null, { status: 204 })
+      },
+    })
+    renderAt('/modules/ccc602')
+    const main = await screen.findByRole('main')
+    const progressBefore = (await within(main).findByRole('progressbar', { name: 'Module progress' })).getAttribute('aria-valuenow')
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+
+    await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
+
+    await waitFor(() => expect(within(main).queryByText('Create an Azure account')).toBeNull())
+    expect(within(dp900).getByRole('checkbox', { name: 'Register for the DP-900 Skillable class' })).not.toBeChecked()
+    const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
+    expect(within(dp203).getByText("You're ready to start learning.")).toBeInTheDocument()
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', progressBefore!)
+    expect(fetchMock).toHaveBeenCalledWith('/api/prerequisites/azure-account/complete', expect.objectContaining({ method: 'PUT' }))
+  })
+
+  it('shows done prerequisites on request so they can be unticked', async () => {
+    const ticked = withPrerequisiteDone(detail as ModuleDetail, 'azure-account', true)
+    const fetchMock = mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': ticked,
+      'DELETE /api/prerequisites/azure-account/complete': () => new Response(null, { status: 204 }),
+    })
+    renderAt('/modules/ccc602')
+    const main = await screen.findByRole('main')
+    const dp203 = await within(main).findByRole('region', { name: 'DP-203 · Azure Data Engineer' })
+    expect(within(dp203).queryByRole('checkbox')).toBeNull()
+
+    await userEvent.click(within(dp203).getByRole('button', { name: 'Show done (1)' }))
+    const box = within(dp203).getByRole('checkbox', { name: 'Create an Azure account' })
+    expect(box).toBeChecked()
+    await userEvent.click(box)
+    expect(fetchMock).toHaveBeenCalledWith('/api/prerequisites/azure-account/complete', expect.objectContaining({ method: 'DELETE' }))
+  })
+
+  it('brings a prerequisite back when saving the tick fails', async () => {
+    mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': detail,
+      'PUT /api/prerequisites/azure-account/complete': () => jsonResponse({ detail: 'Boom' }, 500),
+    })
+    renderAt('/modules/ccc602')
+    const main = await screen.findByRole('main')
+    const dp900 = await within(main).findByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+    await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
+    expect(await within(main).findByRole('alert')).toHaveTextContent("Couldn't save that tick. Try again.")
+    expect(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' })).not.toBeChecked()
+  })
+```
+
+- [ ] **Step 2: Run to verify they fail**
+
+Run: `npm test`
+Expected: the new tests FAIL (no `withPrerequisiteDone`, no prerequisite checkboxes).
+
+- [ ] **Step 3: Implement the helper and the hook**
+
+Append to `frontend/src/progress.ts`:
+
+```ts
+/** Copy of `mod` with one prerequisite ticked or unticked in every submodule that lists it. */
+export function withPrerequisiteDone(mod: ModuleDetail, prerequisiteKey: string, completed: boolean): ModuleDetail {
+  return {
+    ...mod,
+    submodules: mod.submodules.map((sub) =>
+      sub.prerequisites.some((p) => p.key === prerequisiteKey)
+        ? { ...sub, prerequisites: sub.prerequisites.map((p) => (p.key === prerequisiteKey ? { ...p, completed } : p)) }
+        : sub,
+    ),
+  }
+}
+```
+
+Append to `frontend/src/hooks/useTickTask.ts` (add `setPrerequisiteDone` to the `../api` import and `withPrerequisiteDone` to the `../progress` import):
+
+```ts
+/** Like useTickTask, for prerequisites. Shares the same mutation key so task and prerequisite ticks settle together. */
+export function useTickPrerequisite(moduleKey: string) {
+  const queryClient = useQueryClient()
+  const moduleQuery = ['module', moduleKey]
+  const mutationKey = ['tick', moduleKey]
+  return useMutation({
+    mutationKey,
+    mutationFn: ({ prerequisiteKey, completed }: { prerequisiteKey: string; completed: boolean }) =>
+      setPrerequisiteDone(prerequisiteKey, completed),
+    onMutate: async ({ prerequisiteKey, completed }) => {
+      await queryClient.cancelQueries({ queryKey: moduleQuery })
+      const previous = queryClient.getQueryData<ModuleDetail>(moduleQuery)
+      if (previous) queryClient.setQueryData(moduleQuery, withPrerequisiteDone(previous, prerequisiteKey, completed))
+      return { previous }
+    },
+    onError: (_error, _vars, context) => {
+      if (context?.previous) queryClient.setQueryData(moduleQuery, context.previous)
+    },
+    onSettled: () => {
+      // Shared prerequisites appear in other modules too, so refresh every cached module.
+      if (queryClient.isMutating({ mutationKey }) === 1) void queryClient.invalidateQueries({ queryKey: ['module'] })
+    },
+  })
+}
+```
+
+- [ ] **Step 4: Tick boxes in the box**
+
+Replace `frontend/src/components/module/PrerequisiteBox.tsx`:
+
+```tsx
+import { useState } from 'react'
+import type { Prerequisite, Submodule } from '../../api'
+import { ExternalLink } from '../ExternalLink'
+
+type Toggle = (prerequisiteKey: string, completed: boolean) => void
+
+function PrerequisiteRow({ submoduleKey, prerequisite: p, onToggle }: { submoduleKey: string; prerequisite: Prerequisite; onToggle: Toggle }) {
+  // The same prerequisite can show under several submodules on one page, so the id includes the submodule.
+  const id = `prereq-${submoduleKey}-${p.key}`
+  return (
+    <li className="prereq-item">
+      <input
+        type="checkbox"
+        id={id}
+        checked={p.completed}
+        onChange={() => onToggle(p.key, !p.completed)}
+        aria-describedby={p.note ? `${id}-note` : undefined}
+      />
+      <span className="task-main">
+        <label htmlFor={id} className="prereq-title">
+          {p.title}
+        </label>
+        {p.note && (
+          <span id={`${id}-note`} className="task-note">
+            {p.note}
+          </span>
+        )}
+      </span>
+      <span className="task-links">
+        {p.external_url && (
+          <ExternalLink href={p.external_url} label={`Do it: ${p.title}`}>
+            Do it
+          </ExternalLink>
+        )}
+        {p.uplearn_url && (
+          <ExternalLink href={p.uplearn_url} label={`Watch the guide: ${p.title}`}>
+            Watch the guide
+          </ExternalLink>
+        )}
+      </span>
+    </li>
+  )
+}
+
+/** One-off setup steps for a submodule. Done ones are hidden (tickable again via "Show done"); never part of progress. */
+export function PrerequisiteBox({ submodule, onToggle }: { submodule: Submodule; onToggle: Toggle }) {
+  const [showDone, setShowDone] = useState(false)
+  if (submodule.prerequisites.length === 0) return null
+  const todo = submodule.prerequisites.filter((p) => !p.completed)
+  const done = submodule.prerequisites.filter((p) => p.completed)
+  const row = (p: Prerequisite) => <PrerequisiteRow key={p.key} submoduleKey={submodule.key} prerequisite={p} onToggle={onToggle} />
+  return (
+    <div className={`prereq-box${todo.length === 0 ? ' is-ready' : ''}`}>
+      <h4>Before you start</h4>
+      {todo.length === 0 ? <p className="prereq-ready">You're ready to start learning.</p> : <ul className="prereq-list">{todo.map(row)}</ul>}
+      {done.length > 0 && (
+        <>
+          <button type="button" className="link-button" aria-expanded={showDone} onClick={() => setShowDone(!showDone)}>
+            {showDone ? 'Hide done' : `Show done (${done.length})`}
+          </button>
+          {showDone && <ul className="prereq-list is-done">{done.map(row)}</ul>}
+        </>
+      )}
+    </div>
+  )
+}
+```
+
+In `frontend/src/components/module/WeekTimeline.tsx`, add `onTogglePrerequisite: (prerequisiteKey: string, completed: boolean) => void` to `WeekTimeline`'s props and render `<PrerequisiteBox submodule={group.submodule} onToggle={onTogglePrerequisite} />`.
+
+In `frontend/src/pages/ModulePage.tsx`:
+- Add `const prereqTick = useTickPrerequisite(key)` next to `const tick = useTickTask(key)`.
+- The alert condition becomes `(tick.isError || prereqTick.isError)`.
+- Pass `onTogglePrerequisite={(prerequisiteKey, completed) => prereqTick.mutate({ prerequisiteKey, completed })}` to `WeekTimeline`.
+
+Append to `frontend/src/index.css`:
+
+```css
+.prereq-item input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.prereq-list.is-done .prereq-title { color: var(--muted); text-decoration: line-through; }
+.prereq-ready { margin: 0; font-weight: 600; color: var(--accent-strong); }
+.link-button { align-self: flex-start; min-height: 44px; padding: 0; border: 0; background: none; color: var(--accent-strong); font-size: 13px; font-weight: 500; text-decoration: underline; cursor: pointer; }
+```
+
+- [ ] **Step 5: Run all frontend checks**
+
+Run: `npm test`, then `npm run build`, then `npm run lint`
+Expected: all PASS, clean (apart from the 2 lint warnings already on `main` in `AssessmentsRail.tsx` and `App.tsx`).
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add frontend/src/progress.ts frontend/src/progress.test.ts frontend/src/hooks/useTickTask.ts frontend/src/components/module/PrerequisiteBox.tsx frontend/src/components/module/WeekTimeline.tsx frontend/src/pages/ModulePage.tsx frontend/src/pages/ModulePage.test.tsx frontend/src/index.css
+git commit -m "feat(frontend): tick prerequisites, hide done ones everywhere, ready message"
+```
+
+---
+
+### Task 8: Settings page and current week
 
 **Files:**
 - Create: `frontend/src/pages/SettingsPage.tsx`, `frontend/src/pages/SettingsPage.test.tsx`
@@ -2665,7 +2722,7 @@ git commit -m "feat(frontend): tick tasks and show real progress everywhere"
 - Modify: `frontend/src/App.tsx` (route), `frontend/src/components/Sidebar.tsx`, `frontend/src/components/Sidebar.test.tsx`, `frontend/src/components/module/WeekTimeline.tsx`, `frontend/src/pages/ModulePage.tsx`, `frontend/src/pages/ModulePage.test.tsx`, `frontend/src/pages/NotFoundPage.tsx`, `frontend/src/index.css`
 
 **Interfaces:**
-- Consumes: `useMe`, `updateSettings`, `fetchModules` (Task 7); `WeekTimeline` `currentWeek` prop (Task 8).
+- Consumes: `useMe`, `updateSettings`, `fetchModules` (Task 5); `WeekTimeline({ weeks, submodules, onToggleTask, onTogglePrerequisite })` (Tasks 6–7). This task adds its `currentWeek` prop.
 - Produces:
   - `weekOptions(modules: ModuleSummary[]): { week: number; label: string }[]`, sorted by week, labelled `"Week 9 · CCC602"`, with modules joined by `", "` when they share a week
   - a `/settings` route
@@ -3004,14 +3061,14 @@ git commit -m "feat(frontend): settings page and current week"
 
 ---
 
-### Task 10: Docs and end-to-end check
+### Task 9: Docs and end-to-end check
 
 **Files:**
 - Modify: `CLAUDE.md`
 
 - [ ] **Step 1: Update CLAUDE.md**
 
-- Status line: `Status: Phase 2 done — accounts, ticking, real progress bars and a current-week setting; CCC601–603 seeded.`
+- Status line: `Status: Phase 2 done — accounts, task and prerequisite ticking, real progress bars and a current-week setting; CCC601–603 seeded with submodules.`
 - In "MVP scope", replace the sentence `tick boxes are disabled and progress shows 0% until accounts land.` with `module pages need a login; progress comes from each user's ticks.`
 - Under the backend commands, add: `- Set COOKIE_SECURE=true in backend/.env once the app is served over HTTPS.`
 
@@ -3023,13 +3080,15 @@ Expected: all PASS / clean.
 
 - [ ] **Step 3: Try it in the browser**
 
-Start the backend (`uv run uvicorn app.main:app --reload`) and the frontend (`npm run dev`). Don't kill anything already on port 5173. If Vite picks another port, use that. Then check that you can:
+Start the backend and the frontend. Don't kill anything on 5173, or the old main-checkout servers that often sit on 8000 and 5174–5176. If 8000 is taken, run the backend on a free port (e.g. `uv run uvicorn app.main:app --port 8001`) and the frontend with an untracked config that points `/api` there. Copy `frontend/vite.local.config.ts` from `.claude/worktrees/submodules`, then run `npx vite --config vite.local.config.ts --port <free port> --strictPort`. Then check that you can:
 1. Open the app and land on Log in.
 2. Create an account and land on Modules with 0% programme progress.
 3. Open CCC602, tick two tasks, and see the week, module, sidebar and programme bars move.
 4. Reload the page and see the ticks still there.
 5. In Settings, set Week 10. CCC602 then opens with Week 10 expanded and badged.
-6. Log out, land on Log in, and confirm `/modules/ccc602` sends you back to Log in.
+6. In CCC601, tick "Create an AWS console account" under CLF-C02. It disappears there and under SAA-C03, it's gone from CCC602's DEA-C01 box too, and no progress bar moves. "Show done" brings it back.
+7. Tick every item in one box and see "You're ready to start learning."
+8. Log out, land on Log in, and confirm `/modules/ccc602` sends you back to Log in.
 
 - [ ] **Step 4: Commit**
 

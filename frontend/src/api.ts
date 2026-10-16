@@ -7,6 +7,8 @@ export interface ModuleSummary {
   submodule_count: number
   week_count: number
   task_count: number
+  completed_count: number
+  week_numbers: number[]
   uplearn_url: string | null
 }
 
@@ -17,6 +19,7 @@ export interface Task {
   external_url: string | null
   uplearn_url: string | null
   note: string | null
+  done: boolean
 }
 
 export interface Week {
@@ -33,6 +36,7 @@ export interface Prerequisite {
   note: string | null
   external_url: string | null
   uplearn_url: string | null
+  completed: boolean
 }
 
 export interface Submodule {
@@ -62,7 +66,14 @@ export interface ModuleDetail {
   assessments: Assessment[]
 }
 
+export interface Me {
+  email: string
+  current_week: number | null
+  study_mode: 'FT' | 'PT'
+}
+
 export class ApiError extends Error {
+  /** HTTP status, or 0 when the server couldn't be reached. */
   status: number
 
   constructor(status: number, message: string) {
@@ -71,20 +82,42 @@ export class ApiError extends Error {
   }
 }
 
-async function getJson<T>(path: string): Promise<T> {
-  const res = await fetch(`/api${path}`)
+export const isUnauthorized = (error: unknown) => error instanceof ApiError && error.status === 401
+
+async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
+  let res: Response
+  try {
+    res = await fetch(`/api${path}`, {
+      method,
+      headers: body === undefined ? undefined : { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+    })
+  } catch {
+    throw new ApiError(0, "Can't reach the server. Check your connection and try again.")
+  }
   if (!res.ok) {
     let message = `Request failed (${res.status})`
     try {
-      const body = await res.json()
-      if (typeof body?.detail === 'string') message = body.detail
+      const data = await res.json()
+      if (typeof data?.detail === 'string') message = data.detail
+      else if (res.status === 422) message = 'Check the details you entered and try again.'
     } catch {
       // non-JSON error body; keep the generic message
     }
     throw new ApiError(res.status, message)
   }
+  if (res.status === 204) return undefined as T
   return (await res.json()) as T
 }
 
-export const fetchModules = () => getJson<ModuleSummary[]>('/modules')
-export const fetchModule = (key: string) => getJson<ModuleDetail>(`/modules/${encodeURIComponent(key)}`)
+export const fetchModules = () => request<ModuleSummary[]>('GET', '/modules')
+export const fetchModule = (key: string) => request<ModuleDetail>('GET', `/modules/${encodeURIComponent(key)}`)
+export const fetchMe = () => request<Me>('GET', '/me')
+export const signup = (email: string, password: string) => request<Me>('POST', '/auth/signup', { email, password })
+export const login = (email: string, password: string) => request<Me>('POST', '/auth/login', { email, password })
+export const logout = () => request<void>('POST', '/auth/logout')
+export const updateSettings = (body: { current_week: number | null }) => request<Me>('PATCH', '/me/settings', body)
+export const setTaskDone = (key: string, done: boolean) =>
+  request<void>(done ? 'PUT' : 'DELETE', `/tasks/${encodeURIComponent(key)}/complete`)
+export const setPrerequisiteDone = (key: string, done: boolean) =>
+  request<void>(done ? 'PUT' : 'DELETE', `/prerequisites/${encodeURIComponent(key)}/complete`)

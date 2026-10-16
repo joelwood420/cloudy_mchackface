@@ -14,6 +14,8 @@ class Settings(BaseSettings):
 
     database_url: str
     test_database_url: str | None = None
+    # Send the session cookie over HTTPS only. Off for local http://localhost; turn on when deployed.
+    cookie_secure: bool = False
 
 
 @lru_cache

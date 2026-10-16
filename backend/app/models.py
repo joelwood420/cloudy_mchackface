@@ -1,6 +1,6 @@
-from datetime import date
+from datetime import date, datetime
 
-from sqlalchemy import Date, ForeignKey, String
+from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKey, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -88,6 +88,9 @@ class Task(Base):
     position: Mapped[int]
 
     week: Mapped[Week] = relationship(back_populates="tasks")
+    completions: Mapped[list["TaskCompletion"]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True
+    )
 
 
 class Assessment(Base):
@@ -126,3 +129,67 @@ class SubmodulePrerequisite(Base):
     position: Mapped[int]
 
     prerequisite: Mapped[Prerequisite] = relationship()
+
+
+class User(Base):
+    __tablename__ = "users"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    email: Mapped[str] = mapped_column(String(320), unique=True)
+    password_hash: Mapped[str] = mapped_column(String(255))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+    settings: Mapped["UserSettings"] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+    sessions: Mapped[list["UserSession"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+    completions: Mapped[list["TaskCompletion"]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True
+    )
+    prerequisite_completions: Mapped[list["PrerequisiteCompletion"]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True
+    )
+
+
+class UserSession(Base):
+    __tablename__ = "sessions"
+
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    user: Mapped[User] = relationship(back_populates="sessions")
+
+
+class TaskCompletion(Base):
+    __tablename__ = "task_completions"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    task_id: Mapped[int] = mapped_column(ForeignKey("tasks.id", ondelete="CASCADE"), primary_key=True, index=True)
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class PrerequisiteCompletion(Base):
+    """A user's tick on a one-off setup step. Kept apart from TaskCompletion so progress never counts it."""
+
+    __tablename__ = "prerequisite_completions"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    prerequisite_id: Mapped[int] = mapped_column(
+        ForeignKey("prerequisites.id", ondelete="CASCADE"), primary_key=True, index=True
+    )
+    completed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class UserSettings(Base):
+    __tablename__ = "user_settings"
+    __table_args__ = (CheckConstraint("study_mode IN ('FT', 'PT')", name="study_mode"),)
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    current_week: Mapped[int | None]
+    study_mode: Mapped[str] = mapped_column(String(2), default="FT", server_default="FT")
+
+    user: Mapped[User] = relationship(back_populates="settings")

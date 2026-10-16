@@ -29,6 +29,15 @@ def test_migrations_build_the_model_schema_and_downgrade_cleanly(engine):
             diff = compare_metadata(MigrationContext.configure(conn), Base.metadata)
             assert diff == [], f"models and migrations differ: {diff}"
 
+            checks = conn.execute(
+                text(
+                    "select c.conname from pg_constraint c join pg_namespace n on n.oid = c.connamespace "
+                    "where c.contype = 'c' and n.nspname = :s"
+                ),
+                {"s": SCHEMA},
+            ).scalars().all()
+            assert "user_settings_study_mode_check" in checks, checks
+
             command.downgrade(alembic_config(conn), "base")
             tables = conn.execute(
                 text("select table_name from information_schema.tables where table_schema = :s"), {"s": SCHEMA}

@@ -1,11 +1,32 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { fetchModules } from '../api'
+import { type ModuleSummary, fetchModules } from '../api'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { ProgressBar } from '../components/ProgressBar'
 import { plural } from '../format'
+import { percent, programmeProgress } from '../progress'
+import { usePageTitle } from '../usePageTitle'
+
+function ProgrammeProgress({ modules }: { modules: ModuleSummary[] }) {
+  const { done, total, pct } = programmeProgress(modules)
+  return (
+    <section className="card progress-card" aria-labelledby="programme-heading">
+      <div className="progress-main">
+        <div className="progress-head">
+          <h2 id="programme-heading">Programme progress</h2>
+          <span className="big-number">{pct}%</span>
+        </div>
+        <ProgressBar value={pct} label="Programme progress" size="lg" />
+        <p className="muted small">
+          {done} of {plural(total, 'task')} done
+        </p>
+      </div>
+    </section>
+  )
+}
 
 export function ModulesPage() {
+  usePageTitle('Modules')
   const query = useQuery({ queryKey: ['modules'], queryFn: fetchModules })
 
   if (query.isPending) {
@@ -29,6 +50,7 @@ export function ModulesPage() {
         <h1>Modules</h1>
         <p className="muted">Pick a module to see its week-by-week plan.</p>
       </header>
+      {query.data.length > 0 && <ProgrammeProgress modules={query.data} />}
       {query.data.length === 0 ? (
         <p className="muted">No modules yet. Run the seed loader.</p>
       ) : (
@@ -42,7 +64,7 @@ export function ModulesPage() {
               <span className="muted small">
                 {plural(m.week_count, 'week')} · {plural(m.task_count, 'task')}
               </span>
-              <ProgressBar value={0} label={`${m.code} progress`} />
+              <ProgressBar value={percent(m.completed_count, m.task_count)} label={`${m.code} progress`} />
             </li>
           ))}
         </ul>
