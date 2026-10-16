@@ -1,3 +1,5 @@
+from datetime import date, timedelta
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -9,6 +11,19 @@ from app.config import get_settings, same_database, sqlalchemy_url
 from app.db import Base, get_db
 from app.disclaimer import DISCLAIMER_VERSION
 from app.main import app
+
+
+def _run(first: int, start: date, count: int) -> list[tuple[int, date]]:
+    return [(first + i, start + timedelta(weeks=i)) for i in range(count)]
+
+
+# The 2607 FT intake's week start dates (docs/portal-extras.md). Breaks: 14–27 Sep 2026, 21 Dec–10 Jan, 8–28 Feb 2027.
+FT_WEEKS = (
+    _run(1, date(2026, 7, 20), 8)
+    + _run(9, date(2026, 9, 28), 12)
+    + _run(21, date(2027, 1, 11), 4)
+    + _run(25, date(2027, 3, 1), 8)
+)
 
 
 @pytest.fixture(scope="session")
