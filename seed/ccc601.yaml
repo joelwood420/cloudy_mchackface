@@ -2,6 +2,8 @@
 # tiles AWS Cloud Practitioner (section 9686), AWS Cloud Architect (9687),
 # Microsoft Azure Fundamentals (9688), Microsoft Azure Administrator (9681),
 # Assessments (9689). Collected 2026-10-16.
+# AWS tasks link to AWS Academy (Canvas) courses 178917 (Cloud Foundations) and
+# 178918 (Cloud Architecting), collected 2026-10-17.
 # Structure: module > submodules (certification tracks) > weeks > tasks.
 # Submodule prerequisite keys refer to seed/prerequisites.yaml.
 module:
@@ -25,31 +27,46 @@ submodules:
         week_number: 1
         title: "AWS Cloud Foundations Modules 1–5"
         tasks:
-          - key: ccc601-w01-clf-m1
-            title: "Cloud Foundations M1: Cloud concepts overview"
+          - key: ccc601-w01-clf-intro
+            title: "Cloud Foundations: Introduction and pre-course survey"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/whitepapers/latest/aws-overview/introduction.html
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348851
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w01-clf-m1
+            title: "Cloud Foundations M1: Cloud concepts overview (videos + knowledge check)"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348852
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
           - key: ccc601-w01-clf-m2
-            title: "Cloud Foundations M2: Cloud economics and billing"
+            title: "Cloud Foundations M2: Cloud economics and billing (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/economics/
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348853
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
           - key: ccc601-w01-clf-m3
-            title: "Cloud Foundations M3: AWS global infrastructure overview"
+            title: "Cloud Foundations M3: AWS global infrastructure overview (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/about-aws/global-infrastructure/
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348854
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
           - key: ccc601-w01-clf-m4
-            title: "Cloud Foundations M4: AWS cloud security"
+            title: "Cloud Foundations M4: AWS cloud security (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/security/
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348855
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w01-clf-lab1
+            title: "Cloud Foundations Lab 1: Introduction to AWS IAM"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178917/modules/items/17592884
           - key: ccc601-w01-clf-m5
-            title: "Cloud Foundations M5: Networking and content delivery"
+            title: "Cloud Foundations M5: Networking and content delivery (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/products/networking/
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348856
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w01-clf-lab2
+            title: "Cloud Foundations Lab 2: Build your VPC and launch a web server"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178917/modules/items/17592896
           - key: ccc601-w01-a1-start
             title: "Start Assessment 1: read the brief"
             type: assessment_step
@@ -59,29 +76,54 @@ submodules:
         title: "AWS Cloud Foundations Modules 6–10"
         tasks:
           - key: ccc601-w02-clf-m6
-            title: "Cloud Foundations M6: Compute"
+            title: "Cloud Foundations M6: Compute (videos, Lambda and Elastic Beanstalk activities + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/products/compute/
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348857
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w02-clf-lab3
+            title: "Cloud Foundations Lab 3: Introduction to Amazon EC2"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178917/modules/items/17592904
           - key: ccc601-w02-clf-m7
-            title: "Cloud Foundations M7: Storage (EBS, S3, EFS)"
+            title: "Cloud Foundations M7: Storage (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/products/storage/
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348858
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w02-clf-lab4
+            title: "Cloud Foundations Lab 4: Working with EBS"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178917/modules/items/17592917
           - key: ccc601-w02-clf-m8
-            title: "Cloud Foundations M8: Databases"
+            title: "Cloud Foundations M8: Databases (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/products/databases/
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348859
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w02-clf-lab5
+            title: "Cloud Foundations Lab 5: Build a database server"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178917/modules/items/17592930
           - key: ccc601-w02-clf-m9
-            title: "Cloud Foundations M9: Cloud architecture"
+            title: "Cloud Foundations M9: Cloud architecture (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/architecture/well-architected/
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348860
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
           - key: ccc601-w02-clf-m10
-            title: "Cloud Foundations M10: Auto Scaling and monitoring"
+            title: "Cloud Foundations M10: Auto Scaling and monitoring (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/autoscaling/
+            external_url: https://awsacademy.instructure.com/courses/178917/modules#module_2348861
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
+          - key: ccc601-w02-clf-lab6
+            title: "Cloud Foundations Lab 6: Scale and load balance your architecture"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178917/modules/items/17592955
+          - key: ccc601-w02-clf-final
+            title: "Cloud Foundations: Course assessment"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178917/modules/items/17592958
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9686
           - key: ccc601-w02-a1-t1
             title: "Complete Task 1 of Assessment 1 (Cloud-based virtualisation solution evaluation)"
@@ -100,31 +142,106 @@ submodules:
         week_number: 3
         title: "AWS Cloud Architecting Modules 1–9"
         tasks:
-          - key: ccc601-w03-saa-m1-2
-            title: "Architecting M1–2: Pre-course survey and AWS Academy Cloud Architecting"
+          - key: ccc601-w03-saa-m1
+            title: "Architecting M1: Welcome to AWS Academy Cloud Architecting"
             type: learning_path
-            external_url: https://aws.amazon.com/training/awsacademy/
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2348994
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-          - key: ccc601-w03-saa-m3-4
-            title: "Architecting M3–4: Secure access and adding a storage layer with S3"
+          - key: ccc601-w03-saa-m2
+            title: "Architecting M2: Introducing cloud architecting (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2348995
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-          - key: ccc601-w03-saa-m5-6
-            title: "Architecting M5–6: Adding compute (EC2) and database layers"
+          - key: ccc601-w03-saa-m3
+            title: "Architecting M3: Securing access (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/ec2/index.html
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2348997
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-          - key: ccc601-w03-saa-m7-8
-            title: "Architecting M7–8: Creating and connecting networks"
+          - key: ccc601-w03-saa-lab-iam
+            title: "Guided lab: Exploring AWS IAM"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17593862
+          - key: ccc601-w03-saa-m4
+            title: "Architecting M4: Adding a storage layer with Amazon S3 (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/vpc/index.html
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2348999
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-cafe-static
+            title: "Café challenge lab: Creating a static website for the café"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17593892
+          - key: ccc601-w03-saa-m5
+            title: "Architecting M5: Adding a compute layer using Amazon EC2 (videos + knowledge check)"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349001
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-lab-efs
+            title: "Guided lab: Introducing Amazon EFS"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17593911
+          - key: ccc601-w03-saa-cafe-dynamic
+            title: "Café challenge lab: Creating a dynamic website for the café"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17593922
+          - key: ccc601-w03-saa-m6
+            title: "Architecting M6: Adding a database layer (videos + knowledge check)"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349003
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-lab-rds
+            title: "Guided lab: Creating an Amazon RDS database"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17593938
+          - key: ccc601-w03-saa-cafe-rds
+            title: "Café challenge lab: Migrating a database to Amazon RDS"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17593949
+          - key: ccc601-w03-saa-m7
+            title: "Architecting M7: Creating a networking environment (videos + knowledge check)"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349005
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-lab-vpc
+            title: "Guided lab: Creating a virtual private cloud"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17593976
+          - key: ccc601-w03-saa-cafe-vpc
+            title: "Café challenge lab: Creating a VPC networking environment for the café"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17593977
+          - key: ccc601-w03-saa-m8
+            title: "Architecting M8: Connecting networks (videos + knowledge check)"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349007
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-lab-peering
+            title: "Guided lab: Creating a VPC peering connection"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17593993
           - key: ccc601-w03-saa-m9
-            title: "Architecting M9: Securing user, application and data access"
+            title: "Architecting M9: Securing user, application and data access (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/security/index.html
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349009
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w03-saa-lab-cognito
+            title: "Guided lab: Securing applications by using Amazon Cognito"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594014
+          - key: ccc601-w03-saa-lab-encrypt
+            title: "Guided lab: Encrypting data at rest by using AWS encryption options"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594020
           - key: ccc601-w03-a1-t2
             title: "Complete Task 2 of Assessment 1 (Virtualisation architecture design)"
             type: assessment_step
@@ -138,28 +255,94 @@ submodules:
         title: "AWS Cloud Architecting Modules 10–17"
         tasks:
           - key: ccc601-w04-saa-m10
-            title: "Architecting M10: Monitoring, elasticity and high availability"
+            title: "Architecting M10: Monitoring, elasticity and high availability (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/cloudwatch/index.html
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349011
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-          - key: ccc601-w04-saa-m11-12
-            title: "Architecting M11–12: Automating your architecture and caching content"
+          - key: ccc601-w04-saa-lab-ha
+            title: "Guided lab: Creating a highly available environment"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594051
+          - key: ccc601-w04-saa-cafe-ha
+            title: "Café challenge lab: Creating a scalable and highly available environment for the café"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594053
+          - key: ccc601-w04-saa-m11
+            title: "Architecting M11: Automating your architecture (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/cloudformation/index.html
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349013
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-          - key: ccc601-w04-saa-m13-14
-            title: "Architecting M13–14: Decoupled and serverless architectures"
+          - key: ccc601-w04-saa-lab-cfn
+            title: "Guided lab: Automating infrastructure with AWS CloudFormation"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594082
+          - key: ccc601-w04-saa-cafe-cfn
+            title: "Café challenge lab: Automating infrastructure deployment"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594086
+          - key: ccc601-w04-saa-m12
+            title: "Architecting M12: Caching content (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/lambda/index.html
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349015
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
-          - key: ccc601-w04-saa-m15-16
-            title: "Architecting M15–16: Data engineering patterns and disaster recovery"
+          - key: ccc601-w04-saa-m13
+            title: "Architecting M13: Building decoupled architectures (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/introduction.html
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349017
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-saa-lab-sqs
+            title: "Guided lab: Building decoupled applications by using Amazon SQS"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594116
+          - key: ccc601-w04-saa-m14
+            title: "Architecting M14: Serverless architectures and microservices (videos + knowledge check)"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349018
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-saa-lab-serverless
+            title: "Guided lab: Implementing a serverless architecture on AWS"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594137
+          - key: ccc601-w04-saa-cafe-serverless
+            title: "Café challenge lab: Implementing a serverless architecture for the café"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594151
+          - key: ccc601-w04-saa-m15
+            title: "Architecting M15: Data engineering patterns (videos + knowledge check)"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349020
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-saa-m16
+            title: "Architecting M16: Planning for disaster (videos + knowledge check)"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349022
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-saa-lab-storage-gw
+            title: "Guided lab: Hybrid storage and data migration with AWS Storage Gateway"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594189
           - key: ccc601-w04-saa-m17
             title: "Architecting M17: Bridging to certification"
             type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178918/modules#module_2349027
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
+          - key: ccc601-w04-saa-capstone
+            title: "Cloud Architecting: Capstone project"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594200
+          - key: ccc601-w04-saa-final
+            title: "Cloud Architecting: Course assessment"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/178918/modules/items/17594202
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9687
           - key: ccc601-w04-a1-t4
             title: "Complete Task 4 of Assessment 1 (Optimisation and security)"
