@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { login, signup } from '../api'
+import { type SignupResult, login, signup } from '../api'
 import { usePageTitle } from '../usePageTitle'
 
 const COPY = {
@@ -33,7 +33,11 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
       queryClient.clear()
       queryClient.setQueryData(['me'], me)
       const from = (location.state as { from?: string } | null)?.from
-      navigate(from && from !== '/login' && from !== '/signup' ? from : '/', { replace: true })
+      const prefilled = mode === 'signup' ? (me as SignupResult).prefilled_through_week : null
+      navigate(from && from !== '/login' && from !== '/signup' ? from : '/', {
+        replace: true,
+        state: prefilled ? { prefilledThroughWeek: prefilled } : undefined,
+      })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Try again.')
       setBusy(false)

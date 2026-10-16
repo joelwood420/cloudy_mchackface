@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import type { ThisWeek, ThisWeekGroup } from '../api'
-import { THIS_WEEK, jsonResponse, mockApi, renderAt } from '../test/utils'
+import { ME, THIS_WEEK, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const task = (key: string, done = false) => ({ key, title: `Task ${key}`, type: 'lab' as const, external_url: 'https://x.test/' + key, uplearn_url: null, note: null, done })
 const group = (weekNumber: number, tasks: ReturnType<typeof task>[]) => ({
@@ -151,5 +151,66 @@ describe('ThisWeekPage', () => {
   it('shows the empty rail text', async () => {
     show(teaching)
     expect(await screen.findByText('No deadlines in the next 4 weeks.')).toBeInTheDocument()
+  })
+
+  it('warns about lurking tasks and opens them on Quarantine', async () => {
+    show({ ...teaching, lurking: [
+      { week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602' }] },
+      { week_number: 10, tasks: [{ ...task('old2'), module_code: 'CCC602' }] },
+    ] })
+    const banner = await screen.findByRole('status')
+    expect(within(banner).getByText('MALWARE DETECTED')).toBeInTheDocument()
+    expect(within(banner).getByText('2 unfinished tasks are lurking in Week 9, 10.')).toBeInTheDocument()
+    expect(screen.queryByRole('checkbox', { name: 'Task old1' })).not.toBeInTheDocument()
+    await userEvent.click(within(banner).getByRole('button', { name: 'Quarantine them' }))
+    expect(within(banner).getByRole('button', { name: 'Quarantine them' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('heading', { name: 'Week 9' })).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'Task old1' })).toBeInTheDocument()
+  })
+
+  it('uses the singular for one lurking task', async () => {
+    show({ ...teaching, lurking: [{ week_number: 8, tasks: [{ ...task('old'), module_code: 'CCC601' }] }] })
+    expect(await screen.findByText('1 unfinished task is lurking in Week 8.')).toBeInTheDocument()
+  })
+
+  it('has no banner when nothing is lurking', async () => {
+    show(teaching)
+    await screen.findByRole('heading', { level: 1, name: 'Week 11' })
+    expect(screen.queryByText('MALWARE DETECTED')).not.toBeInTheDocument()
+  })
+
+  it('warns about a break coming up', async () => {
+    show({ ...teaching, upcoming_break: { starts_on: '2026-09-14', ends_on: '2026-09-27', length_weeks: 2, resumes_week: 9, resumes_on: '2026-09-28' } })
+    expect(await screen.findByText('Break coming up: 2 weeks, Mon 14 Sep – Sun 27 Sep. Week 9 starts Mon 28 Sep.')).toBeInTheDocument()
+  })
+
+  it('lists holidays this week', async () => {
+    show({ ...teaching, holidays: [{ day: '2026-10-26', name: 'Labour Day' }] })
+    expect(await screen.findByText('Labour Day, Mon 26 Oct: campus closed.')).toBeInTheDocument()
+  })
+
+  it('shows the lurking banner on a break too', async () => {
+    show({ ...THIS_WEEK, status: 'break', week: null, current_break: { starts_on: '2026-09-14', ends_on: '2026-09-27', week_of_break: 1, length_weeks: 2 }, next_week: { week_number: 9, starts_on: '2026-09-28' }, lurking: [{ week_number: 8, tasks: [{ ...task('old'), module_code: 'CCC601' }] }] })
+    expect(await screen.findByText('1 unfinished task is lurking in Week 8.')).toBeInTheDocument()
+  })
+
+  it('after sign-up, says which weeks were pre-ticked and can be dismissed', async () => {
+    let loggedIn = false
+    mockApi({
+      '/api/me': () => (loggedIn ? jsonResponse(ME) : jsonResponse({ detail: 'Not logged in' }, 401)),
+      '/api/this-week': teaching,
+      '/api/modules': [],
+      'POST /api/auth/signup': () => {
+        loggedIn = true
+        return jsonResponse({ ...ME, prefilled_through_week: 10 }, 201)
+      },
+    })
+    renderAt('/signup')
+    await userEvent.type(await screen.findByLabelText('Email'), 'new@example.com')
+    await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(await screen.findByText("We've marked weeks 1–10 as done. Untick anything you haven't finished.")).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+    expect(screen.queryByText(/We've marked weeks/)).not.toBeInTheDocument()
   })
 })

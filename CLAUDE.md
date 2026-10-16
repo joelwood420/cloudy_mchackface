@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A study tracker for the Yoobee Colleges **Diploma in Cloud Computing and Cyber Security (Level 6)**. The Yoobee UPLearn portal (https://yoobee.uplearn.education/, a Moodle site) is hard to navigate, so this app shows week by week what to work on, upcoming assessments, and progress bars per course and for the whole programme. It's built for the owner first, with the aim of opening it to other students later.
 
-Status: Phase 2 done — accounts, task and prerequisite ticking, real progress bars and a current-week setting; CCC601–603 seeded with submodules.
+Status: Phase 3 done: This week home screen (week worked out from the intake's dates), lurking-task banner, break and holiday notices, assessments with a submitted tick, catch-up ticks at sign-up; CCC601–603 seeded, CCC604 a shell.
 
 ## Stack and layout
 
@@ -16,7 +16,7 @@ Monorepo, built and run locally first; Fly.io deployment comes later (phase 5):
 
 - `frontend/`: React + Vite + TypeScript, TanStack Query. Vite proxies `/api` to the backend in dev.
 - `backend/`: FastAPI, SQLAlchemy, Alembic, pytest. Serves the API under `/api`.
-- `seed/`: YAML content files, one per module plus `prerequisites.yaml` (shared one-off setup steps), loaded by a CLI seed loader.
+- `seed/`: YAML content files, one per module plus `prerequisites.yaml` (shared one-off setup steps) and `schedule.yaml` (each intake's week start dates and public holidays), loaded by a CLI seed loader.
 - Database: Neon. Dev branch via `DATABASE_URL`, separate test branch via `TEST_DATABASE_URL`, both in git-ignored `backend/.env`.
 
 Structure is **Module → Submodule (certification track) → Week → Task**, one tick per task. Submodules list shared prerequisites by key; prerequisites are never counted in progress. Every seed item has a stable `key`; the loader upserts by key so re-seeding doesn't break users' ticks. Progress is computed from completions, never stored.
@@ -38,6 +38,7 @@ uv run python -m app.seed                  # validate + load seed/*.yaml
 - On a fresh database run `uv run alembic upgrade head` before the seed loader.
 - `uv run python -m app.seed [dir]` deletes any module not present in that folder.
 - Migration 0005 clears content tables; re-run the seed loader after upgrading an older database.
+- The seed loader requires `schedule.yaml` and refuses to drop an intake that users are on. Migration 0008 moves existing users onto `2607-online-ccc-ft`.
 - Set COOKIE_SECURE=true in backend/.env once the app is served over HTTPS.
 
 Frontend (run in `frontend/`):
@@ -53,12 +54,12 @@ npm run lint                               # oxlint
 
 ## MVP scope
 
-1. **This week:** the current week's modules (with Microsoft Learn/AWS links), labs and live sessions.
+1. **This week** (the home page): the current week's modules (with Microsoft Learn/AWS links), labs and live sessions.
 2. **Progress bars:** per course and for the whole programme, driven by items the user ticks off.
 3. **Deadlines:** upcoming assessments and due dates.
 
 - The owner studies **full-time**, so seed data comes from the FT schedule posts. Keep study mode (FT/PT) as a per-user setting in the model so part-time students can be added later.
-- Each user picks their **current week manually**; it is not derived from dates. Assessments still show real due dates.
+- The **current week is worked out** from the user's intake (`seed/schedule.yaml`) and today's date in NZ time. There is no manual override. Breaks are the gaps between week start dates. New accounts get past weeks pre-ticked.
 - **User accounts from day one**: email + password built into FastAPI (argon2, DB-backed sessions, HTTP-only cookie). Course structure is shared reference data; completion state and settings are per user.
 - Out of scope for now: certification tracking, AI study helper, automated portal sync.
 - UI follows the "Module timeline" design (docs/superpowers/specs/2026-10-15-ui-redesign-design.md); module pages need a login; progress comes from each user's ticks.

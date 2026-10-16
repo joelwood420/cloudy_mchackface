@@ -100,7 +100,7 @@ The loader validates all files before writing (required fields, duplicate keys, 
 2. Modules: card per module with progress bar
 3. Module page: weeks in order with progress bars, expandable task checklists with tick boxes and "Open" links
 4. This week: tasks for the chosen week across modules, plus upcoming assessments (becomes home in phase 3)
-5. Settings: choose current week
+5. Assessments: every assessment with a submitted tick
 
 ## API
 
@@ -112,12 +112,13 @@ All routes under `/api`. Login required except signup, login and (in phase 1 onl
 | POST | `/auth/login` | Start session |
 | POST | `/auth/logout` | End session |
 | GET | `/me` | Current user and settings |
-| PATCH | `/me/settings` | Set current week |
 | GET | `/modules` | Modules with the user's progress |
 | GET | `/modules/{key}` | Weeks, tasks, user's ticks and progress |
 | PUT | `/tasks/{key}/complete` | Tick (idempotent) |
 | DELETE | `/tasks/{key}/complete` | Untick (idempotent) |
-| GET | `/this-week` | Current week's tasks and upcoming assessments |
+| GET | `/this-week` | Current week (from the intake's dates), lurking tasks, breaks, holidays, deadlines |
+| GET | `/assessments` | Every assessment with the user's submitted state |
+| PUT, DELETE | `/assessments/{key}/submitted` | Mark submitted / not submitted (idempotent) |
 
 ## Security
 
@@ -142,6 +143,6 @@ All routes under `/api`. Login required except signup, login and (in phase 1 onl
 
 1. **Skeleton + one module**: repo layout, FastAPI + Neon + Alembic, seed format and loader, CCC602 seeded, read-only module and week browsing without login.
 2. **Accounts + ticking**: signup/login/logout, ticking tasks, current week setting, progress bars at all levels.
-3. **This week + deadlines**: "This week" home screen with upcoming assessments.
+3. **This week + deadlines** (done): "This week" home screen with upcoming assessments. See `2026-10-17-phase-3-this-week-design.md`.
 4. **All content**: seed the remaining five modules from the FT schedule.
 5. **Later**: Fly.io deployment, part-time schedules, password reset email, check with tutor before sharing, admin screen, certification tracking.

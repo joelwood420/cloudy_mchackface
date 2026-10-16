@@ -103,6 +103,24 @@ describe('sign-in flow', () => {
     expect(JSON.parse(String(init.body))).toMatchObject({ accepted_disclaimer_version: DISCLAIMER_VERSION })
   })
 
+  it('shows no catch-up note when nothing was pre-ticked', async () => {
+    let loggedIn = false
+    mockApi({
+      '/api/me': () => (loggedIn ? jsonResponse(ME) : unauthorized()),
+      'POST /api/auth/signup': () => {
+        loggedIn = true
+        return jsonResponse({ ...ME, prefilled_through_week: null }, 201)
+      },
+      '/api/modules': modules,
+    })
+    renderAt('/signup')
+    await userEvent.type(await screen.findByLabelText('Email'), 'joel@example.com')
+    await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Week 11' })).toBeInTheDocument()
+    expect(screen.queryByText(/We've marked/)).not.toBeInTheDocument()
+  })
+
   it('links between log in and sign up', async () => {
     mockApi({ '/api/me': unauthorized })
     renderAt('/login')

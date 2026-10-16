@@ -1,8 +1,11 @@
+import { useLocation, useNavigate } from 'react-router-dom'
 import { type ThisWeek } from '../api'
 import { AssessmentsRail } from '../components/AssessmentsRail'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { ExternalLink } from '../components/ExternalLink'
 import { ProgressBar } from '../components/ProgressBar'
+import { MalwareBanner } from '../components/thisweek/MalwareBanner'
+import { CatchUpNote, HolidayNotes, UpcomingBreakBanner } from '../components/thisweek/Notices'
 import { WeekGroups } from '../components/thisweek/WeekGroups'
 import { dayDate, plural } from '../format'
 import { useSubmitAssessment } from '../hooks/useSubmitAssessment'
@@ -78,6 +81,9 @@ export function ThisWeekPage() {
   const tickTask = useTickThisWeekTask()
   const tickPrereq = useTickThisWeekPrerequisite()
   const submit = useSubmitAssessment()
+  const location = useLocation()
+  const navigate = useNavigate()
+  const catchUp = (location.state as { prefilledThroughWeek?: number } | null)?.prefilledThroughWeek ?? null
 
   if (query.isPending) {
     return (
@@ -103,7 +109,10 @@ export function ThisWeekPage() {
       {(tickTask.isError || tickPrereq.isError || submit.isError) && (
         <p role="alert" className="error">Couldn't save that tick. Try again.</p>
       )}
-      {/* Task 10 adds: CatchUpNote, UpcomingBreakBanner, HolidayNotes, MalwareBanner here */}
+      {catchUp !== null && <CatchUpNote throughWeek={catchUp} onDismiss={() => navigate('.', { replace: true, state: null })} />}
+      {tw.upcoming_break && <UpcomingBreakBanner upcoming={tw.upcoming_break} />}
+      <HolidayNotes holidays={tw.holidays} />
+      <MalwareBanner lurking={tw.lurking} onToggleTask={onToggleTask} />
       <div className="module-columns">
         <div className="this-week-main">
           {tw.status === 'teaching' &&
