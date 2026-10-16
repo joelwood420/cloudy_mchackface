@@ -28,28 +28,28 @@ def add_content(db):
     db.expire_all()
 
 
-def test_list_modules_in_order_with_counts(client, db):
+def test_list_modules_in_order_with_counts(user_client, db):
     add_content(db)
-    response = client.get("/api/modules")
+    response = user_client.get("/api/modules")
     assert response.status_code == 200
     assert response.json() == [
-        {"key": "ccc601", "code": "CCC601", "title": "Public Cloud Administration", "submodule_count": 0, "week_count": 0, "task_count": 0, "uplearn_url": None},
-        {"key": "ccc602", "code": "CCC602", "title": "Data Engineering", "submodule_count": 2, "week_count": 2, "task_count": 2, "uplearn_url": "https://up.test/602"},
+        {"key": "ccc601", "code": "CCC601", "title": "Public Cloud Administration", "submodule_count": 0, "week_count": 0, "task_count": 0, "completed_count": 0, "week_numbers": [], "uplearn_url": None},
+        {"key": "ccc602", "code": "CCC602", "title": "Data Engineering", "submodule_count": 2, "week_count": 2, "task_count": 2, "completed_count": 0, "week_numbers": [9, 10], "uplearn_url": "https://up.test/602"},
     ]
 
 
-def test_list_modules_when_empty(client):
-    assert client.get("/api/modules").json() == []
+def test_list_modules_when_empty(user_client):
+    assert user_client.get("/api/modules").json() == []
 
 
-def test_module_detail(client, db):
+def test_module_detail(user_client, db):
     add_content(db)
-    body = client.get("/api/modules/ccc602").json()
+    body = user_client.get("/api/modules/ccc602").json()
     assert body["uplearn_url"] == "https://up.test/602"
     assert [w["key"] for w in body["weeks"]] == ["w9", "w10"]
     assert body["weeks"][0]["tasks"][0] == {
         "key": "t1", "title": "LP1", "type": "learning_path",
-        "external_url": "https://learn.test", "uplearn_url": None, "note": None,
+        "external_url": "https://learn.test", "uplearn_url": None, "note": None, "done": False,
     }
     assert body["weeks"][0]["tasks"][1]["note"] == "Key in Teams"
     assert body["weeks"][1]["tasks"] == []
@@ -59,22 +59,22 @@ def test_module_detail(client, db):
     ]
 
 
-def test_unknown_module_is_404(client):
-    response = client.get("/api/modules/nope")
+def test_unknown_module_is_404(user_client):
+    response = user_client.get("/api/modules/nope")
     assert response.status_code == 404
     assert response.json() == {"detail": "Module not found"}
 
 
-def test_module_detail_lists_submodules_with_prerequisites(client, db):
+def test_module_detail_lists_submodules_with_prerequisites(user_client, db):
     add_content(db)
-    body = client.get("/api/modules/ccc602").json()
+    body = user_client.get("/api/modules/ccc602").json()
     assert body["submodules"] == [
         {
             "key": "dp900", "code": "DP-900", "title": "Azure Data Fundamentals",
             "uplearn_url": "https://up.test/dp900", "first_week": 9, "last_week": 9,
             "prerequisites": [{
                 "key": "azure-account", "title": "Create an Azure account", "note": "Personal email",
-                "external_url": "https://azure.test", "uplearn_url": None,
+                "external_url": "https://azure.test", "uplearn_url": None, "completed": False,
             }],
         },
         {
@@ -85,11 +85,11 @@ def test_module_detail_lists_submodules_with_prerequisites(client, db):
     assert [(w["key"], w["submodule_key"]) for w in body["weeks"]] == [("w9", "dp900"), ("w10", "dea")]
 
 
-def test_submodule_without_weeks_has_no_week_range(client, db):
+def test_submodule_without_weeks_has_no_week_range(user_client, db):
     db.add(Module(key="m", code="M", title="M", position=1, submodules=[
         Submodule(key="empty", code="E", title="Empty", position=0),
     ]))
     db.flush()
     db.expire_all()
-    [sub] = client.get("/api/modules/m").json()["submodules"]
+    [sub] = user_client.get("/api/modules/m").json()["submodules"]
     assert (sub["first_week"], sub["last_week"]) == (None, None)

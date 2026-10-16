@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI
 
-from app.api import auth, modules
+from app.api import auth, modules, tasks
 
 app = FastAPI(title="Yoobee Study Guide")
 
@@ -14,4 +14,5 @@ def health() -> dict[str, str]:
 
 api.include_router(auth.router)
 api.include_router(modules.router)
+api.include_router(tasks.router)
 app.include_router(api)

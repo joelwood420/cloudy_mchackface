@@ -15,6 +15,8 @@ class ModuleSummary(_Out):
     submodule_count: int
     week_count: int
     task_count: int
+    completed_count: int
+    week_numbers: list[int]
     uplearn_url: str | None
 
 
@@ -25,6 +27,7 @@ class TaskOut(_Out):
     external_url: str | None
     uplearn_url: str | None
     note: str | None
+    done: bool = False
 
 
 class WeekOut(_Out):
@@ -48,6 +51,7 @@ class PrerequisiteOut(_Out):
     note: str | None
     external_url: str | None
     uplearn_url: str | None
+    completed: bool = False
 
 
 class SubmoduleOut(BaseModel):
