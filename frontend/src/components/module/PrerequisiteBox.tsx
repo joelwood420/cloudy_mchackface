@@ -43,12 +43,13 @@ function PrerequisiteRow({ submoduleKey, prerequisite: p, onToggle }: { submodul
 }
 
 /** One-off setup steps for a submodule. Done ones are hidden (tickable again via "Show done"); never part of progress. */
-export function PrerequisiteBox({ submodule, onToggle }: { submodule: Submodule; onToggle: Toggle }) {
+/** `idScope` keeps ids unique when the same submodule is shown more than once on a page (e.g. this week and next). */
+export function PrerequisiteBox({ submodule, onToggle, idScope }: { submodule: Submodule; onToggle: Toggle; idScope?: string }) {
   const [showDone, setShowDone] = useState(false)
   if (submodule.prerequisites.length === 0) return null
   const todo = submodule.prerequisites.filter((p) => !p.completed)
   const done = submodule.prerequisites.filter((p) => p.completed)
-  const row = (p: Prerequisite) => <PrerequisiteRow key={p.key} submoduleKey={submodule.key} prerequisite={p} onToggle={onToggle} />
+  const row = (p: Prerequisite) => <PrerequisiteRow key={p.key} submoduleKey={idScope ? `${idScope}-${submodule.key}` : submodule.key} prerequisite={p} onToggle={onToggle} />
   return (
     <div className={`prereq-box${todo.length === 0 ? ' is-ready' : ''}`}>
       <h4>Before you start</h4>

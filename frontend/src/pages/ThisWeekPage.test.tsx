@@ -1,7 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import type { ThisWeek } from '../api'
+import type { ThisWeek, ThisWeekGroup } from '../api'
 import { THIS_WEEK, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const task = (key: string, done = false) => ({ key, title: `Task ${key}`, type: 'lab' as const, external_url: 'https://x.test/' + key, uplearn_url: null, note: null, done })
@@ -127,6 +127,25 @@ describe('ThisWeekPage', () => {
     const title = await screen.findByText('Assessment 3')
     const rail = title.closest('aside') ?? title.closest('section') ?? document.body
     expect(within(rail as HTMLElement).getByText('Due in 8 days')).toBeInTheDocument()
+  })
+
+  it('keeps prerequisite checkboxes separate when a submodule shows this week and next', async () => {
+    let saved = false
+    const tick = (g: ThisWeekGroup) => ({ ...g, prerequisites: g.prerequisites.map((p) => ({ ...p, completed: saved })) })
+    const build = (): ThisWeek => ({ ...teaching, groups: teaching.groups.map(tick), ahead: { week_number: 12, groups: [tick(group(12, [task('t12')]))] } })
+    const fetchMock = show(build(), {
+      '/api/this-week': () => jsonResponse(build()),
+      'PUT /api/prerequisites/azure/complete': () => { saved = true; return new Response(null, { status: 204 }) },
+    })
+    const boxes = await screen.findAllByRole('checkbox', { name: 'Create an Azure account' })
+    expect(boxes).toHaveLength(2)
+    expect(boxes[0].id).not.toBe(boxes[1].id)
+    await userEvent.click(screen.getAllByText('Create an Azure account')[1])
+    await waitFor(() =>
+      expect(fetchMock.mock.calls.some(([u, i]) => u === '/api/prerequisites/azure/complete' && (i as RequestInit | undefined)?.method === 'PUT')).toBe(true),
+    )
+    // A ticked prerequisite moves out of the to-do list in every group that shows it.
+    expect(await screen.findAllByText("You're ready to start learning.")).toHaveLength(2)
   })
 
   it('shows the empty rail text', async () => {

@@ -28,6 +28,7 @@ export function WeekGroups({
           <PrerequisiteBox
             submodule={{ ...g.submodule, first_week: null, last_week: null, prerequisites: g.prerequisites }}
             onToggle={onTogglePrerequisite}
+            idScope={g.week.key}
           />
           {g.week.tasks.length === 0 ? (
             <p className="muted">No tasks listed for this week.</p>
