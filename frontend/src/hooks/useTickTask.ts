@@ -1,6 +1,17 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { type QueryClient, useMutation, useQueryClient } from '@tanstack/react-query'
 import { type ModuleDetail, setPrerequisiteDone, setTaskDone } from '../api'
 import { withPrerequisiteDone, withTaskDone } from '../progress'
+
+/**
+ * Only the last tick in flight refetches, so earlier answers don't overwrite later clicks. Task and prerequisite
+ * ticks share one key and either can be last, so both refresh the same things: every cached module (a shared
+ * prerequisite can appear in any of them) and the module list that feeds the sidebar and programme progress.
+ */
+function settleTicks(queryClient: QueryClient, mutationKey: readonly unknown[]) {
+  if (queryClient.isMutating({ mutationKey }) !== 1) return
+  void queryClient.invalidateQueries({ queryKey: ['module'] })
+  void queryClient.invalidateQueries({ queryKey: ['modules'] })
+}
 
 /** Tick or untick a task: show it straight away, undo on error, then sync with the server once quiet. */
 export function useTickTask(moduleKey: string) {
@@ -20,11 +31,7 @@ export function useTickTask(moduleKey: string) {
       if (context?.previous) queryClient.setQueryData(moduleQuery, context.previous)
     },
     onSettled: () => {
-      // Only the last tick in flight refetches, so earlier answers don't overwrite later clicks.
-      if (queryClient.isMutating({ mutationKey }) === 1) {
-        void queryClient.invalidateQueries({ queryKey: moduleQuery })
-        void queryClient.invalidateQueries({ queryKey: ['modules'] })
-      }
+      settleTicks(queryClient, mutationKey)
     },
   })
 }
@@ -48,8 +55,7 @@ export function useTickPrerequisite(moduleKey: string) {
       if (context?.previous) queryClient.setQueryData(moduleQuery, context.previous)
     },
     onSettled: () => {
-      // Shared prerequisites appear in other modules too, so refresh every cached module.
-      if (queryClient.isMutating({ mutationKey }) === 1) void queryClient.invalidateQueries({ queryKey: ['module'] })
+      settleTicks(queryClient, mutationKey)
     },
   })
 }

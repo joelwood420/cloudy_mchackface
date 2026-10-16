@@ -374,18 +374,68 @@ describe('ModulePage', () => {
   })
 
   it('brings a prerequisite back when saving the tick fails', async () => {
+    let release!: () => void
+    const held = new Promise<void>((resolve) => (release = resolve))
+    let gets = 0
     mockApi({
       '/api/modules': summary,
-      '/api/modules/ccc602': detail,
-      'PUT /api/prerequisites/azure-account/complete': () => jsonResponse({ detail: 'Boom' }, 500),
+      // The refetch after the failure never answers, so only a real rollback can restore the box.
+      '/api/modules/ccc602': () => (++gets === 1 ? jsonResponse(detail) : new Promise<Response>(() => {})),
+      'PUT /api/prerequisites/azure-account/complete': async () => {
+        await held
+        return jsonResponse({ detail: 'Boom' }, 500)
+      },
     })
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
     const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
     await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
+    expect(within(main).queryByText('Create an Azure account')).toBeNull()
+
+    release()
     expect(await within(main).findByRole('alert')).toHaveTextContent("Couldn't save that tick. Try again.")
     expect(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' })).not.toBeChecked()
+  })
+
+  it('refreshes the module list when a prerequisite tick settles last after a task tick', async () => {
+    let modulesGets = 0
+    let releaseTask!: () => void
+    let releasePrereq!: () => void
+    const taskHeld = new Promise<void>((resolve) => (releaseTask = resolve))
+    const prereqHeld = new Promise<void>((resolve) => (releasePrereq = resolve))
+    mockApi({
+      '/api/modules': () => {
+        modulesGets += 1
+        return jsonResponse(summary)
+      },
+      '/api/modules/ccc602': detail,
+      'PUT /api/tasks/t2/complete': async () => {
+        await taskHeld
+        return new Response(null, { status: 204 })
+      },
+      'PUT /api/prerequisites/azure-account/complete': async () => {
+        await prereqHeld
+        return new Response(null, { status: 204 })
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await waitFor(() => expect(modulesGets).toBeGreaterThan(0))
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
+    await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
+    const before = modulesGets
+
+    releaseTask()
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(modulesGets).toBe(before)
+
+    releasePrereq()
+    await waitFor(() => expect(modulesGets).toBe(before + 1))
   })
 
   it('opens the current week and marks it', async () => {
