@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import type { ModuleDetail, ModuleSummary } from './api'
-import { moduleProgress, percent, programmeProgress, withTaskDone } from './progress'
+import type { ModuleDetail, ModuleSummary, Submodule } from './api'
+import { moduleProgress, percent, programmeProgress, withPrerequisiteDone, withTaskDone } from './progress'
 
 const task = (key: string, done: boolean) => ({ key, title: key, type: 'lab' as const, external_url: null, uplearn_url: 'https://up.test', note: null, done })
 
@@ -49,5 +49,21 @@ describe('withTaskDone', () => {
     expect(next.weeks[1].tasks[1].done).toBe(true)
     expect(mod.weeks[1].tasks[1].done).toBe(false)
     expect(next.weeks[0]).toBe(mod.weeks[0])
+  })
+})
+
+describe('withPrerequisiteDone', () => {
+  const prereq = (key: string) => ({ key, title: key, note: null, external_url: 'https://x.test', uplearn_url: null, completed: false })
+  const sub = (key: string, keys: string[]): Submodule => ({
+    key, code: key, title: key, uplearn_url: null, first_week: 1, last_week: 1, prerequisites: keys.map(prereq),
+  })
+  const withSubs: ModuleDetail = { ...mod, submodules: [sub('a', ['azure', 'skillable']), sub('b', ['azure']), sub('c', ['aws'])] }
+
+  it('ticks a shared prerequisite in every submodule and leaves others alone', () => {
+    const next = withPrerequisiteDone(withSubs, 'azure', true)
+    expect(next.submodules[0].prerequisites.map((p) => p.completed)).toEqual([true, false])
+    expect(next.submodules[1].prerequisites[0].completed).toBe(true)
+    expect(next.submodules[2]).toBe(withSubs.submodules[2])
+    expect(withSubs.submodules[0].prerequisites[0].completed).toBe(false)
   })
 })

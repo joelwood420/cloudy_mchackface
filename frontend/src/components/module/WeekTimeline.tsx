@@ -137,10 +137,12 @@ export function WeekTimeline({
   weeks,
   submodules,
   onToggleTask,
+  onTogglePrerequisite,
 }: {
   weeks: Week[]
   submodules: Submodule[]
   onToggleTask: (taskKey: string, done: boolean) => void
+  onTogglePrerequisite: (prerequisiteKey: string, completed: boolean) => void
 }) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const toggle = (key: string) => setOpenKey(openKey === key ? null : key)
@@ -160,7 +162,7 @@ export function WeekTimeline({
             aria-labelledby={group.submodule ? `submodule-${group.submodule.key}` : undefined}
           >
             {group.submodule && <SubmoduleHead submodule={group.submodule} />}
-            {group.submodule && <PrerequisiteBox submodule={group.submodule} />}
+            {group.submodule && <PrerequisiteBox submodule={group.submodule} onToggle={onTogglePrerequisite} />}
             {group.weeks.length > 0 && (
               <ol className="timeline-list">
                 {group.weeks.map((week, i) => (

@@ -42,3 +42,15 @@ export function withTaskDone(mod: ModuleDetail, taskKey: string, done: boolean):
     ),
   }
 }
+
+/** Copy of `mod` with one prerequisite ticked or unticked in every submodule that lists it. */
+export function withPrerequisiteDone(mod: ModuleDetail, prerequisiteKey: string, completed: boolean): ModuleDetail {
+  return {
+    ...mod,
+    submodules: mod.submodules.map((sub) =>
+      sub.prerequisites.some((p) => p.key === prerequisiteKey)
+        ? { ...sub, prerequisites: sub.prerequisites.map((p) => (p.key === prerequisiteKey ? { ...p, completed } : p)) }
+        : sub,
+    ),
+  }
+}

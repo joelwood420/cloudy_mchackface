@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import type { ModuleDetail } from '../api'
-import { withTaskDone } from '../progress'
+import { withPrerequisiteDone, withTaskDone } from '../progress'
 import { jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const summary = [
@@ -325,5 +325,66 @@ describe('ModulePage', () => {
   it('still shows weeks whose submodule is missing from the list', async () => {
     const main = await open({ ...detail, submodules: [detail.submodules[0]] })
     expect(within(main).getByRole('button', { name: /Week 10/ })).toBeInTheDocument()
+  })
+
+  it('ticks a prerequisite and hides it everywhere it is shared, without moving progress', async () => {
+    let azureDone = false
+    const fetchMock = mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': () => jsonResponse(withPrerequisiteDone(detail as ModuleDetail, 'azure-account', azureDone)),
+      'PUT /api/prerequisites/azure-account/complete': () => {
+        azureDone = true
+        return new Response(null, { status: 204 })
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const progressBefore = within(main).getByRole('progressbar', { name: 'Module progress' }).getAttribute('aria-valuenow')
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+
+    await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
+
+    await waitFor(() => expect(within(main).queryByText('Create an Azure account')).toBeNull())
+    expect(within(dp900).getByRole('checkbox', { name: 'Register for the DP-900 Skillable class' })).not.toBeChecked()
+    const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
+    expect(within(dp203).getByText("You're ready to start learning.")).toBeInTheDocument()
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', progressBefore!)
+    expect(fetchMock).toHaveBeenCalledWith('/api/prerequisites/azure-account/complete', expect.objectContaining({ method: 'PUT' }))
+  })
+
+  it('shows done prerequisites on request so they can be unticked', async () => {
+    const ticked = withPrerequisiteDone(detail as ModuleDetail, 'azure-account', true)
+    const fetchMock = mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': ticked,
+      'DELETE /api/prerequisites/azure-account/complete': () => new Response(null, { status: 204 }),
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
+    expect(within(dp203).queryByRole('checkbox')).toBeNull()
+
+    await userEvent.click(within(dp203).getByRole('button', { name: 'Show done (1)' }))
+    const box = within(dp203).getByRole('checkbox', { name: 'Create an Azure account' })
+    expect(box).toBeChecked()
+    await userEvent.click(box)
+    expect(fetchMock).toHaveBeenCalledWith('/api/prerequisites/azure-account/complete', expect.objectContaining({ method: 'DELETE' }))
+  })
+
+  it('brings a prerequisite back when saving the tick fails', async () => {
+    mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': detail,
+      'PUT /api/prerequisites/azure-account/complete': () => jsonResponse({ detail: 'Boom' }, 500),
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+    await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
+    expect(await within(main).findByRole('alert')).toHaveTextContent("Couldn't save that tick. Try again.")
+    expect(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' })).not.toBeChecked()
   })
 })
