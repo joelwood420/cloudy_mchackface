@@ -108,3 +108,86 @@ class MeOut(BaseModel):
     email: str
     study_mode: str
     intake: IntakeOut
+
+
+class WeekSpanOut(BaseModel):
+    week_number: int
+    starts_on: date
+    ends_on: date
+
+
+class NextWeekOut(BaseModel):
+    week_number: int
+    starts_on: date
+
+
+class CurrentBreakOut(BaseModel):
+    starts_on: date
+    ends_on: date
+    week_of_break: int
+    length_weeks: int
+
+
+class UpcomingBreakOut(BaseModel):
+    starts_on: date
+    ends_on: date
+    length_weeks: int
+    resumes_week: int
+    resumes_on: date
+
+
+class HolidayOut(_Out):
+    day: date
+    name: str
+
+
+class SubmoduleRef(_Out):
+    key: str
+    code: str
+    title: str
+    uplearn_url: str | None
+
+
+class ThisWeekGroup(BaseModel):
+    module_key: str
+    module_code: str
+    module_title: str
+    module_uplearn_url: str | None
+    submodule: SubmoduleRef
+    week: WeekOut
+    prerequisites: list[PrerequisiteOut]
+
+
+class AheadOut(BaseModel):
+    week_number: int
+    groups: list[ThisWeekGroup]
+
+
+class LurkingTaskOut(TaskOut):
+    module_code: str
+
+
+class LurkingWeekOut(BaseModel):
+    week_number: int
+    tasks: list[LurkingTaskOut]
+
+
+class StatsOut(BaseModel):
+    done: int
+    total: int
+    next_deadline_days: int | None
+
+
+class ThisWeekOut(BaseModel):
+    today: date
+    status: str
+    week: WeekSpanOut | None
+    current_break: CurrentBreakOut | None
+    next_week: NextWeekOut | None
+    upcoming_break: UpcomingBreakOut | None
+    holidays: list[HolidayOut]
+    groups: list[ThisWeekGroup]
+    ahead: AheadOut | None
+    lurking: list[LurkingWeekOut]
+    assessments: list[AssessmentStatusOut]
+    stats: StatsOut
