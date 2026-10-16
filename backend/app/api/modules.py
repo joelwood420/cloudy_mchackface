@@ -4,8 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.schemas import AssessmentOut, ModuleDetail, ModuleSummary, PrerequisiteOut, SubmoduleOut, WeekOut
+from app.api.assessments import _sort_key, assessment_out, submitted_ids
+from app.api.schemas import ModuleDetail, ModuleSummary, PrerequisiteOut, SubmoduleOut, WeekOut
 from app.auth.deps import current_user
+from app.clock import today
 from app.db import get_db
 from app.models import (
     Module,
@@ -73,7 +75,9 @@ def _submodule_out(sub: Submodule, done_prereqs: set[int]) -> SubmoduleOut:
 
 
 @router.get("/{key}", response_model=ModuleDetail)
-def get_module(key: str, user: User = Depends(current_user), db: Session = Depends(get_db)) -> ModuleDetail:
+def get_module(
+    key: str, user: User = Depends(current_user), db: Session = Depends(get_db), today_: date = Depends(today)
+) -> ModuleDetail:
     module = db.scalars(
         select(Module)
         .where(Module.key == key)
@@ -96,10 +100,8 @@ def get_module(key: str, user: User = Depends(current_user), db: Session = Depen
         for task, task_out in zip(week.tasks, week_out.tasks):
             task_out.done = task.id in done_tasks
         weeks.append(week_out)
-    assessments = sorted(
-        (AssessmentOut.model_validate(a) for a in module.assessments),
-        key=lambda a: (a.due_date is None, a.due_date or date.max, a.title),
-    )
+    done_assessments = submitted_ids(db, user)
+    assessments = [assessment_out(a, done_assessments, today_) for a in sorted(module.assessments, key=_sort_key)]
     return ModuleDetail(
         key=module.key,
         code=module.code,

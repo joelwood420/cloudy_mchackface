@@ -43,6 +43,14 @@ class AssessmentOut(_Out):
     title: str
     due_date: date | None
     uplearn_url: str | None
+    submitted: bool = False
+    status: str = "no_date"
+    days_until: int | None = None
+
+
+class AssessmentStatusOut(AssessmentOut):
+    module_key: str
+    module_code: str
 
 
 class PrerequisiteOut(_Out):

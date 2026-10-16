@@ -42,8 +42,9 @@ def test_list_modules_when_empty(user_client):
     assert user_client.get("/api/modules").json() == []
 
 
-def test_module_detail(user_client, db):
+def test_module_detail(user_client, db, today_is):
     add_content(db)
+    today_is(date(2026, 10, 17))
     body = user_client.get("/api/modules/ccc602").json()
     assert body["uplearn_url"] == "https://up.test/602"
     assert [w["key"] for w in body["weeks"]] == ["w9", "w10"]
@@ -54,8 +55,10 @@ def test_module_detail(user_client, db):
     assert body["weeks"][0]["tasks"][1]["note"] == "Key in Teams"
     assert body["weeks"][1]["tasks"] == []
     assert body["assessments"] == [
-        {"key": "a3", "title": "Assessment 3", "due_date": "2026-10-25", "uplearn_url": "https://up.test"},
-        {"key": "a4", "title": "Assessment 4", "due_date": None, "uplearn_url": None},
+        {"key": "a3", "title": "Assessment 3", "due_date": "2026-10-25", "uplearn_url": "https://up.test",
+         "submitted": False, "status": "upcoming", "days_until": 8},
+        {"key": "a4", "title": "Assessment 4", "due_date": None, "uplearn_url": None,
+         "submitted": False, "status": "no_date", "days_until": None},
     ]
 
 
