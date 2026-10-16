@@ -120,9 +120,10 @@ def test_unknown_prerequisite_names_file_and_submodule(tmp_path):
     )
 
 
-def test_missing_prerequisites_file_makes_references_unknown(tmp_path):
+def test_missing_prerequisites_file_is_an_error(tmp_path):
+    # Without it, re-seeding would delete every prerequisite (and later, everyone's ticks on them).
     write_valid(tmp_path, prereqs=None)
-    assert any("unknown prerequisite 'azure-account'" in p for p in problems(tmp_path))
+    assert problems(tmp_path) == [f"prerequisites.yaml: file not found in {tmp_path}"]
 
 
 def test_prerequisite_listed_twice_in_a_submodule_is_rejected(tmp_path):

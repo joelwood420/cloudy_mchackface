@@ -48,13 +48,13 @@ def load_seed_dir(path: Path) -> SeedBundle:
     if not module_files:
         raise SeedError([f"no module files in {path} (only {PREREQUISITES_FILE})"])
 
-    problems: list[str] = []
+    # Required: without it every prerequisite (and anything per-user pointing at one) would be deleted.
     prereq_path = path / PREREQUISITES_FILE
-    prereq_file: SeedPrerequisiteFile | None = None
-    prereqs_ok = True
-    if prereq_path.exists():
-        prereq_file = _parse(prereq_path, SeedPrerequisiteFile, problems)
-        prereqs_ok = prereq_file is not None
+    if not prereq_path.exists():
+        raise SeedError([f"{PREREQUISITES_FILE}: file not found in {path}"])
+
+    problems: list[str] = []
+    prereq_file = _parse(prereq_path, SeedPrerequisiteFile, problems)
     modules = [(f.name, seed) for f in module_files if (seed := _parse(f, SeedFile, problems)) is not None]
 
     named: list[tuple[str, SeedFile | SeedPrerequisiteFile]] = list(modules)
@@ -69,8 +69,8 @@ def load_seed_dir(path: Path) -> SeedBundle:
                 seen[key] = name
 
     # Only check references when the prerequisites file itself was readable; otherwise every one would fail.
-    if prereqs_ok:
-        known = set(prereq_file.keys()) if prereq_file else set()
+    if prereq_file is not None:
+        known = set(prereq_file.keys())
         for name, seed in modules:
             for i, sub in enumerate(seed.submodules):
                 for key in sub.prerequisites:
