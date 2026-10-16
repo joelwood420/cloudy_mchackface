@@ -4,6 +4,8 @@ import { ApiError, isUnauthorized } from './api'
 import { AppShell } from './components/AppShell'
 import { RequireAuth } from './components/RequireAuth'
 import { AuthPage } from './pages/AuthPage'
+import { DisclaimerGate } from './components/DisclaimerGate'
+import { DisclaimerPage } from './pages/DisclaimerPage'
 import { ModulePage } from './pages/ModulePage'
 import { ModulesPage } from './pages/ModulesPage'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -37,18 +39,21 @@ const queryClient = makeQueryClient()
 
 export function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/login" element={<AuthPage key="login" mode="login" />} />
-      <Route path="/signup" element={<AuthPage key="signup" mode="signup" />} />
-      <Route element={<RequireAuth />}>
-        <Route element={<AppShell />}>
-          <Route path="/" element={<ModulesPage />} />
-          <Route path="/modules/:key" element={<ModulePage />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route path="*" element={<NotFoundPage />} />
+    <DisclaimerGate>
+      <Routes>
+        <Route path="/login" element={<AuthPage key="login" mode="login" />} />
+        <Route path="/signup" element={<AuthPage key="signup" mode="signup" />} />
+        <Route element={<RequireAuth />}>
+          <Route element={<AppShell />}>
+            <Route path="/" element={<ModulesPage />} />
+            <Route path="/modules/:key" element={<ModulePage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/disclaimer" element={<DisclaimerPage />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+    </DisclaimerGate>
   )
 }
 

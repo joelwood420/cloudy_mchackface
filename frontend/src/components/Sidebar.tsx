@@ -113,6 +113,9 @@ export function Sidebar() {
       )}
 
       <div className="sidebar-foot">
+        <Link to="/disclaimer" className="side-footer-link" aria-current={pathname === '/disclaimer' ? 'page' : undefined}>
+          Disclaimer
+        </Link>
         {me.data && (
           <p className="small">
             {me.data.current_week === null ? (

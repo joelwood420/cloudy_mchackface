@@ -188,3 +188,14 @@ button.button-secondary { cursor: pointer; }
 .settings-actions { display: flex; align-items: center; gap: 14px; }
 .current-badge { align-self: flex-start; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); }
 .timeline-dot.is-current { border-color: var(--accent); background: var(--accent); color: var(--surface); }
+
+/* Disclaimer */
+.gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 32px 16px; }
+.gate-card { max-width: 640px; width: 100%; padding: clamp(20px, 4vw, 36px); display: flex; flex-direction: column; gap: 20px; }
+.gate-card p, .disclaimer-page p { margin: 0; }
+.disclaimer-page { max-width: 760px; gap: 20px; }
+.disclaimer-list { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 12px; color: var(--text-2); }
+.disclaimer-list strong { color: var(--text); }
+.gate-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.side-footer-link { margin-top: auto; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 13px; color: var(--muted); }
+.side-footer-link[aria-current] { color: var(--accent-strong); font-weight: 600; }
