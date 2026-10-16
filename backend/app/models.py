@@ -104,6 +104,54 @@ class Assessment(Base):
     uplearn_url: Mapped[str | None] = mapped_column(String(1000))
 
     module: Mapped[Module] = relationship(back_populates="assessments")
+    submissions: Mapped[list["AssessmentSubmission"]] = relationship(cascade="all, delete-orphan", passive_deletes=True)
+
+
+class Intake(Base):
+    """One cohort's teaching calendar (e.g. July 2026 full-time). Loaded from seed/schedule.yaml."""
+
+    __tablename__ = "intakes"
+    __table_args__ = (CheckConstraint("study_mode IN ('FT', 'PT')", name="study_mode"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    key: Mapped[str] = mapped_column(String(100), unique=True)
+    title: Mapped[str] = mapped_column(String(200))
+    study_mode: Mapped[str] = mapped_column(String(2))
+
+    weeks: Mapped[list["IntakeWeek"]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True, order_by="IntakeWeek.starts_on"
+    )
+    holidays: Mapped[list["IntakeHoliday"]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True, order_by="IntakeHoliday.day"
+    )
+
+
+class IntakeWeek(Base):
+    __tablename__ = "intake_weeks"
+
+    intake_id: Mapped[int] = mapped_column(ForeignKey("intakes.id", ondelete="CASCADE"), primary_key=True)
+    week_number: Mapped[int] = mapped_column(primary_key=True)
+    starts_on: Mapped[date] = mapped_column(Date)
+
+
+class IntakeHoliday(Base):
+    __tablename__ = "intake_holidays"
+
+    intake_id: Mapped[int] = mapped_column(ForeignKey("intakes.id", ondelete="CASCADE"), primary_key=True)
+    day: Mapped[date] = mapped_column(Date, primary_key=True)
+    name: Mapped[str] = mapped_column(String(200))
+
+
+class AssessmentSubmission(Base):
+    """A user's "I've submitted this" tick on an assessment."""
+
+    __tablename__ = "assessment_submissions"
+
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
+    assessment_id: Mapped[int] = mapped_column(
+        ForeignKey("assessments.id", ondelete="CASCADE"), primary_key=True, index=True
+    )
+    submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class Prerequisite(Base):
@@ -153,6 +201,9 @@ class User(Base):
     prerequisite_completions: Mapped[list["PrerequisiteCompletion"]] = relationship(
         cascade="all, delete-orphan", passive_deletes=True
     )
+    assessment_submissions: Mapped[list["AssessmentSubmission"]] = relationship(
+        cascade="all, delete-orphan", passive_deletes=True
+    )
 
 
 class UserSession(Base):
@@ -188,10 +239,10 @@ class PrerequisiteCompletion(Base):
 
 class UserSettings(Base):
     __tablename__ = "user_settings"
-    __table_args__ = (CheckConstraint("study_mode IN ('FT', 'PT')", name="study_mode"),)
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), primary_key=True)
-    current_week: Mapped[int | None]
-    study_mode: Mapped[str] = mapped_column(String(2), default="FT", server_default="FT")
+    # No cascade: the seed loader refuses to delete an intake that anyone is on.
+    intake_id: Mapped[int] = mapped_column(ForeignKey("intakes.id"), index=True)
 
     user: Mapped[User] = relationship(back_populates="settings")
+    intake: Mapped[Intake] = relationship()

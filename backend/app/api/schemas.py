@@ -91,11 +91,12 @@ class LoginIn(BaseModel):
     password: Annotated[str, StringConstraints(min_length=1, max_length=256)]
 
 
+class IntakeOut(_Out):
+    key: str
+    title: str
+
+
 class MeOut(BaseModel):
     email: str
-    current_week: int | None
     study_mode: str
-
-
-class SettingsIn(BaseModel):
-    current_week: int | None
+    intake: IntakeOut

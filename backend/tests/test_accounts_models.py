@@ -3,14 +3,14 @@ from datetime import UTC, datetime, timedelta
 from sqlalchemy import func, select
 
 from app.models import (
-    Module, Prerequisite, PrerequisiteCompletion, Task, TaskCompletion, User, UserSession, UserSettings, Week,
+    Assessment, AssessmentSubmission, Module, Prerequisite, PrerequisiteCompletion, Task, TaskCompletion, User, UserSession, UserSettings, Week,
 )
 from app.seed.loader import apply_seed
 from app.seed.schema import SeedFile, SeedPrerequisite
 
 
-def make_user(db, email="joel@example.com"):
-    user = User(email=email, password_hash="x", settings=UserSettings())
+def make_user(db, intake, email="joel@example.com"):
+    user = User(email=email, password_hash="x", settings=UserSettings(intake=intake))
     db.add(user)
     db.flush()
     return user
@@ -37,18 +37,18 @@ def count(db, model):
     return db.scalar(select(func.count()).select_from(model))
 
 
-def test_new_user_gets_default_settings(db):
-    user = make_user(db)
+def test_new_user_is_on_an_intake(db, intake):
+    user = make_user(db, intake)
     db.expire_all()
     settings = db.get(UserSettings, user.id)
-    assert settings.study_mode == "FT"
-    assert settings.current_week is None
+    assert settings.intake.key == "2607-online-ccc-ft"
+    assert settings.intake.study_mode == "FT"
     assert db.get(User, user.id).created_at is not None
 
 
-def test_removing_a_ticked_task_from_seed_deletes_its_tick(db):
+def test_removing_a_ticked_task_from_seed_deletes_its_tick(db, intake):
     apply_seed(db, *seed(["t1", "t2"]))
-    user = make_user(db)
+    user = make_user(db, intake)
     for key in ("t1", "t2"):
         task_id = db.scalar(select(Task.id).where(Task.key == key))
         db.add(TaskCompletion(user_id=user.id, task_id=task_id))
@@ -59,9 +59,9 @@ def test_removing_a_ticked_task_from_seed_deletes_its_tick(db):
     assert remaining == ["t2"]
 
 
-def test_removing_a_ticked_prerequisite_from_seed_deletes_its_tick(db):
+def test_removing_a_ticked_prerequisite_from_seed_deletes_its_tick(db, intake):
     apply_seed(db, *seed(["t1"], ["azure", "aws"]))
-    user = make_user(db)
+    user = make_user(db, intake)
     for key in ("azure", "aws"):
         prereq_id = db.scalar(select(Prerequisite.id).where(Prerequisite.key == key))
         db.add(PrerequisiteCompletion(user_id=user.id, prerequisite_id=prereq_id))
@@ -74,9 +74,9 @@ def test_removing_a_ticked_prerequisite_from_seed_deletes_its_tick(db):
     assert remaining == ["aws"]
 
 
-def test_reseeding_keeps_ticks_on_unchanged_content(db):
+def test_reseeding_keeps_ticks_on_unchanged_content(db, intake):
     apply_seed(db, *seed(["t1"], ["azure"]))
-    user = make_user(db)
+    user = make_user(db, intake)
     db.add(TaskCompletion(user_id=user.id, task_id=db.scalar(select(Task.id))))
     db.add(PrerequisiteCompletion(user_id=user.id, prerequisite_id=db.scalar(select(Prerequisite.id))))
     db.flush()
@@ -85,9 +85,9 @@ def test_reseeding_keeps_ticks_on_unchanged_content(db):
     assert (count(db, TaskCompletion), count(db, PrerequisiteCompletion)) == (1, 1)
 
 
-def test_deleting_a_module_deletes_ticks_on_its_tasks(db):
+def test_deleting_a_module_deletes_ticks_on_its_tasks(db, intake):
     apply_seed(db, *seed(["t1"]))
-    user = make_user(db)
+    user = make_user(db, intake)
     db.add(TaskCompletion(user_id=user.id, task_id=db.scalar(select(Task.id))))
     db.flush()
     db.expire_all()
@@ -97,12 +97,17 @@ def test_deleting_a_module_deletes_ticks_on_its_tasks(db):
     assert (count(db, Week), count(db, Task), count(db, TaskCompletion)) == (0, 0, 0)
 
 
-def test_deleting_a_user_deletes_their_sessions_ticks_and_settings(db):
+def test_deleting_a_user_deletes_their_sessions_ticks_and_settings(db, intake):
     apply_seed(db, *seed(["t1"], ["azure"]))
-    user = make_user(db)
+    user = make_user(db, intake)
     db.add(TaskCompletion(user_id=user.id, task_id=db.scalar(select(Task.id))))
     db.add(PrerequisiteCompletion(user_id=user.id, prerequisite_id=db.scalar(select(Prerequisite.id))))
     db.add(UserSession(token_hash="a" * 64, user_id=user.id, expires_at=datetime.now(UTC) + timedelta(days=1)))
+    module = db.scalars(select(Module)).one()
+    assessment = Assessment(key="a1", module_id=module.id, title="A1")
+    db.add(assessment)
+    db.flush()
+    db.add(AssessmentSubmission(user_id=user.id, assessment_id=assessment.id))
     db.flush()
     db.expire_all()
 
@@ -110,3 +115,4 @@ def test_deleting_a_user_deletes_their_sessions_ticks_and_settings(db):
     db.flush()
     assert (count(db, UserSession), count(db, TaskCompletion), count(db, UserSettings)) == (0, 0, 0)
     assert count(db, PrerequisiteCompletion) == 0
+    assert count(db, AssessmentSubmission) == 0

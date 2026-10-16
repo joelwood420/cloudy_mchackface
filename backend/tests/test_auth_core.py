@@ -8,8 +8,8 @@ from app.auth.sessions import SESSION_LIFETIME, end_session, hash_token, start_s
 from app.models import User, UserSession, UserSettings
 
 
-def make_user(db):
-    user = User(email="joel@example.com", password_hash=hash_password("correct horse"), settings=UserSettings())
+def make_user(db, intake):
+    user = User(email="joel@example.com", password_hash=hash_password("correct horse"), settings=UserSettings(intake=intake))
     db.add(user)
     db.flush()
     return user
@@ -30,8 +30,8 @@ def test_verify_with_a_corrupt_hash_is_false():
     assert verify_password("not-a-hash", "anything at all") is False
 
 
-def test_session_token_is_stored_only_as_a_hash(db):
-    user = make_user(db)
+def test_session_token_is_stored_only_as_a_hash(db, intake):
+    user = make_user(db, intake)
     token = start_session(db, user)
     db.flush()
     stored = db.scalars(select(UserSession.token_hash)).one()
@@ -40,15 +40,15 @@ def test_session_token_is_stored_only_as_a_hash(db):
     assert len(token) >= 40
 
 
-def test_user_for_token_finds_the_user(db):
-    user = make_user(db)
+def test_user_for_token_finds_the_user(db, intake):
+    user = make_user(db, intake)
     token = start_session(db, user)
     db.flush()
     assert user_for_token(db, token).id == user.id
 
 
-def test_garbage_missing_and_expired_tokens_find_nobody(db):
-    user = make_user(db)
+def test_garbage_missing_and_expired_tokens_find_nobody(db, intake):
+    user = make_user(db, intake)
     now = datetime.now(UTC)
     token = start_session(db, user, now=now - SESSION_LIFETIME - timedelta(seconds=1))
     db.flush()
@@ -58,8 +58,8 @@ def test_garbage_missing_and_expired_tokens_find_nobody(db):
     assert user_for_token(db, None) is None
 
 
-def test_starting_a_session_prunes_that_users_expired_sessions(db):
-    user = make_user(db)
+def test_starting_a_session_prunes_that_users_expired_sessions(db, intake):
+    user = make_user(db, intake)
     now = datetime.now(UTC)
     start_session(db, user, now=now - SESSION_LIFETIME - timedelta(days=1))
     db.flush()
@@ -68,8 +68,8 @@ def test_starting_a_session_prunes_that_users_expired_sessions(db):
     assert db.scalar(select(func.count()).select_from(UserSession)) == 1
 
 
-def test_end_session_removes_it(db):
-    user = make_user(db)
+def test_end_session_removes_it(db, intake):
+    user = make_user(db, intake)
     token = start_session(db, user)
     db.flush()
     end_session(db, token)

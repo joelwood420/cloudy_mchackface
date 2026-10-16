@@ -36,13 +36,31 @@ def test_migrations_build_the_model_schema_and_downgrade_cleanly(engine):
                 ),
                 {"s": SCHEMA},
             ).scalars().all()
-            assert "user_settings_study_mode_check" in checks, checks
+            assert "intakes_study_mode_check" in checks, checks
 
             command.downgrade(alembic_config(conn), "base")
             tables = conn.execute(
                 text("select table_name from information_schema.tables where table_schema = :s"), {"s": SCHEMA}
             ).scalars().all()
             assert tables == ["alembic_version"]
+        finally:
+            trans.rollback()
+
+
+def test_0008_moves_existing_users_onto_the_default_intake(engine):
+    with engine.connect() as conn:
+        trans = conn.begin()
+        try:
+            conn.execute(text(f"CREATE SCHEMA {SCHEMA}"))
+            conn.execute(text(f"SET LOCAL search_path TO {SCHEMA}"))
+            command.upgrade(alembic_config(conn), "0007")
+            conn.execute(text("INSERT INTO users (id, email, password_hash) VALUES (1, 'old@example.com', 'x')"))
+            conn.execute(text("INSERT INTO user_settings (user_id, current_week, study_mode) VALUES (1, 9, 'FT')"))
+            command.upgrade(alembic_config(conn), "head")
+            key = conn.execute(
+                text("SELECT i.key FROM user_settings s JOIN intakes i ON i.id = s.intake_id WHERE s.user_id = 1")
+            ).scalar_one()
+            assert key == "2607-online-ccc-ft"
         finally:
             trans.rollback()
 

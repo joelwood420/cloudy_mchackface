@@ -2,7 +2,7 @@ from sqlalchemy import select
 
 from app.auth.ratelimit import email_limiter
 from app.disclaimer import DISCLAIMER_VERSION
-from app.models import Module, Submodule, User, Week
+from app.models import User
 from tests.conftest import PASSWORD, signup_body
 
 
@@ -17,7 +17,7 @@ def login(client, email="joel@example.com", password=PASSWORD):
 def test_signup_starts_a_session_with_a_safe_cookie(client):
     response = signup(client)
     assert response.status_code == 201
-    assert response.json() == {"email": "joel@example.com", "current_week": None, "study_mode": "FT"}
+    assert response.json() == {"email": "joel@example.com", "study_mode": "FT", "intake": {"key": "2607-online-ccc-ft", "title": "Test intake"}}
     cookie = response.headers["set-cookie"].lower()
     assert "session=" in cookie and "httponly" in cookie and "samesite=lax" in cookie
     assert "max-age=2592000" in cookie
@@ -99,31 +99,13 @@ def test_login_is_rate_limited_per_email(client):
     assert response.json() == {"detail": "Too many attempts. Wait a few minutes and try again."}
 
 
-def add_weeks(db):
-    sub = Submodule(key="s", code="S", title="S", position=0)
-    db.add(Module(key="m", code="M", title="M", position=1, submodules=[sub], weeks=[
-        Week(key="w9", week_number=9, title="W9", position=0, submodule=sub),
-    ]))
+def test_signup_needs_the_schedule_loaded(client, db, intake):
+    db.delete(intake)
     db.flush()
+    response = client.post("/api/auth/signup", json=signup_body("joel@example.com"))
+    assert response.status_code == 503
+    assert response.json() == {"detail": "The course schedule isn't loaded yet. Try again later."}
 
 
-def test_set_and_clear_current_week(user_client, db):
-    add_weeks(db)
-    response = user_client.patch("/api/me/settings", json={"current_week": 9})
-    assert response.status_code == 200
-    assert response.json()["current_week"] == 9
-    assert user_client.get("/api/me").json()["current_week"] == 9
-
-    assert user_client.patch("/api/me/settings", json={"current_week": None}).json()["current_week"] is None
-
-
-def test_unknown_week_is_rejected(user_client, db):
-    add_weeks(db)
-    response = user_client.patch("/api/me/settings", json={"current_week": 99})
-    assert response.status_code == 422
-    assert response.json() == {"detail": "No such week"}
-    assert user_client.patch("/api/me/settings", json={}).status_code == 422
-
-
-def test_settings_need_a_session(client):
-    assert client.patch("/api/me/settings", json={"current_week": None}).status_code == 401
+def test_week_setting_is_gone(user_client):
+    assert user_client.patch("/api/me/settings", json={"current_week": 9}).status_code == 404
