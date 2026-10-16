@@ -5,7 +5,7 @@ import { jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const modules = [
   { key: 'ccc601', code: 'CCC601', title: 'Public Cloud Administration', week_count: 0, task_count: 0, completed_count: 0, week_numbers: [], uplearn_url: null },
-  { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 8, task_count: 30, completed_count: 0, week_numbers: [9, 10, 11, 12, 13, 14, 15, 16], uplearn_url: 'https://up.test/602' },
+  { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 8, task_count: 30, completed_count: 15, week_numbers: [9, 10, 11, 12, 13, 14, 15, 16], uplearn_url: 'https://up.test/602' },
 ]
 
 async function loadedMain() {
@@ -21,7 +21,9 @@ describe('ModulesPage', () => {
     const link = await within(main).findByRole('link', { name: /Data Engineering in the Public Cloud/ })
     expect(link).toHaveAttribute('href', '/modules/ccc602')
     expect(within(main).getByText('8 weeks · 30 tasks')).toBeInTheDocument()
-    expect(within(main).getByRole('progressbar', { name: 'CCC602 progress' })).toHaveAttribute('aria-valuenow', '0')
+    expect(within(main).getByRole('progressbar', { name: 'CCC602 progress' })).toHaveAttribute('aria-valuenow', '50')
+    expect(within(main).getByRole('progressbar', { name: 'Programme progress' })).toHaveAttribute('aria-valuenow', '50')
+    expect(within(main).getByText('15 of 30 tasks done')).toBeInTheDocument()
   })
 
   it('uses singular forms for one week and one task', async () => {

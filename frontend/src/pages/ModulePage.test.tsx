@@ -1,6 +1,8 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
+import type { ModuleDetail } from '../api'
+import { withTaskDone } from '../progress'
 import { jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const summary = [
@@ -34,7 +36,7 @@ const detail = {
           external_url: 'https://learn.test/lp1',
           uplearn_url: null,
           note: 'Skillable lab: the training key is in the Teams tutor-only channel.',
-          done: false,
+          done: true,
         },
         { key: 't2', title: 'Read the A3 brief', type: 'assessment_step', external_url: null, uplearn_url: 'https://up.test/a3', note: null, done: false },
       ],
@@ -78,12 +80,13 @@ describe('ModulePage', () => {
     expect(within(main).getByText('Weeks 9–10 · 2 weeks · 2 tasks')).toBeInTheDocument()
   })
 
-  it('shows the progress card at zero with the sign-in note', async () => {
+  it('shows real module progress', async () => {
     const main = await open()
-    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '0')
-    expect(within(main).getByText('Progress tracking arrives with sign-in.')).toBeInTheDocument()
-    expect(within(main).getByText('Tasks done').nextElementSibling).toHaveTextContent('0/2')
-    expect(within(main).getByText('Weeks complete').nextElementSibling).toHaveTextContent('0/2')
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '50')
+    expect(within(main).getByText('50%')).toBeInTheDocument()
+    expect(within(main).getByText('Tasks done').nextElementSibling).toHaveTextContent('1/2')
+    expect(within(main).getByText('Weeks complete').nextElementSibling).toHaveTextContent('0/1')
+    expect(within(main).getByRole('button', { name: /Week 9/ })).toHaveTextContent('1/2 done')
   })
 
   it('starts with weeks collapsed and opens one at a time', async () => {
@@ -107,22 +110,69 @@ describe('ModulePage', () => {
     expect(week10).toHaveAttribute('aria-expanded', 'false')
   })
 
-  it('shows task rows with disabled tick boxes, type tags and safe links', async () => {
+  it('shows task rows with tick boxes, type tags and named links', async () => {
     const main = await open()
     await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
 
     const lp1 = within(main).getByText('DP-900 LP1').closest('li')!
-    expect(within(lp1).getByRole('checkbox', { name: 'DP-900 LP1' })).toBeDisabled()
+    const box = within(lp1).getByRole('checkbox', { name: 'DP-900 LP1' })
+    expect(box).toBeEnabled()
+    expect(box).toBeChecked()
     expect(within(lp1).getByText('Learning path')).toBeInTheDocument()
-    const openLink = within(lp1).getByRole('link', { name: 'Open' })
+    const openLink = within(lp1).getByRole('link', { name: 'Open DP-900 LP1' })
     expect(openLink).toHaveAttribute('href', 'https://learn.test/lp1')
     expect(openLink).toHaveAttribute('target', '_blank')
     expect(openLink).toHaveAttribute('rel', 'noopener noreferrer')
 
     const brief = within(main).getByText('Read the A3 brief').closest('li')!
+    expect(within(brief).getByRole('checkbox', { name: 'Read the A3 brief' })).not.toBeChecked()
     expect(within(brief).getByText('Assessment')).toBeInTheDocument()
-    expect(within(brief).queryByRole('link', { name: 'Open' })).toBeNull()
-    expect(within(brief).getByRole('link', { name: 'UPLearn' })).toHaveAttribute('href', 'https://up.test/a3')
+    expect(within(brief).queryByRole('link', { name: /^Open/ })).toBeNull()
+    expect(within(brief).getByRole('link', { name: 'Read the A3 brief on UPLearn' })).toHaveAttribute('href', 'https://up.test/a3')
+  })
+
+  it('ticks a task and progress follows', async () => {
+    // The server remembers the tick, so the refetch after saving agrees with the optimistic update.
+    let t2Done = false
+    const fetchMock = mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': () => jsonResponse(withTaskDone(detail as ModuleDetail, 't2', t2Done)),
+      'PUT /api/tasks/t2/complete': () => {
+        t2Done = true
+        return new Response(null, { status: 204 })
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
+    expect(await within(main).findByRole('checkbox', { name: 'Read the A3 brief', checked: true })).toBeInTheDocument()
+    await waitFor(() =>
+      expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '100'),
+    )
+    expect(fetchMock).toHaveBeenCalledWith('/api/tasks/t2/complete', expect.objectContaining({ method: 'PUT' }))
+  })
+
+  it('unticks a task and rolls back when saving fails', async () => {
+    mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': detail,
+      'DELETE /api/tasks/t1/complete': () => jsonResponse({ detail: 'Boom' }, 500),
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'DP-900 LP1' }))
+    expect(await within(main).findByRole('alert')).toHaveTextContent("Couldn't save that tick. Try again.")
+    expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).toBeChecked()
+  })
+
+  it('uses headings for assessment titles', async () => {
+    const main = await open()
+    const rail = within(main).getByRole('complementary', { name: 'Assessments' })
+    expect(within(rail).getByRole('heading', { level: 3, name: 'Assessment 3' })).toBeInTheDocument()
   })
 
   it('shows a task note as a hint under the title', async () => {

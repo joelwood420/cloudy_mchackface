@@ -144,7 +144,7 @@ button.button-secondary { cursor: pointer; }
 .rail { flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
 .rail-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .assessment-card { padding: 18px; display: flex; flex-direction: column; gap: 8px; }
-.assessment-title { font-weight: 600; line-height: 1.35; }
+.assessment-title { margin: 0; font-family: var(--font-body); font-size: 15px; font-weight: 600; line-height: 1.35; }
 .assessment-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 10px; border-top: 1px solid var(--border-soft); }
 .countdown { font-family: var(--font-display); font-weight: 600; font-size: 18px; }
 .countdown.is-soon { color: var(--soon); }

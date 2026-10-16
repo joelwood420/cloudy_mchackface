@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Submodule, Task, TaskType, Week } from '../../api'
-import { plural, weekRange } from '../../format'
+import { weekRange } from '../../format'
+import { percent, weekDone } from '../../progress'
 import { ExternalLink } from '../ExternalLink'
 import { ProgressBar } from '../ProgressBar'
 import { PrerequisiteBox } from './PrerequisiteBox'
@@ -11,11 +12,17 @@ const TYPE_LABELS: Record<TaskType, string> = {
   assessment_step: 'Assessment',
 }
 
-export function TaskRow({ task }: { task: Task }) {
+export function TaskRow({ task, onToggle }: { task: Task; onToggle: (taskKey: string, done: boolean) => void }) {
   const id = `task-${task.key}`
   return (
     <li className="task-row">
-      <input type="checkbox" id={id} disabled title="Ticking arrives with sign-in" aria-describedby={task.note ? `${id}-note` : undefined} />
+      <input
+        type="checkbox"
+        id={id}
+        checked={task.done}
+        onChange={() => onToggle(task.key, !task.done)}
+        aria-describedby={task.note ? `${id}-note` : undefined}
+      />
       <span className="task-main">
         <label htmlFor={id} className="task-title">
           {task.title}
@@ -32,8 +39,8 @@ export function TaskRow({ task }: { task: Task }) {
       </span>
       <span className="tag">{TYPE_LABELS[task.type]}</span>
       <span className="task-links">
-        {task.external_url && <ExternalLink href={task.external_url}>Open</ExternalLink>}
-        {task.uplearn_url && <ExternalLink href={task.uplearn_url}>UPLearn</ExternalLink>}
+        {task.external_url && <ExternalLink href={task.external_url} label={`Open ${task.title}`}>Open</ExternalLink>}
+        {task.uplearn_url && <ExternalLink href={task.uplearn_url} label={`${task.title} on UPLearn`}>UPLearn</ExternalLink>}
       </span>
     </li>
   )
@@ -44,11 +51,13 @@ export function WeekCard({
   open,
   isLast,
   onToggle,
+  onToggleTask,
 }: {
   week: Week
   open: boolean
   isLast: boolean
   onToggle: () => void
+  onToggleTask: (taskKey: string, done: boolean) => void
 }) {
   const panelId = `week-panel-${week.key}`
   return (
@@ -65,8 +74,10 @@ export function WeekCard({
               <span className="week-title">{week.title}</span>
             </span>
             <span className="week-meta">
-              <span className="small muted">{plural(week.tasks.length, 'task')}</span>
-              <ProgressBar value={0} label={`Week ${week.week_number} progress`} size="sm" decorative />
+              <span className="small muted">
+                {week.tasks.length === 0 ? 'No tasks' : `${weekDone(week)}/${week.tasks.length} done`}
+              </span>
+              <ProgressBar value={percent(weekDone(week), week.tasks.length)} label={`Week ${week.week_number} progress`} size="sm" decorative />
             </span>
             <svg className="chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M6 9l6 6 6-6" />
@@ -80,7 +91,7 @@ export function WeekCard({
             ) : (
               <ul className="task-list">
                 {week.tasks.map((task) => (
-                  <TaskRow key={task.key} task={task} />
+                  <TaskRow key={task.key} task={task} onToggle={onToggleTask} />
                 ))}
               </ul>
             )}
@@ -122,7 +133,15 @@ function SubmoduleHead({ submodule }: { submodule: Submodule }) {
   )
 }
 
-export function WeekTimeline({ weeks, submodules }: { weeks: Week[]; submodules: Submodule[] }) {
+export function WeekTimeline({
+  weeks,
+  submodules,
+  onToggleTask,
+}: {
+  weeks: Week[]
+  submodules: Submodule[]
+  onToggleTask: (taskKey: string, done: boolean) => void
+}) {
   const [openKey, setOpenKey] = useState<string | null>(null)
   const toggle = (key: string) => setOpenKey(openKey === key ? null : key)
   return (
@@ -151,6 +170,7 @@ export function WeekTimeline({ weeks, submodules }: { weeks: Week[]; submodules:
                     open={openKey === week.key}
                     isLast={i === group.weeks.length - 1}
                     onToggle={() => toggle(week.key)}
+                    onToggleTask={onToggleTask}
                   />
                 ))}
               </ol>

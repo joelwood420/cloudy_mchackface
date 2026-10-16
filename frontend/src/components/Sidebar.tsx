@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { fetchModules, logout } from '../api'
 import { useMe } from '../hooks/useMe'
+import { percent } from '../progress'
 import { ProgressBar } from './ProgressBar'
 
 function Icon({ children }: { children: ReactNode }) {
@@ -79,22 +80,25 @@ export function Sidebar() {
             Your modules
           </h2>
           <ul className="side-modules">
-            {modules.data.map((m) => (
-              <li key={m.key}>
-                <Link
-                  to={`/modules/${m.key}`}
-                  className="side-module"
-                  aria-current={pathname === `/modules/${m.key}` ? 'page' : undefined}
-                >
-                  <span className="side-module-top">
-                    <span>{m.code}</span>
-                    <span aria-hidden="true">0%</span>
-                  </span>
-                  <span className="side-module-title">{m.title}</span>
-                  <ProgressBar value={0} label={`${m.code} progress`} size="sm" decorative />
-                </Link>
-              </li>
-            ))}
+            {modules.data.map((m) => {
+              const pct = percent(m.completed_count, m.task_count)
+              return (
+                <li key={m.key}>
+                  <Link
+                    to={`/modules/${m.key}`}
+                    className="side-module"
+                    aria-current={pathname === `/modules/${m.key}` ? 'page' : undefined}
+                  >
+                    <span className="side-module-top">
+                      <span>{m.code}</span>
+                      <span aria-hidden="true">{pct}%</span>
+                    </span>
+                    <span className="side-module-title">{m.title}</span>
+                    <ProgressBar value={pct} label={`${m.code} progress`} size="sm" decorative />
+                  </Link>
+                </li>
+              )
+            })}
           </ul>
         </section>
       )}

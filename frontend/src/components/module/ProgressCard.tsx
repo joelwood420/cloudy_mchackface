@@ -1,27 +1,40 @@
 import { ProgressBar } from '../ProgressBar'
 
-export function ProgressCard({ taskCount, weekCount }: { taskCount: number; weekCount: number }) {
+export function ProgressCard({
+  done,
+  total,
+  pct,
+  weeksComplete,
+  weeksWithTasks,
+}: {
+  done: number
+  total: number
+  pct: number
+  weeksComplete: number
+  weeksWithTasks: number
+}) {
   return (
     <section className="card progress-card" aria-labelledby="progress-heading">
       <div className="progress-main">
         <div className="progress-head">
           <h2 id="progress-heading">Module progress</h2>
-          <span className="big-number">0%</span>
+          <span className="big-number">{pct}%</span>
         </div>
-        <ProgressBar value={0} label="Module progress" size="lg" />
-        <p className="muted small">Progress tracking arrives with sign-in.</p>
+        <ProgressBar value={pct} label="Module progress" size="lg" />
       </div>
       <dl className="stats">
         <div>
           <dt>Tasks done</dt>
           <dd>
-            0<span className="of">/{taskCount}</span>
+            {done}
+            <span className="of">/{total}</span>
           </dd>
         </div>
         <div>
           <dt>Weeks complete</dt>
           <dd>
-            0<span className="of">/{weekCount}</span>
+            {weeksComplete}
+            <span className="of">/{weeksWithTasks}</span>
           </dd>
         </div>
       </dl>

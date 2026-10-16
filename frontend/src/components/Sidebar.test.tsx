@@ -4,7 +4,7 @@ import { jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const modules = [
   { key: 'ccc601', code: 'CCC601', title: 'Public Cloud Administration', week_count: 0, task_count: 0, completed_count: 0, week_numbers: [], uplearn_url: null },
-  { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 8, task_count: 40, completed_count: 0, week_numbers: [], uplearn_url: 'https://up.test/602' },
+  { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 8, task_count: 40, completed_count: 10, week_numbers: [], uplearn_url: 'https://up.test/602' },
 ]
 const detail = { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', uplearn_url: null, submodules: [], weeks: [], assessments: [] }
 
@@ -18,6 +18,7 @@ describe('Sidebar', () => {
     expect(within(nav()).getByText('Cloudy McHackface')).toBeInTheDocument()
     const link = await within(nav()).findByRole('link', { name: /Data Engineering in the Public Cloud/ })
     expect(link).toHaveAttribute('href', '/modules/ccc602')
+    expect(link).toHaveTextContent('25%')
     expect(link.querySelector('.progress')).toHaveAttribute('aria-hidden', 'true')
     expect(within(nav()).queryByRole('progressbar')).toBeNull()
   })
