@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import type { ModuleDetail } from '../api'
 import { withPrerequisiteDone, withTaskDone } from '../progress'
-import { ME, jsonResponse, mockApi, renderAt } from '../test/utils'
+import { THIS_WEEK, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const summary = [
   { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 2, task_count: 2, completed_count: 0, week_numbers: [9, 10], uplearn_url: 'https://up.test/602' },
@@ -75,7 +75,7 @@ describe('ModulePage', () => {
   it('shows the breadcrumb, title and week summary', async () => {
     const main = await open()
     const crumbs = within(main).getByRole('navigation', { name: 'Breadcrumb' })
-    expect(within(crumbs).getByRole('link', { name: 'Modules' })).toHaveAttribute('href', '/')
+    expect(within(crumbs).getByRole('link', { name: 'Modules' })).toHaveAttribute('href', '/modules')
     expect(within(crumbs).getByText('CCC602')).toHaveAttribute('aria-current', 'page')
     expect(within(main).getByText('Weeks 9–10 · 2 weeks · 2 tasks')).toBeInTheDocument()
   })
@@ -268,7 +268,7 @@ describe('ModulePage', () => {
     mockApi({ '/api/modules': summary })
     renderAt('/modules/nope')
     expect(await screen.findByRole('heading', { name: 'Module not found' })).toBeInTheDocument()
-    expect(within(screen.getByRole('main')).getByRole('link', { name: 'Back to modules' })).toHaveAttribute('href', '/')
+    expect(within(screen.getByRole('main')).getByRole('link', { name: 'Back to modules' })).toHaveAttribute('href', '/modules')
   })
 
   it('shows an error with retry for server errors', async () => {
@@ -439,7 +439,7 @@ describe('ModulePage', () => {
   })
 
   it('opens the current week and marks it', async () => {
-    mockApi({ '/api/me': { ...ME, current_week: 10 }, '/api/modules': summary, '/api/modules/ccc602': detail })
+    mockApi({ '/api/this-week': { ...THIS_WEEK, week: { week_number: 10, starts_on: '2026-10-05', ends_on: '2026-10-11' } }, '/api/modules': summary, '/api/modules/ccc602': detail })
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')

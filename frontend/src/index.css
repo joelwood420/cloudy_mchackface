@@ -63,6 +63,9 @@ h2 { font-weight: 600; font-size: 20px; }
 .nav-item { display: flex; align-items: center; gap: 12px; min-height: 44px; padding: 0 12px; border-radius: 8px; color: var(--text-2); text-decoration: none; font-weight: 500; }
 .nav-item[aria-current] { background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; }
 .nav-item.is-disabled { color: var(--faint); cursor: default; }
+.module-card.is-coming-soon { opacity: 0.6; }
+.module-card.is-coming-soon .soon { margin-left: 0; align-self: flex-start; }
+.side-module.is-coming-soon { opacity: 0.6; cursor: default; }
 .soon { margin-left: auto; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--tag-bg); color: var(--muted); }
 .side-heading { margin: 0 0 6px; padding: 0 12px; font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
 .side-module { display: flex; flex-direction: column; gap: 8px; padding: 12px; border-radius: 8px; border: 1px solid transparent; color: var(--text); text-decoration: none; }

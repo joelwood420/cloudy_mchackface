@@ -96,7 +96,7 @@ describe('sign-in flow', () => {
 
     await userEvent.type(screen.getByLabelText('Password'), ' and more')
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
-    expect(await screen.findByRole('heading', { level: 1, name: 'Modules' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'This week' })).toBeInTheDocument()
     const signupCall = fetchMock.mock.calls.find(([url]) => url === '/api/auth/signup')
     expect(signupCall).toBeDefined()
     const init = signupCall![1] as RequestInit

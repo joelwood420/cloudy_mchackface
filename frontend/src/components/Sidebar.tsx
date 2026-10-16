@@ -2,7 +2,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { fetchModules, logout } from '../api'
+import { weekFooter } from '../format'
 import { useMe } from '../hooks/useMe'
+import { useThisWeek } from '../hooks/useThisWeek'
 import { percent } from '../progress'
 import { ProgressBar } from './ProgressBar'
 
@@ -18,6 +20,7 @@ export function Sidebar() {
   const { pathname } = useLocation()
   const modules = useQuery({ queryKey: ['modules'], queryFn: fetchModules })
   const me = useMe()
+  const thisWeek = useThisWeek()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const signOut = useMutation({
@@ -27,7 +30,7 @@ export function Sidebar() {
       queryClient.clear()
     },
   })
-  const modulesCurrent = pathname === '/' ? 'page' : pathname.startsWith('/modules/') ? 'true' : undefined
+  const modulesCurrent = pathname === '/modules' ? 'page' : pathname.startsWith('/modules/') ? 'true' : undefined
 
   return (
     <nav className="sidebar" aria-label="Main">
@@ -45,17 +48,16 @@ export function Sidebar() {
 
       <ul className="nav-list">
         <li>
-          <span className="nav-item is-disabled">
+          <Link to="/" className="nav-item" aria-current={pathname === '/' ? 'page' : undefined}>
             <Icon>
               <rect x="3" y="4" width="18" height="17" rx="2" />
               <path d="M3 9h18M8 2v4M16 2v4" />
             </Icon>
             This week
-            <span className="soon">Soon</span>
-          </span>
+          </Link>
         </li>
         <li>
-          <Link to="/" className="nav-item" aria-current={modulesCurrent}>
+          <Link to="/modules" className="nav-item" aria-current={modulesCurrent}>
             <Icon>
               <path d="M4 6h16M4 12h16M4 18h10" />
             </Icon>
@@ -63,22 +65,12 @@ export function Sidebar() {
           </Link>
         </li>
         <li>
-          <span className="nav-item is-disabled">
+          <Link to="/assessments" className="nav-item" aria-current={pathname === '/assessments' ? 'page' : undefined}>
             <Icon>
               <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
               <path d="M14 3v5h5M9 13h6M9 17h4" />
             </Icon>
             Assessments
-            <span className="soon">Soon</span>
-          </span>
-        </li>
-        <li>
-          <Link to="/settings" className="nav-item" aria-current={pathname === '/settings' ? 'page' : undefined}>
-            <Icon>
-              <circle cx="12" cy="12" r="3" />
-              <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z" />
-            </Icon>
-            Settings
           </Link>
         </li>
       </ul>
@@ -90,6 +82,19 @@ export function Sidebar() {
           </h2>
           <ul className="side-modules">
             {modules.data.map((m) => {
+              if (m.week_count === 0) {
+                return (
+                  <li key={m.key}>
+                    <span className="side-module is-coming-soon">
+                      <span className="side-module-top">
+                        <span>{m.code}</span>
+                        <span className="soon">Soon</span>
+                      </span>
+                      <span className="side-module-title">{m.title}</span>
+                    </span>
+                  </li>
+                )
+              }
               const pct = percent(m.completed_count, m.task_count)
               return (
                 <li key={m.key}>
@@ -116,19 +121,7 @@ export function Sidebar() {
         <Link to="/disclaimer" className="side-footer-link" aria-current={pathname === '/disclaimer' ? 'page' : undefined}>
           Disclaimer
         </Link>
-        {me.data && (
-          <p className="small">
-            {me.data.current_week === null ? (
-              <>
-                No current week yet. <Link to="/settings">Set your week</Link>
-              </>
-            ) : (
-              <>
-                You're on <strong>Week {me.data.current_week}</strong>. <Link to="/settings">Change week</Link>
-              </>
-            )}
-          </p>
-        )}
+        {thisWeek.data && <p className="small">{weekFooter(thisWeek.data)}</p>}
         {me.data && <p className="small muted sidebar-email">{me.data.email}</p>}
         {signOut.isError && (
           <p role="alert" className="error small">

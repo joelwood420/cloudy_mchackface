@@ -7,6 +7,6 @@ describe('NotFoundPage', () => {
     mockApi({ '/api/modules': [] })
     renderAt('/nope/nope')
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument()
-    expect(within(screen.getByRole('main')).getByRole('link', { name: 'Back to modules' })).toHaveAttribute('href', '/')
+    expect(within(screen.getByRole('main')).getByRole('link', { name: 'Back to modules' })).toHaveAttribute('href', '/modules')
   })
 })

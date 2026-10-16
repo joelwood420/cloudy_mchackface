@@ -14,9 +14,19 @@ async function loadedMain() {
 }
 
 describe('ModulesPage', () => {
+  it('shows a module with no weeks as coming soon, without a link or progress bar', async () => {
+    mockApi({ '/api/modules': modules })
+    renderAt('/modules')
+    const main = await loadedMain()
+    const card = within(main).getByText('Public Cloud Administration').closest('li')!
+    expect(within(card).getByText('Coming soon')).toBeInTheDocument()
+    expect(within(card).queryByRole('link')).not.toBeInTheDocument()
+    expect(within(card).queryByRole('progressbar')).not.toBeInTheDocument()
+  })
+
   it('lists modules as cards with links, counts and progress', async () => {
     mockApi({ '/api/modules': modules })
-    renderAt('/')
+    renderAt('/modules')
     const main = await loadedMain()
     const link = await within(main).findByRole('link', { name: /Data Engineering in the Public Cloud/ })
     expect(link).toHaveAttribute('href', '/modules/ccc602')
@@ -28,14 +38,14 @@ describe('ModulesPage', () => {
 
   it('uses singular forms for one week and one task', async () => {
     mockApi({ '/api/modules': [{ key: 'ccc603', code: 'CCC603', title: 'Single', week_count: 1, task_count: 1, completed_count: 0, week_numbers: [], uplearn_url: null }] })
-    renderAt('/')
+    renderAt('/modules')
     const main = await loadedMain()
     expect(await within(main).findByText('1 week · 1 task')).toBeInTheDocument()
   })
 
   it('shows a hint when there are no modules', async () => {
     mockApi({ '/api/modules': [] })
-    renderAt('/')
+    renderAt('/modules')
     expect(await screen.findByText(/No modules yet/)).toBeInTheDocument()
   })
 
@@ -44,11 +54,11 @@ describe('ModulesPage', () => {
     mockApi({
       '/api/modules': () => (++calls === 1 ? jsonResponse({ detail: 'Server exploded' }, 500) : jsonResponse(modules)),
     })
-    renderAt('/')
+    renderAt('/modules')
     expect(await screen.findByRole('alert')).toHaveTextContent('Server exploded')
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }))
     const main = await loadedMain()
-    expect(await within(main).findByRole('link', { name: /Public Cloud Administration/ })).toBeInTheDocument()
+    expect(await within(main).findByRole('link', { name: /Data Engineering in the Public Cloud/ })).toBeInTheDocument()
     expect(calls).toBe(2)
   })
 
@@ -58,7 +68,7 @@ describe('ModulesPage', () => {
         throw new TypeError('Failed to fetch')
       },
     })
-    renderAt('/')
+    renderAt('/modules')
     expect(await screen.findByRole('alert')).toHaveTextContent("Can't reach the server. Check your connection and try again.")
   })
 })

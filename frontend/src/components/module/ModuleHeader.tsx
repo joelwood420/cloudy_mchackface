@@ -9,7 +9,7 @@ export function ModuleHeader({ code, title, weeks }: { code: string; title: stri
       <nav className="breadcrumb" aria-label="Breadcrumb">
         <ol>
           <li>
-            <Link to="/">Modules</Link>
+            <Link to="/modules">Modules</Link>
           </li>
           <li aria-current="page">{code}</li>
         </ol>

@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { countdownLabel, countdownTone, daysUntil, formatDueDate, plural, weekRange, weekSummary } from './format'
+import type { ThisWeek } from './api'
+import { countdownLabel, countdownTone, dateSpan, dayDate, daysUntil, formatDueDate, plural, shortDate, weekFooter, weekRange, weekSummary } from './format'
+import { THIS_WEEK } from './test/utils'
 
 describe('format', () => {
   it('formats due dates without shifting the day', () => {
@@ -47,5 +49,30 @@ describe('weekRange', () => {
   it('names one week or a range', () => {
     expect(weekRange(9, 9)).toBe('Week 9')
     expect(weekRange(10, 12)).toBe('Weeks 10–12')
+  })
+})
+
+describe('dates', () => {
+  it('formats short and day dates without shifting the day', () => {
+    expect(shortDate('2026-10-12')).toBe('12 Oct')
+    expect(dayDate('2026-10-12')).toBe('Mon 12 Oct')
+  })
+  it('spans a week inside one month or across two', () => {
+    expect(dateSpan('2026-10-12', '2026-10-18')).toBe('12–18 Oct')
+    expect(dateSpan('2026-09-28', '2026-10-04')).toBe('28 Sep – 4 Oct')
+  })
+})
+
+describe('weekFooter', () => {
+  const tw = (over: Partial<ThisWeek>): ThisWeek => ({ ...THIS_WEEK, ...over })
+  it('names the week and its dates while teaching', () => {
+    expect(weekFooter(THIS_WEEK)).toBe('Week 11 · 12–18 Oct')
+  })
+  it('says when a break ends', () => {
+    expect(weekFooter(tw({ status: 'break', week: null, current_break: { starts_on: '2026-09-14', ends_on: '2026-09-27', week_of_break: 1, length_weeks: 2 } }))).toBe('On break until 27 Sep')
+  })
+  it('says when the programme starts, or that it has finished', () => {
+    expect(weekFooter(tw({ status: 'before_start', week: null, next_week: { week_number: 1, starts_on: '2026-07-20' } }))).toBe('Starts Mon 20 Jul')
+    expect(weekFooter(tw({ status: 'finished', week: null }))).toBe('Programme finished')
   })
 })

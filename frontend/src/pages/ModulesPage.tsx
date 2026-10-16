@@ -55,18 +55,26 @@ export function ModulesPage() {
         <p className="muted">No modules yet. Run the seed loader.</p>
       ) : (
         <ul className="card-grid">
-          {query.data.map((m) => (
-            <li key={m.key} className="card module-card">
-              <Link to={`/modules/${m.key}`}>
+          {query.data.map((m) =>
+            m.week_count === 0 ? (
+              <li key={m.key} className="card module-card is-coming-soon">
                 <span className="mono small muted">{m.code}</span>
                 <span className="module-card-title">{m.title}</span>
-              </Link>
-              <span className="muted small">
-                {plural(m.week_count, 'week')} · {plural(m.task_count, 'task')}
-              </span>
-              <ProgressBar value={percent(m.completed_count, m.task_count)} label={`${m.code} progress`} />
-            </li>
-          ))}
+                <span className="soon">Coming soon</span>
+              </li>
+            ) : (
+              <li key={m.key} className="card module-card">
+                <Link to={`/modules/${m.key}`}>
+                  <span className="mono small muted">{m.code}</span>
+                  <span className="module-card-title">{m.title}</span>
+                </Link>
+                <span className="muted small">
+                  {plural(m.week_count, 'week')} · {plural(m.task_count, 'task')}
+                </span>
+                <ProgressBar value={percent(m.completed_count, m.task_count)} label={`${m.code} progress`} />
+              </li>
+            ),
+          )}
         </ul>
       )}
     </main>

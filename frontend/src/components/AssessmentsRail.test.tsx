@@ -3,9 +3,9 @@ import { describe, expect, it } from 'vitest'
 import { AssessmentsRail } from './AssessmentsRail'
 
 const assessments = [
-  { key: 'a3', title: 'Assessment 3', due_date: '2026-10-25', uplearn_url: 'https://up.test/a3' },
-  { key: 'a5', title: 'Assessment 5', due_date: '2026-10-14', uplearn_url: null },
-  { key: 'a4', title: 'Assessment 4', due_date: null, uplearn_url: null },
+  { key: 'a3', title: 'Assessment 3', due_date: '2026-10-25', uplearn_url: 'https://up.test/a3', submitted: false, status: 'upcoming' as const, days_until: null },
+  { key: 'a5', title: 'Assessment 5', due_date: '2026-10-14', uplearn_url: null, submitted: false, status: 'upcoming' as const, days_until: null },
+  { key: 'a4', title: 'Assessment 4', due_date: null, uplearn_url: null, submitted: false, status: 'upcoming' as const, days_until: null },
 ]
 const today = new Date(2026, 9, 15, 9, 0)
 

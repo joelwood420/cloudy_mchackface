@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { ME, jsonResponse, mockApi, renderAt } from '../test/utils'
+import { jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const modules = [
   { key: 'ccc601', code: 'CCC601', title: 'Public Cloud Administration', week_count: 0, task_count: 0, completed_count: 0, week_numbers: [], uplearn_url: null },
@@ -13,7 +13,7 @@ const nav = () => screen.getByRole('navigation', { name: 'Main' })
 describe('Sidebar', () => {
   it('shows the brand and lists modules with links and progress', async () => {
     mockApi({ '/api/modules': modules })
-    renderAt('/')
+    renderAt('/modules')
     await screen.findByRole('navigation', { name: 'Main' })
     expect(within(nav()).getByText('Cloudy McHackface')).toBeInTheDocument()
     const link = await within(nav()).findByRole('link', { name: /Data Engineering in the Public Cloud/ })
@@ -23,32 +23,31 @@ describe('Sidebar', () => {
     expect(within(nav()).queryByRole('progressbar')).toBeNull()
   })
 
-  it('marks Modules as current and shows This week and Assessments as coming soon', async () => {
+  it('links This week, Modules and Assessments, with no Settings', async () => {
     mockApi({ '/api/modules': modules })
-    renderAt('/')
+    renderAt('/modules')
     await screen.findByRole('navigation', { name: 'Main' })
+    await within(nav()).findByText('CCC602')
+    expect(within(nav()).getByRole('link', { name: 'This week' })).toHaveAttribute('href', '/')
     expect(within(nav()).getByRole('link', { name: 'Modules' })).toHaveAttribute('aria-current', 'page')
-    expect(within(nav()).queryByRole('link', { name: /This week/ })).toBeNull()
-    expect(within(nav()).queryByRole('link', { name: /^Assessments/ })).toBeNull()
-    expect(within(nav()).getByText('This week').closest('.is-disabled')).not.toBeNull()
-    expect(within(nav()).getByText('This week').closest('[aria-disabled]')).toBeNull()
-    expect(within(nav()).getAllByText('Soon')).toHaveLength(2)
-    expect(within(nav()).getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings')
+    expect(within(nav()).getByRole('link', { name: 'Assessments' })).toHaveAttribute('href', '/assessments')
+    expect(within(nav()).queryByRole('link', { name: 'Settings' })).not.toBeInTheDocument()
   })
 
-  it('prompts to set a current week, or shows it', async () => {
+  it('shows where you are in the programme in the footer', async () => {
     mockApi({ '/api/modules': modules })
-    renderAt('/')
+    renderAt('/modules')
     await screen.findByRole('navigation', { name: 'Main' })
-    expect(await within(nav()).findByRole('link', { name: 'Set your week' })).toHaveAttribute('href', '/settings')
+    expect(await within(nav()).findByText('Week 11 · 12–18 Oct')).toBeInTheDocument()
   })
 
-  it('shows the current week with a link to change it', async () => {
-    mockApi({ '/api/me': { ...ME, current_week: 9 }, '/api/modules': modules })
-    renderAt('/')
+  it('greys out a module that is coming soon', async () => {
+    mockApi({ '/api/modules': [...modules, { key: 'ccc604', code: 'CCC604', title: 'Multi-Cloud', submodule_count: 0, week_count: 0, task_count: 0, completed_count: 0, week_numbers: [], uplearn_url: null }] })
+    renderAt('/modules')
     await screen.findByRole('navigation', { name: 'Main' })
-    expect(await within(nav()).findByText('Week 9')).toBeInTheDocument()
-    expect(within(nav()).getByRole('link', { name: 'Change week' })).toHaveAttribute('href', '/settings')
+    const item = (await within(nav()).findByText('Multi-Cloud')).closest('li')!
+    expect(within(item).getByText('Soon')).toBeInTheDocument()
+    expect(within(item).queryByRole('link')).not.toBeInTheDocument()
   })
 
   it('highlights the module being viewed', async () => {
@@ -57,13 +56,13 @@ describe('Sidebar', () => {
     await screen.findByRole('navigation', { name: 'Main' })
     const current = await within(nav()).findByRole('link', { name: /Data Engineering in the Public Cloud/ })
     expect(current).toHaveAttribute('aria-current', 'page')
-    expect(within(nav()).getByRole('link', { name: /Public Cloud Administration/ })).not.toHaveAttribute('aria-current')
+    expect(within(nav()).queryByRole('link', { name: /Public Cloud Administration/ })).not.toBeInTheDocument()
     expect(within(nav()).getByRole('link', { name: 'Modules' })).toHaveAttribute('aria-current', 'true')
   })
 
   it('renders a skip link that targets the main content', async () => {
     mockApi({ '/api/modules': modules })
-    const { container } = renderAt('/')
+    const { container } = renderAt('/modules')
     await screen.findByRole('navigation', { name: 'Main' })
     const skip = screen.getByRole('link', { name: 'Skip to content' })
     expect(skip).toHaveAttribute('href', '#main-content')

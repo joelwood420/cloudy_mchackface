@@ -1,3 +1,5 @@
+import type { ThisWeek } from './api'
+
 /** Format a YYYY-MM-DD date in local time so it never shifts a day. */
 export function formatDueDate(iso: string): string {
   const [year, month, day] = iso.split('-').map(Number)
@@ -41,4 +43,34 @@ export function countdownTone(days: number): '' | 'is-soon' | 'is-overdue' {
   if (days < 0) return 'is-overdue'
   if (days <= 7) return 'is-soon'
   return ''
+}
+
+const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
+function localDate(iso: string): Date {
+  const [year, month, day] = iso.split('-').map(Number)
+  return new Date(year, month - 1, day)
+}
+
+export function shortDate(iso: string): string {
+  const d = localDate(iso)
+  return `${d.getDate()} ${MONTHS[d.getMonth()]}`
+}
+
+export function dayDate(iso: string): string {
+  return `${DAYS[localDate(iso).getDay()]} ${shortDate(iso)}`
+}
+
+export function dateSpan(start: string, end: string): string {
+  const a = localDate(start)
+  const b = localDate(end)
+  return a.getMonth() === b.getMonth() ? `${a.getDate()}–${shortDate(end)}` : `${shortDate(start)} – ${shortDate(end)}`
+}
+
+export function weekFooter(tw: ThisWeek): string {
+  if (tw.status === 'teaching' && tw.week) return `Week ${tw.week.week_number} · ${dateSpan(tw.week.starts_on, tw.week.ends_on)}`
+  if (tw.status === 'break' && tw.current_break) return `On break until ${shortDate(tw.current_break.ends_on)}`
+  if (tw.status === 'before_start') return tw.next_week ? `Starts ${dayDate(tw.next_week.starts_on)}` : 'No schedule yet'
+  return 'Programme finished'
 }
