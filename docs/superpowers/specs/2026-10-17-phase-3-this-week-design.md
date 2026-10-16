@@ -39,7 +39,7 @@ intakes:
       - { week_number: 1, starts_on: 2026-07-20 }
       # ... one entry per teaching week, 1–32
     holidays:
-      - { date: 2026-10-26, name: "Labour Day" }
+      - { day: 2026-10-26, name: "Labour Day" }
       # ... from docs/portal-extras.md, within the intake's dates
 ```
 
@@ -56,8 +56,8 @@ A teaching week runs Monday to Sunday (`starts_on` + 6 days). A **break** is any
 ### Migration 0008
 
 - `intakes` (id, key unique, title, study_mode with check `FT`/`PT`)
-- `intake_weeks` (intake_id FK cascade, week_number, starts_on; unique (intake_id, week_number))
-- `intake_holidays` (intake_id FK cascade, date, name; unique (intake_id, date))
+- `intake_weeks` (intake_id FK cascade, week_number, starts_on; primary key (intake_id, week_number))
+- `intake_holidays` (intake_id FK cascade, day, name; primary key (intake_id, day))
 - `assessment_submissions` (user_id FK cascade, assessment_id FK cascade, submitted_at; PK (user_id, assessment_id)), same pattern as `task_completions`
 - `user_settings`: add `intake_id` (FK, not null after backfill); drop `current_week` and `study_mode`
 - Backfill: the migration inserts the `2607-online-ccc-ft` intake row (key, title, study mode only) so existing users can point at it; the seed loader then fills its weeks and holidays. Existing ticks are untouched.
@@ -102,10 +102,10 @@ Login required. Response:
   today: date,
   status: "before_start" | "teaching" | "break" | "finished",
   week: { week_number, starts_on, ends_on } | null,        // teaching only
-  break: { starts_on, ends_on, week_of_break, length_weeks } | null,
+  current_break: { starts_on, ends_on, week_of_break, length_weeks } | null,   // `break` is a Python keyword
   next_week: { week_number, starts_on } | null,            // before_start, break
   upcoming_break: { starts_on, ends_on, length_weeks, resumes_week, resumes_on } | null,
-  holidays: [{ date, name }],
+  holidays: [{ day, name }],
   groups: [ThisWeekGroup],          // current week's content
   ahead: { week_number, groups: [ThisWeekGroup] } | null,
   lurking: [{ week_number, tasks: [TaskOut + module_code] }],
@@ -136,7 +136,7 @@ Students often join the app mid-programme. In the same transaction as creating t
 - **Assessments**: every assessment with a due date before today is marked submitted.
 - **Prerequisites**: every prerequisite linked to a submodule whose first week is below the cut-off week is marked done.
 
-The signup response adds `prefilled_through_week: int | null` (the last pre-ticked week; null when nothing was ticked). After sign-up the This week page shows a dismissible note: "We've marked weeks 1–10 as done. Untick anything you haven't finished." Existing accounts are not changed. Everything stays untickable as normal.
+The signup response adds `prefilled_through_week: int | null` (the cut-off week minus one, i.e. the last week counted as past; null when no weeks are past yet). After sign-up the This week page shows a dismissible note: "We've marked weeks 1–10 as done. Untick anything you haven't finished." Existing accounts are not changed. Everything stays untickable as normal.
 
 ### Me and settings
 
@@ -174,7 +174,7 @@ Other states replace items 1, 5 and 6:
 - **Break**: "You're on break 🌴 until Sun 10 Jan (week 2 of 3)", a line suggesting rest or clearing lurking tasks, and when the next week starts. Banner and rail still show.
 - **Before start**: "The programme starts Mon 20 Jul." plus the rail.
 - **Finished**: "You've reached the end of the programme." plus banner and rail.
-- **No content this week**: header as normal, then "Content for this week isn't in the app yet." with the module's UPLearn link.
+- **No content this week**: header as normal, then "Content for this week isn't in the app yet." with a link to UPLearn (https://yoobee.uplearn.education/), since an empty week has no module to point at.
 
 ### Assessments page
 
