@@ -1,6 +1,7 @@
 from datetime import date
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, StringConstraints
 
 
 class _Out(BaseModel):
@@ -67,3 +68,29 @@ class ModuleDetail(_Out):
     submodules: list[SubmoduleOut]
     weeks: list[WeekOut]
     assessments: list[AssessmentOut]
+
+
+Email = Annotated[
+    str,
+    StringConstraints(strip_whitespace=True, to_lower=True, max_length=320, pattern=r"^[^@\s]+@[^@\s]+\.[^@\s]+$"),
+]
+
+
+class SignupIn(BaseModel):
+    email: Email
+    password: Annotated[str, StringConstraints(min_length=10, max_length=256)]
+
+
+class LoginIn(BaseModel):
+    email: Email
+    password: Annotated[str, StringConstraints(min_length=1, max_length=256)]
+
+
+class MeOut(BaseModel):
+    email: str
+    current_week: int | None
+    study_mode: str
+
+
+class SettingsIn(BaseModel):
+    current_week: int | None

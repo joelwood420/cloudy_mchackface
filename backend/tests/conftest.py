@@ -4,6 +4,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 import app.models  # noqa: F401  (registers tables on Base.metadata)
+from app.auth.ratelimit import email_limiter, ip_limiter
 from app.config import get_settings, same_database, sqlalchemy_url
 from app.db import Base, get_db
 from app.main import app
@@ -41,3 +42,19 @@ def client(db):
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+
+
+PASSWORD = "correct horse"
+
+
+@pytest.fixture(autouse=True)
+def reset_rate_limits():
+    ip_limiter.reset()
+    email_limiter.reset()
+
+
+@pytest.fixture
+def user_client(client):
+    response = client.post("/api/auth/signup", json={"email": "joel@example.com", "password": PASSWORD})
+    assert response.status_code == 201
+    return client
