@@ -24,6 +24,7 @@ Success: the owner opens the app and, with no setup, sees the right week's tasks
 | Holidays | Listed per intake in `schedule.yaml`; shown on This week when one falls in the current week. |
 | CCC604 | Seeded as a shell (module + A7, A8; no weeks). Shown greyed out with "Coming soon" wherever modules are listed. |
 | Settings | Removed: nothing left to set. |
+| Joining mid-programme | Sign-up pre-ticks tasks in past weeks, past-due assessments as submitted, and prerequisites of started submodules. New accounts only. |
 
 ## Data
 
@@ -127,6 +128,16 @@ Login required. Response:
 - `PUT /assessments/{key}/submitted`, `DELETE /assessments/{key}/submitted`: idempotent, 204, 404 for an unknown key.
 - Module detail's `assessments` gain `submitted` and `status` so the module page rail matches.
 
+### Catch-up at sign-up
+
+Students often join the app mid-programme. In the same transaction as creating the account, sign-up pre-ticks past work using the new user's intake and `today()`. The "cut-off week" is the current week when teaching, the next week during a break, beyond the last week when finished, and nothing before the start.
+
+- **Tasks**: every task in weeks numbered below the cut-off week.
+- **Assessments**: every assessment with a due date before today is marked submitted.
+- **Prerequisites**: every prerequisite linked to a submodule whose first week is below the cut-off week is marked done.
+
+The signup response adds `prefilled_through_week: int | null` (the last pre-ticked week; null when nothing was ticked). After sign-up the This week page shows a dismissible note: "We've marked weeks 1–10 as done. Untick anything you haven't finished." Existing accounts are not changed. Everything stays untickable as normal.
+
 ### Me and settings
 
 - `GET /me` returns `email`, `study_mode` (from the intake) and `intake: { key, title }`. `current_week` is removed.
@@ -181,8 +192,8 @@ Same as now: 401 sends the user to login; 404 for unknown assessment keys; the p
 
 Logic written test-first.
 
-- **Backend**: week status for each case (week 1 Monday, a Sunday, the Monday rollover, every break, before start, after end, NZ date near midnight UTC); upcoming break window (two weeks before, not three); holidays in week; lurking (including break and finished); ahead (all ticked, empty week never ahead); assessment window and status; submit/unsubmit idempotency and 404; `/me` shape; schedule validation (non-Monday, duplicate, out of order, unknown week number, deleting an in-use intake); migration upgrade with existing users.
-- **Frontend**: Vitest for every This week state (teaching, ahead, break, upcoming break, holiday, no content, before start, finished), banner and "Quarantine them", submitted tick with rollback, Assessments page, "Coming soon" card, sidebar footer text.
+- **Backend**: week status for each case (week 1 Monday, a Sunday, the Monday rollover, every break, before start, after end, NZ date near midnight UTC); upcoming break window (two weeks before, not three); holidays in week; lurking (including break and finished); ahead (all ticked, empty week never ahead); assessment window and status; submit/unsubmit idempotency and 404; `/me` shape; sign-up catch-up in each status (teaching, break, before start, finished), including `prefilled_through_week` and that only started submodules' prerequisites are ticked; schedule validation (non-Monday, duplicate, out of order, unknown week number, deleting an in-use intake); migration upgrade with existing users.
+- **Frontend**: Vitest for every This week state (teaching, ahead, break, upcoming break, holiday, no content, before start, finished), banner and "Quarantine them", submitted tick with rollback, Assessments page, "Coming soon" card, sidebar footer text, the post-sign-up catch-up note.
 - **End to end**: a browser check of the running app against the dev database.
 
 ## Docs
