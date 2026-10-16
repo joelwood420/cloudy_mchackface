@@ -162,10 +162,30 @@ describe('ThisWeekPage', () => {
     expect(within(banner).getByText('MALWARE DETECTED')).toBeInTheDocument()
     expect(within(banner).getByText('2 unfinished tasks are lurking in Week 9, 10.')).toBeInTheDocument()
     expect(screen.queryByRole('checkbox', { name: 'Task old1' })).not.toBeInTheDocument()
-    await userEvent.click(within(banner).getByRole('button', { name: 'Quarantine them' }))
-    expect(within(banner).getByRole('button', { name: 'Quarantine them' })).toHaveAttribute('aria-expanded', 'true')
+    await userEvent.click(screen.getByRole('button', { name: 'Quarantine them' }))
+    expect(screen.getByRole('button', { name: 'Quarantine them' })).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByRole('heading', { name: 'Week 9' })).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: 'Task old1' })).toBeInTheDocument()
+  })
+
+  it('counts only unticked lurking tasks, straight after a tick', async () => {
+    let saved = false
+    const before = { ...teaching, lurking: [
+      { week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602' }] },
+      { week_number: 10, tasks: [{ ...task('old2'), module_code: 'CCC602' }] },
+    ] }
+    const after = { ...before, lurking: [
+      { week_number: 9, tasks: [{ ...task('old1', true), module_code: 'CCC602' }] },
+      before.lurking[1],
+    ] }
+    show(before, {
+      '/api/this-week': () => jsonResponse(saved ? after : before),
+      'PUT /api/tasks/old1/complete': () => { saved = true; return new Response(null, { status: 204 }) },
+    })
+    await userEvent.click(await screen.findByRole('button', { name: 'Quarantine them' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Task old1' }))
+    expect(await screen.findByText('1 unfinished task is lurking in Week 10.')).toBeInTheDocument()
+    expect(screen.getByRole('checkbox', { name: 'Task old1' })).toBeChecked()
   })
 
   it('uses the singular for one lurking task', async () => {

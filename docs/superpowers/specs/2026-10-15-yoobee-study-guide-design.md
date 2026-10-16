@@ -61,7 +61,7 @@ Per user:
 - `users`: id, email (unique, lowercased), password_hash, created_at
 - `sessions`: token_hash, user_id, created_at, expires_at
 - `task_completions`: user_id, task_id, completed_at (unique on user_id + task_id)
-- `user_settings`: user_id, current_week (programme week number, nullable), study_mode (`FT`, default)
+- `user_settings`: user_id, intake (study mode comes from the intake)
 
 Rules:
 
@@ -99,7 +99,7 @@ The loader validates all files before writing (required fields, duplicate keys, 
 1. Sign up / Log in
 2. Modules: card per module with progress bar
 3. Module page: weeks in order with progress bars, expandable task checklists with tick boxes and "Open" links
-4. This week: tasks for the chosen week across modules, plus upcoming assessments (becomes home in phase 3)
+4. This week: tasks for the chosen week across modules, plus upcoming assessments (the home page)
 5. Assessments: every assessment with a submitted tick
 
 ## API

@@ -93,7 +93,8 @@ def this_week(
         if a.due_date is not None
         and (today_ <= a.due_date <= today_ + ASSESSMENT_WINDOW or (a.due_date < today_ and a.id not in submitted))
     ]
-    shown.sort(key=lambda a: a.due_date)  # stable: module order breaks ties
+    position = {m.key: m.position for m in modules}
+    shown.sort(key=lambda a: (a.due_date, position[a.module_key], a.title))
     upcoming = [
         (a.due_date - today_).days
         for m in modules

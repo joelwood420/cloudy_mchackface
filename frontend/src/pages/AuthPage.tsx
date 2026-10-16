@@ -34,10 +34,11 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
       queryClient.setQueryData(['me'], me)
       const from = (location.state as { from?: string } | null)?.from
       const prefilled = mode === 'signup' ? (me as SignupResult).prefilled_through_week : null
-      navigate(from && from !== '/login' && from !== '/signup' ? from : '/', {
-        replace: true,
-        state: prefilled ? { prefilledThroughWeek: prefilled } : undefined,
-      })
+      if (prefilled) {
+        navigate('/', { replace: true, state: { prefilledThroughWeek: prefilled } })
+      } else {
+        navigate(from && from !== '/login' && from !== '/signup' ? from : '/', { replace: true })
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Try again.')
       setBusy(false)

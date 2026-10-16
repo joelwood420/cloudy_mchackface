@@ -22,7 +22,7 @@ export const THIS_WEEK: ThisWeek = {
   stats: { done: 0, total: 0, next_deadline_days: null },
 }
 
-export function renderAt(path: string) {
+export function renderAt(path: string | { pathname: string; state?: unknown }) {
   const client = makeQueryClient(false)
   return {
     client,

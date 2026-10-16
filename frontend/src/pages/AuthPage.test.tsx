@@ -121,6 +121,24 @@ describe('sign-in flow', () => {
     expect(screen.queryByText(/We've marked/)).not.toBeInTheDocument()
   })
 
+  it('shows the catch-up note after signup even when sent from another page', async () => {
+    let loggedIn = false
+    mockApi({
+      '/api/me': () => (loggedIn ? jsonResponse(ME) : unauthorized()),
+      'POST /api/auth/signup': () => {
+        loggedIn = true
+        return jsonResponse({ ...ME, prefilled_through_week: 10 }, 201)
+      },
+      '/api/modules': modules,
+    })
+    renderAt({ pathname: '/signup', state: { from: '/modules/ccc602' } })
+    await userEvent.type(await screen.findByLabelText('Email'), 'joel@example.com')
+    await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Week 11' })).toBeInTheDocument()
+    expect(screen.getByText(/We've marked weeks 1–10 as done/)).toBeInTheDocument()
+  })
+
   it('links between log in and sign up', async () => {
     mockApi({ '/api/me': unauthorized })
     renderAt('/login')

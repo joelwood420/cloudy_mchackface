@@ -42,7 +42,8 @@ intakes:
       - { day: 2026-12-25, name: "Christmas Day" }
       - { day: 2026-12-28, name: "Boxing Day (observed)" }
       - { day: 2027-01-01, name: "New Year's Day" }
-      - { day: 2027-01-25, name: "Auckland Anniversary Day" }
+      # Programme Guide listed 25 Jan; statutory date is the Monday nearest 29 Jan.
+      - { day: 2027-02-01, name: "Auckland Anniversary Day" }
       - { day: 2027-02-08, name: "Waitangi Day (observed)" }
       - { day: 2027-03-26, name: "Good Friday" }
       - { day: 2027-03-29, name: "Easter Monday" }
