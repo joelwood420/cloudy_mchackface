@@ -144,7 +144,7 @@ button.button-secondary { cursor: pointer; }
 .rail { flex: 1 1 300px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
 .rail-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
 .assessment-card { padding: 18px; display: flex; flex-direction: column; gap: 8px; }
-.assessment-title { font-weight: 600; line-height: 1.35; }
+.assessment-title { margin: 0; font-family: var(--font-body); font-size: 15px; font-weight: 600; line-height: 1.35; }
 .assessment-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 10px; border-top: 1px solid var(--border-soft); }
 .countdown { font-family: var(--font-display); font-weight: 600; font-size: 18px; }
 .countdown.is-soon { color: var(--soon); }
@@ -162,3 +162,29 @@ button.button-secondary { cursor: pointer; }
 .prereq-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 6px 0; }
 .prereq-item + .prereq-item { border-top: 1px solid var(--accent-line); }
 .prereq-title { font-weight: 500; }
+
+/* Forms and auth */
+.button-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--surface); font-weight: 600; cursor: pointer; }
+.button-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.button-primary:disabled, .button-secondary:disabled { opacity: 0.6; cursor: default; }
+.form { display: flex; flex-direction: column; gap: 14px; }
+.form p { margin: 0; }
+.field { display: flex; flex-direction: column; gap: 6px; font-weight: 500; }
+.field input, .field select { font: inherit; min-height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--dot-border); background: var(--surface); color: var(--text); }
+.field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
+.auth-card { width: 100%; max-width: 400px; padding: 28px; display: flex; flex-direction: column; gap: 18px; }
+.auth-card > p { margin: 0; }
+.sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
+.sidebar-foot p { margin: 0; }
+.sidebar-email { overflow-wrap: anywhere; }
+.prereq-item input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
+.prereq-list.is-done .prereq-title { color: var(--muted); text-decoration: line-through; }
+.prereq-ready { margin: 0; font-weight: 600; color: var(--accent-strong); }
+.link-button { align-self: flex-start; min-height: 44px; padding: 0; border: 0; background: none; color: var(--accent-strong); font-size: 13px; font-weight: 500; text-decoration: underline; cursor: pointer; }
+
+/* Settings and current week */
+.settings-card { padding: 24px; max-width: 480px; }
+.settings-actions { display: flex; align-items: center; gap: 14px; }
+.current-badge { align-self: flex-start; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); }
+.timeline-dot.is-current { border-color: var(--accent); background: var(--accent); color: var(--surface); }

@@ -26,7 +26,7 @@ describe('AssessmentsRail', () => {
 
   it('links each assessment to UPLearn when it has a link', () => {
     render(<AssessmentsRail code="CCC602" assessments={assessments} portalUrl={null} today={today} />)
-    const link = within(card('Assessment 3')).getByRole('link', { name: 'UPLearn' })
+    const link = within(card('Assessment 3')).getByRole('link', { name: 'Assessment 3 on UPLearn' })
     expect(link).toHaveAttribute('href', 'https://up.test/a3')
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
     expect(within(card('Assessment 4')).queryByRole('link')).toBeNull()

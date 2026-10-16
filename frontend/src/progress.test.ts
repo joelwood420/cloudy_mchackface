@@ -1,0 +1,85 @@
+import { describe, expect, it } from 'vitest'
+import type { ModuleDetail, ModuleSummary, Submodule } from './api'
+import { moduleProgress, percent, programmeProgress, weekOptions, withPrerequisiteDone, withTaskDone } from './progress'
+
+const task = (key: string, done: boolean) => ({ key, title: key, type: 'lab' as const, external_url: null, uplearn_url: 'https://up.test', note: null, done })
+
+const mod: ModuleDetail = {
+  key: 'm', code: 'M', title: 'M', uplearn_url: null, assessments: [], submodules: [],
+  weeks: [
+    { key: 'w1', submodule_key: 's', week_number: 1, title: 'W1', tasks: [task('a', true), task('b', true)] },
+    { key: 'w2', submodule_key: 's', week_number: 2, title: 'W2', tasks: [task('c', true), task('d', false)] },
+    { key: 'w3', submodule_key: 's', week_number: 3, title: 'W3', tasks: [] },
+  ],
+}
+
+describe('percent', () => {
+  it('is 0 for an empty total', () => expect(percent(0, 0)).toBe(0))
+  it('rounds down so 100 means everything is done', () => {
+    expect(percent(199, 200)).toBe(99)
+    expect(percent(1, 3)).toBe(33)
+    expect(percent(3, 3)).toBe(100)
+  })
+  it('is exact where floating point would round down too far', () => {
+    expect(percent(29, 100)).toBe(29)
+    expect(percent(57, 100)).toBe(57)
+  })
+})
+
+describe('moduleProgress', () => {
+  it('counts tasks and fully done weeks, ignoring empty weeks', () => {
+    expect(moduleProgress(mod)).toEqual({ done: 3, total: 4, pct: 75, weeksComplete: 1, weeksWithTasks: 2 })
+  })
+})
+
+describe('programmeProgress', () => {
+  it('sums every module', () => {
+    const summaries = [
+      { task_count: 10, completed_count: 5 },
+      { task_count: 0, completed_count: 0 },
+      { task_count: 10, completed_count: 0 },
+    ] as ModuleSummary[]
+    expect(programmeProgress(summaries)).toEqual({ done: 5, total: 20, pct: 25 })
+  })
+})
+
+describe('withTaskDone', () => {
+  it('returns a copy with one task changed', () => {
+    const next = withTaskDone(mod, 'd', true)
+    expect(next.weeks[1].tasks[1].done).toBe(true)
+    expect(mod.weeks[1].tasks[1].done).toBe(false)
+    expect(next.weeks[0]).toBe(mod.weeks[0])
+  })
+})
+
+describe('withPrerequisiteDone', () => {
+  const prereq = (key: string) => ({ key, title: key, note: null, external_url: 'https://x.test', uplearn_url: null, completed: false })
+  const sub = (key: string, keys: string[]): Submodule => ({
+    key, code: key, title: key, uplearn_url: null, first_week: 1, last_week: 1, prerequisites: keys.map(prereq),
+  })
+  const withSubs: ModuleDetail = { ...mod, submodules: [sub('a', ['azure', 'skillable']), sub('b', ['azure']), sub('c', ['aws'])] }
+
+  it('ticks a shared prerequisite in every submodule and leaves others alone', () => {
+    const next = withPrerequisiteDone(withSubs, 'azure', true)
+    expect(next.submodules[0].prerequisites.map((p) => p.completed)).toEqual([true, false])
+    expect(next.submodules[1].prerequisites[0].completed).toBe(true)
+    expect(next.submodules[2]).toBe(withSubs.submodules[2])
+    expect(withSubs.submodules[0].prerequisites[0].completed).toBe(false)
+  })
+})
+
+describe('weekOptions', () => {
+  it('lists each week once, in order, with its modules', () => {
+    const modules = [
+      { code: 'CCC602', week_numbers: [9, 10] },
+      { code: 'CCC601', week_numbers: [1, 2] },
+      { code: 'CCC603', week_numbers: [10] },
+    ] as ModuleSummary[]
+    expect(weekOptions(modules)).toEqual([
+      { week: 1, label: 'Week 1 · CCC601' },
+      { week: 2, label: 'Week 2 · CCC601' },
+      { week: 9, label: 'Week 9 · CCC602' },
+      { week: 10, label: 'Week 10 · CCC602, CCC603' },
+    ])
+  })
+})

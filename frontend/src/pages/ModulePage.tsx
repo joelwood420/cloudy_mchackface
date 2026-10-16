@@ -6,10 +6,18 @@ import { ErrorMessage } from '../components/ErrorMessage'
 import { ModuleHeader } from '../components/module/ModuleHeader'
 import { ProgressCard } from '../components/module/ProgressCard'
 import { WeekTimeline } from '../components/module/WeekTimeline'
+import { useMe } from '../hooks/useMe'
+import { useTickPrerequisite, useTickTask } from '../hooks/useTickTask'
+import { moduleProgress } from '../progress'
+import { usePageTitle } from '../usePageTitle'
 
 export function ModulePage() {
   const { key = '' } = useParams()
   const query = useQuery({ queryKey: ['module', key], queryFn: () => fetchModule(key) })
+  const me = useMe()
+  const tick = useTickTask(key)
+  const prereqTick = useTickPrerequisite(key)
+  usePageTitle(query.data ? `${query.data.code} ${query.data.title}` : 'Module')
 
   if (query.isPending) {
     return (
@@ -35,13 +43,24 @@ export function ModulePage() {
   }
 
   const mod = query.data
-  const taskCount = mod.weeks.reduce((sum, w) => sum + w.tasks.length, 0)
   return (
     <main className="page">
       <ModuleHeader code={mod.code} title={mod.title} weeks={mod.weeks} />
-      <ProgressCard taskCount={taskCount} weekCount={mod.weeks.length} />
+      <ProgressCard {...moduleProgress(mod)} />
+      {(tick.isError || prereqTick.isError) && (
+        <p role="alert" className="error">
+          Couldn't save that tick. Try again.
+        </p>
+      )}
       <div className="module-columns">
-        <WeekTimeline key={mod.key} weeks={mod.weeks} submodules={mod.submodules} />
+        <WeekTimeline
+          key={mod.key}
+          weeks={mod.weeks}
+          submodules={mod.submodules}
+          currentWeek={me.data?.current_week ?? null}
+          onToggleTask={(taskKey, done) => tick.mutate({ taskKey, done })}
+          onTogglePrerequisite={(prerequisiteKey, completed) => prereqTick.mutate({ prerequisiteKey, completed })}
+        />
         <AssessmentsRail code={mod.code} assessments={mod.assessments} portalUrl={mod.uplearn_url} />
       </div>
     </main>

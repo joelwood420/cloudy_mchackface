@@ -1,10 +1,12 @@
-import { screen, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
-import { jsonResponse, mockApi, renderAt } from '../test/utils'
+import type { ModuleDetail } from '../api'
+import { withPrerequisiteDone, withTaskDone } from '../progress'
+import { ME, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const summary = [
-  { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 2, task_count: 2, uplearn_url: 'https://up.test/602' },
+  { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 2, task_count: 2, completed_count: 0, week_numbers: [9, 10], uplearn_url: 'https://up.test/602' },
 ]
 const azure = {
   key: 'azure-account',
@@ -12,6 +14,7 @@ const azure = {
   note: 'Use a personal email.',
   external_url: 'https://azure.test/free',
   uplearn_url: 'https://up.test/how-azure',
+  completed: false,
 }
 
 const detail = {
@@ -33,8 +36,9 @@ const detail = {
           external_url: 'https://learn.test/lp1',
           uplearn_url: null,
           note: 'Skillable lab: the training key is in the Teams tutor-only channel.',
+          done: true,
         },
-        { key: 't2', title: 'Read the A3 brief', type: 'assessment_step', external_url: null, uplearn_url: 'https://up.test/a3', note: null },
+        { key: 't2', title: 'Read the A3 brief', type: 'assessment_step', external_url: null, uplearn_url: 'https://up.test/a3', note: null, done: false },
       ],
     },
     { key: 'ccc602-w10', submodule_key: 'dp203', week_number: 10, title: 'Quiet week', tasks: [] },
@@ -49,7 +53,7 @@ const detail = {
       last_week: 9,
       prerequisites: [
         azure,
-        { key: 'skillable-dp900', title: 'Register for the DP-900 Skillable class', note: null, external_url: null, uplearn_url: 'https://up.test/how-skillable' },
+        { key: 'skillable-dp900', title: 'Register for the DP-900 Skillable class', note: null, external_url: null, uplearn_url: 'https://up.test/how-skillable', completed: false },
       ],
     },
     { key: 'dp203', code: 'DP-203', title: 'Azure Data Engineer', uplearn_url: null, first_week: 10, last_week: 10, prerequisites: [azure] },
@@ -76,12 +80,13 @@ describe('ModulePage', () => {
     expect(within(main).getByText('Weeks 9–10 · 2 weeks · 2 tasks')).toBeInTheDocument()
   })
 
-  it('shows the progress card at zero with the sign-in note', async () => {
+  it('shows real module progress', async () => {
     const main = await open()
-    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '0')
-    expect(within(main).getByText('Progress tracking arrives with sign-in.')).toBeInTheDocument()
-    expect(within(main).getByText('Tasks done').nextElementSibling).toHaveTextContent('0/2')
-    expect(within(main).getByText('Weeks complete').nextElementSibling).toHaveTextContent('0/2')
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '50')
+    expect(within(main).getByText('50%')).toBeInTheDocument()
+    expect(within(main).getByText('Tasks done').nextElementSibling).toHaveTextContent('1/2')
+    expect(within(main).getByText('Weeks complete').nextElementSibling).toHaveTextContent('0/1')
+    expect(within(main).getByRole('button', { name: /Week 9/ })).toHaveTextContent('1/2 done')
   })
 
   it('starts with weeks collapsed and opens one at a time', async () => {
@@ -105,22 +110,131 @@ describe('ModulePage', () => {
     expect(week10).toHaveAttribute('aria-expanded', 'false')
   })
 
-  it('shows task rows with disabled tick boxes, type tags and safe links', async () => {
+  it('shows task rows with tick boxes, type tags and named links', async () => {
     const main = await open()
     await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
 
     const lp1 = within(main).getByText('DP-900 LP1').closest('li')!
-    expect(within(lp1).getByRole('checkbox', { name: 'DP-900 LP1' })).toBeDisabled()
+    const box = within(lp1).getByRole('checkbox', { name: 'DP-900 LP1' })
+    expect(box).toBeEnabled()
+    expect(box).toBeChecked()
     expect(within(lp1).getByText('Learning path')).toBeInTheDocument()
-    const openLink = within(lp1).getByRole('link', { name: 'Open' })
+    const openLink = within(lp1).getByRole('link', { name: 'Open DP-900 LP1' })
     expect(openLink).toHaveAttribute('href', 'https://learn.test/lp1')
     expect(openLink).toHaveAttribute('target', '_blank')
     expect(openLink).toHaveAttribute('rel', 'noopener noreferrer')
 
     const brief = within(main).getByText('Read the A3 brief').closest('li')!
+    expect(within(brief).getByRole('checkbox', { name: 'Read the A3 brief' })).not.toBeChecked()
     expect(within(brief).getByText('Assessment')).toBeInTheDocument()
-    expect(within(brief).queryByRole('link', { name: 'Open' })).toBeNull()
-    expect(within(brief).getByRole('link', { name: 'UPLearn' })).toHaveAttribute('href', 'https://up.test/a3')
+    expect(within(brief).queryByRole('link', { name: /^Open/ })).toBeNull()
+    expect(within(brief).getByRole('link', { name: 'Read the A3 brief on UPLearn' })).toHaveAttribute('href', 'https://up.test/a3')
+  })
+
+  it('ticks a task and progress follows', async () => {
+    // The server remembers the tick, so the refetch after saving agrees with the optimistic update.
+    let t2Done = false
+    const fetchMock = mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': () => jsonResponse(withTaskDone(detail as ModuleDetail, 't2', t2Done)),
+      'PUT /api/tasks/t2/complete': () => {
+        t2Done = true
+        return new Response(null, { status: 204 })
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
+    expect(await within(main).findByRole('checkbox', { name: 'Read the A3 brief', checked: true })).toBeInTheDocument()
+    await waitFor(() =>
+      expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '100'),
+    )
+    expect(fetchMock).toHaveBeenCalledWith('/api/tasks/t2/complete', expect.objectContaining({ method: 'PUT' }))
+  })
+
+  it('unticks a task and rolls back when saving fails', async () => {
+    let release!: () => void
+    const held = new Promise<void>((resolve) => (release = resolve))
+    let gets = 0
+    mockApi({
+      '/api/modules': summary,
+      // The refetch after the failure never answers, so only a real rollback can restore the box.
+      '/api/modules/ccc602': () => (++gets === 1 ? jsonResponse(detail) : new Promise<Response>(() => {})),
+      'DELETE /api/tasks/t1/complete': async () => {
+        await held
+        return jsonResponse({ detail: 'Boom' }, 500)
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'DP-900 LP1' }))
+    expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).not.toBeChecked()
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '0')
+
+    release()
+    expect(await within(main).findByRole('alert')).toHaveTextContent("Couldn't save that tick. Try again.")
+    expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).toBeChecked()
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '50')
+  })
+
+  it('refetches once, after the last of two quick ticks has settled', async () => {
+    const serverDone = { t1: true, t2: false }
+    let gets = 0
+    const gate = (key: 't1' | 't2', value: boolean) => {
+      let release!: () => void
+      const held = new Promise<void>((resolve) => (release = resolve))
+      const handler = async () => {
+        await held
+        serverDone[key] = value
+        return new Response(null, { status: 204 })
+      }
+      return { release, handler }
+    }
+    const untickT1 = gate('t1', false)
+    const tickT2 = gate('t2', true)
+    mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': () => {
+        gets += 1
+        const w = detail.weeks[0]
+        const tasks = w.tasks.map((t) => ({ ...t, done: serverDone[t.key as 't1' | 't2'] }))
+        return jsonResponse({ ...detail, weeks: [{ ...w, tasks }, detail.weeks[1]] })
+      },
+      'DELETE /api/tasks/t1/complete': untickT1.handler,
+      'PUT /api/tasks/t2/complete': tickT2.handler,
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    expect(gets).toBe(1)
+
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'DP-900 LP1' }))
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
+    expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).not.toBeChecked()
+    expect(within(main).getByRole('checkbox', { name: 'Read the A3 brief' })).toBeChecked()
+
+    untickT1.release()
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(gets).toBe(1)
+
+    tickT2.release()
+    await waitFor(() => expect(gets).toBe(2))
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(gets).toBe(2)
+    expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).not.toBeChecked()
+    expect(within(main).getByRole('checkbox', { name: 'Read the A3 brief' })).toBeChecked()
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '50')
+  })
+
+  it('uses headings for assessment titles', async () => {
+    const main = await open()
+    const rail = within(main).getByRole('complementary', { name: 'Assessments' })
+    expect(within(rail).getByRole('heading', { level: 3, name: 'Assessment 3' })).toBeInTheDocument()
   })
 
   it('shows a task note as a hint under the title', async () => {
@@ -211,5 +325,127 @@ describe('ModulePage', () => {
   it('still shows weeks whose submodule is missing from the list', async () => {
     const main = await open({ ...detail, submodules: [detail.submodules[0]] })
     expect(within(main).getByRole('button', { name: /Week 10/ })).toBeInTheDocument()
+  })
+
+  it('ticks a prerequisite and hides it everywhere it is shared, without moving progress', async () => {
+    let azureDone = false
+    const fetchMock = mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': () => jsonResponse(withPrerequisiteDone(detail as ModuleDetail, 'azure-account', azureDone)),
+      'PUT /api/prerequisites/azure-account/complete': () => {
+        azureDone = true
+        return new Response(null, { status: 204 })
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const progressBefore = within(main).getByRole('progressbar', { name: 'Module progress' }).getAttribute('aria-valuenow')
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+
+    await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
+
+    await waitFor(() => expect(within(main).queryByText('Create an Azure account')).toBeNull())
+    expect(within(dp900).getByRole('checkbox', { name: 'Register for the DP-900 Skillable class' })).not.toBeChecked()
+    const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
+    expect(within(dp203).getByText("You're ready to start learning.")).toBeInTheDocument()
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', progressBefore!)
+    expect(fetchMock).toHaveBeenCalledWith('/api/prerequisites/azure-account/complete', expect.objectContaining({ method: 'PUT' }))
+  })
+
+  it('shows done prerequisites on request so they can be unticked', async () => {
+    const ticked = withPrerequisiteDone(detail as ModuleDetail, 'azure-account', true)
+    const fetchMock = mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': ticked,
+      'DELETE /api/prerequisites/azure-account/complete': () => new Response(null, { status: 204 }),
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
+    expect(within(dp203).queryByRole('checkbox')).toBeNull()
+
+    await userEvent.click(within(dp203).getByRole('button', { name: 'Show done (1)' }))
+    const box = within(dp203).getByRole('checkbox', { name: 'Create an Azure account' })
+    expect(box).toBeChecked()
+    await userEvent.click(box)
+    expect(fetchMock).toHaveBeenCalledWith('/api/prerequisites/azure-account/complete', expect.objectContaining({ method: 'DELETE' }))
+  })
+
+  it('brings a prerequisite back when saving the tick fails', async () => {
+    let release!: () => void
+    const held = new Promise<void>((resolve) => (release = resolve))
+    let gets = 0
+    mockApi({
+      '/api/modules': summary,
+      // The refetch after the failure never answers, so only a real rollback can restore the box.
+      '/api/modules/ccc602': () => (++gets === 1 ? jsonResponse(detail) : new Promise<Response>(() => {})),
+      'PUT /api/prerequisites/azure-account/complete': async () => {
+        await held
+        return jsonResponse({ detail: 'Boom' }, 500)
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+    await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
+    expect(within(main).queryByText('Create an Azure account')).toBeNull()
+
+    release()
+    expect(await within(main).findByRole('alert')).toHaveTextContent("Couldn't save that tick. Try again.")
+    expect(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' })).not.toBeChecked()
+  })
+
+  it('refreshes the module list when a prerequisite tick settles last after a task tick', async () => {
+    let modulesGets = 0
+    let releaseTask!: () => void
+    let releasePrereq!: () => void
+    const taskHeld = new Promise<void>((resolve) => (releaseTask = resolve))
+    const prereqHeld = new Promise<void>((resolve) => (releasePrereq = resolve))
+    mockApi({
+      '/api/modules': () => {
+        modulesGets += 1
+        return jsonResponse(summary)
+      },
+      '/api/modules/ccc602': detail,
+      'PUT /api/tasks/t2/complete': async () => {
+        await taskHeld
+        return new Response(null, { status: 204 })
+      },
+      'PUT /api/prerequisites/azure-account/complete': async () => {
+        await prereqHeld
+        return new Response(null, { status: 204 })
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await waitFor(() => expect(modulesGets).toBeGreaterThan(0))
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
+    await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
+    const before = modulesGets
+
+    releaseTask()
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(modulesGets).toBe(before)
+
+    releasePrereq()
+    await waitFor(() => expect(modulesGets).toBe(before + 1))
+  })
+
+  it('opens the current week and marks it', async () => {
+    mockApi({ '/api/me': { ...ME, current_week: 10 }, '/api/modules': summary, '/api/modules/ccc602': detail })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const week10 = within(main).getByRole('button', { name: /Week 10/ })
+    expect(week10).toHaveAttribute('aria-expanded', 'true')
+    expect(within(week10).getByText('Current week')).toBeInTheDocument()
+    expect(within(main).getByRole('button', { name: /Week 9/ })).toHaveAttribute('aria-expanded', 'false')
   })
 })

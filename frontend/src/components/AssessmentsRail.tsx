@@ -25,7 +25,7 @@ export function AssessmentsRail({
             return (
               <li key={a.key} className="card assessment-card">
                 <span className="mono small muted">{code}</span>
-                <span className="assessment-title">{a.title}</span>
+                <h3 className="assessment-title">{a.title}</h3>
                 <div className="assessment-foot">
                   <span className="muted small">
                     {a.due_date ? `Due ${formatDueDate(a.due_date)}` : 'Due date: see programme guide'}
@@ -34,7 +34,7 @@ export function AssessmentsRail({
                 </div>
                 {a.uplearn_url && (
                   <span className="task-links">
-                    <ExternalLink href={a.uplearn_url}>UPLearn</ExternalLink>
+                    <ExternalLink href={a.uplearn_url} label={`${a.title} on UPLearn`}>UPLearn</ExternalLink>
                   </span>
                 )}
               </li>
