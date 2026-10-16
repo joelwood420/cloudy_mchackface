@@ -3,7 +3,7 @@ from sqlalchemy import func, select
 from app.models import (
     Module, Prerequisite, PrerequisiteCompletion, Submodule, SubmodulePrerequisite, Task, TaskCompletion, Week,
 )
-from tests.conftest import PASSWORD
+from tests.conftest import signup_body
 
 
 def add_content(db):
@@ -104,7 +104,7 @@ def test_one_users_ticks_never_show_for_another(user_client, db):
     user_client.put("/api/prerequisites/azure-account/complete")
     user_client.post("/api/auth/logout")
 
-    other = user_client.post("/api/auth/signup", json={"email": "other@example.com", "password": PASSWORD})
+    other = user_client.post("/api/auth/signup", json=signup_body("other@example.com"))
     assert other.status_code == 201
     assert user_client.get("/api/modules").json()[0]["completed_count"] == 0
     detail = user_client.get("/api/modules/ccc602").json()

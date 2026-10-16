@@ -7,6 +7,7 @@ import app.models  # noqa: F401  (registers tables on Base.metadata)
 from app.auth.ratelimit import email_limiter, ip_limiter
 from app.config import get_settings, same_database, sqlalchemy_url
 from app.db import Base, get_db
+from app.disclaimer import DISCLAIMER_VERSION
 from app.main import app
 
 
@@ -47,6 +48,10 @@ def client(db):
 PASSWORD = "correct horse"
 
 
+def signup_body(email: str, password: str = PASSWORD, **extra) -> dict:
+    return {"email": email, "password": password, "accepted_disclaimer_version": DISCLAIMER_VERSION, **extra}
+
+
 @pytest.fixture(autouse=True)
 def reset_rate_limits():
     ip_limiter.reset()
@@ -55,6 +60,6 @@ def reset_rate_limits():
 
 @pytest.fixture
 def user_client(client):
-    response = client.post("/api/auth/signup", json={"email": "joel@example.com", "password": PASSWORD})
+    response = client.post("/api/auth/signup", json=signup_body("joel@example.com"))
     assert response.status_code == 201
     return client

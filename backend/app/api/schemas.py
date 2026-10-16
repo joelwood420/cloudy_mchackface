@@ -83,6 +83,7 @@ Email = Annotated[
 class SignupIn(BaseModel):
     email: Email
     password: Annotated[str, StringConstraints(min_length=10, max_length=256)]
+    accepted_disclaimer_version: int
 
 
 class LoginIn(BaseModel):

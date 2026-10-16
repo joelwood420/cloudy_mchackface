@@ -1,10 +1,13 @@
+from sqlalchemy import select
+
 from app.auth.ratelimit import email_limiter
-from app.models import Module, Submodule, Week
-from tests.conftest import PASSWORD
+from app.disclaimer import DISCLAIMER_VERSION
+from app.models import Module, Submodule, User, Week
+from tests.conftest import PASSWORD, signup_body
 
 
 def signup(client, email="joel@example.com", password=PASSWORD):
-    return client.post("/api/auth/signup", json={"email": email, "password": password})
+    return client.post("/api/auth/signup", json=signup_body(email, password))
 
 
 def login(client, email="joel@example.com", password=PASSWORD):
@@ -40,6 +43,20 @@ def test_signup_rejects_bad_input(client):
     assert signup(client, password="x" * 257).status_code == 422
     assert signup(client, email="not-an-email").status_code == 422
     assert client.post("/api/auth/signup", json={"email": "a@b.co"}).status_code == 422
+    assert client.post("/api/auth/signup", json={"email": "a@b.co", "password": PASSWORD}).status_code == 422
+
+
+def test_signup_records_disclaimer_acceptance(client, db):
+    signup(client)
+    user = db.scalars(select(User).where(User.email == "joel@example.com")).one()
+    assert user.disclaimer_version == DISCLAIMER_VERSION
+    assert user.disclaimer_accepted_at is not None
+
+
+def test_signup_refuses_a_stale_disclaimer_version(client):
+    response = client.post("/api/auth/signup", json=signup_body("joel@example.com", accepted_disclaimer_version=DISCLAIMER_VERSION - 1))
+    assert response.status_code == 422
+    assert "disclaimer" in response.json()["detail"]
 
 
 def test_wrong_password_and_unknown_email_look_the_same(client):

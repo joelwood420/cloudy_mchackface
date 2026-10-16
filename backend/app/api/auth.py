@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -10,12 +12,14 @@ from app.auth.ratelimit import email_limiter, ip_limiter
 from app.auth.sessions import SESSION_COOKIE, SESSION_LIFETIME, end_session, start_session
 from app.config import get_settings
 from app.db import get_db
+from app.disclaimer import DISCLAIMER_VERSION
 from app.models import User, UserSettings, Week
 
 router = APIRouter(tags=["auth"])
 
 EMAIL_TAKEN = "Couldn't create an account with that email. Try logging in instead."
 BAD_LOGIN = "Email or password is incorrect."
+STALE_DISCLAIMER = "The disclaimer has changed. Reload the page and accept it to continue."
 
 
 def _limit(request: Request, email: str) -> None:
@@ -39,9 +43,17 @@ def _me(user: User) -> MeOut:
 @router.post("/auth/signup", response_model=MeOut, status_code=201)
 def signup(body: SignupIn, request: Request, response: Response, db: Session = Depends(get_db)) -> MeOut:
     _limit(request, body.email)
+    if body.accepted_disclaimer_version != DISCLAIMER_VERSION:
+        raise HTTPException(status_code=422, detail=STALE_DISCLAIMER)
     if db.scalar(select(User.id).where(User.email == body.email)) is not None:
         raise HTTPException(status_code=409, detail=EMAIL_TAKEN)
-    user = User(email=body.email, password_hash=hash_password(body.password), settings=UserSettings())
+    user = User(
+        email=body.email,
+        password_hash=hash_password(body.password),
+        disclaimer_version=DISCLAIMER_VERSION,
+        disclaimer_accepted_at=datetime.now(timezone.utc),
+        settings=UserSettings(),
+    )
     db.add(user)
     try:
         db.flush()

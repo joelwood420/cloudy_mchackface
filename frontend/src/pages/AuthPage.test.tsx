@@ -1,6 +1,7 @@
 import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
+import { DISCLAIMER_VERSION } from '../disclaimer'
 import { ME, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const unauthorized = () => jsonResponse({ detail: 'Not logged in' }, 401)
@@ -96,6 +97,10 @@ describe('sign-in flow', () => {
     await userEvent.type(screen.getByLabelText('Password'), ' and more')
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Modules' })).toBeInTheDocument()
+    const signupCall = fetchMock.mock.calls.find(([url]) => url === '/api/auth/signup')
+    expect(signupCall).toBeDefined()
+    const init = signupCall![1] as RequestInit
+    expect(JSON.parse(String(init.body))).toMatchObject({ accepted_disclaimer_version: DISCLAIMER_VERSION })
   })
 
   it('links between log in and sign up', async () => {

@@ -1,3 +1,5 @@
+import { DISCLAIMER_VERSION } from './disclaimer'
+
 export type TaskType = 'learning_path' | 'lab' | 'assessment_step'
 
 export interface ModuleSummary {
@@ -113,7 +115,8 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 export const fetchModules = () => request<ModuleSummary[]>('GET', '/modules')
 export const fetchModule = (key: string) => request<ModuleDetail>('GET', `/modules/${encodeURIComponent(key)}`)
 export const fetchMe = () => request<Me>('GET', '/me')
-export const signup = (email: string, password: string) => request<Me>('POST', '/auth/signup', { email, password })
+export const signup = (email: string, password: string) =>
+  request<Me>('POST', '/auth/signup', { email, password, accepted_disclaimer_version: DISCLAIMER_VERSION })
 export const login = (email: string, password: string) => request<Me>('POST', '/auth/login', { email, password })
 export const logout = () => request<void>('POST', '/auth/logout')
 export const updateSettings = (body: { current_week: number | null }) => request<Me>('PATCH', '/me/settings', body)
