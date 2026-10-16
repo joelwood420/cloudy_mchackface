@@ -1,15 +1,17 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.schemas import IntakeOut, LoginIn, MeOut, SignupIn
+from app.api.schemas import IntakeOut, LoginIn, MeOut, SignupIn, SignupOut
 from app.auth.deps import current_user
 from app.auth.passwords import hash_password, verify_password
 from app.auth.ratelimit import email_limiter, ip_limiter
 from app.auth.sessions import SESSION_COOKIE, SESSION_LIFETIME, end_session, start_session
+from app.catchup import prefill_past_work
+from app.clock import today
 from app.config import get_settings
 from app.db import get_db
 from app.disclaimer import DISCLAIMER_VERSION
@@ -42,8 +44,10 @@ def _me(user: User) -> MeOut:
     return MeOut(email=user.email, study_mode=intake.study_mode, intake=IntakeOut.model_validate(intake))
 
 
-@router.post("/auth/signup", response_model=MeOut, status_code=201)
-def signup(body: SignupIn, request: Request, response: Response, db: Session = Depends(get_db)) -> MeOut:
+@router.post("/auth/signup", response_model=SignupOut, status_code=201)
+def signup(
+    body: SignupIn, request: Request, response: Response, db: Session = Depends(get_db), today_: date = Depends(today)
+) -> SignupOut:
     _limit(request, body.email)
     if body.accepted_disclaimer_version != DISCLAIMER_VERSION:
         raise HTTPException(status_code=422, detail=STALE_DISCLAIMER)
@@ -65,10 +69,11 @@ def signup(body: SignupIn, request: Request, response: Response, db: Session = D
     except IntegrityError:  # someone signed up with the same email a moment ago
         db.rollback()
         raise HTTPException(status_code=409, detail=EMAIL_TAKEN)
+    prefilled = prefill_past_work(db, user, intake, today_)
     token = start_session(db, user)
     db.commit()
     _set_cookie(response, token)
-    return _me(user)
+    return SignupOut(**_me(user).model_dump(), prefilled_through_week=prefilled)
 
 
 @router.post("/auth/login", response_model=MeOut)

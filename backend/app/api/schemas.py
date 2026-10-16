@@ -110,6 +110,10 @@ class MeOut(BaseModel):
     intake: IntakeOut
 
 
+class SignupOut(MeOut):
+    prefilled_through_week: int | None = None
+
+
 class WeekSpanOut(BaseModel):
     week_number: int
     starts_on: date
