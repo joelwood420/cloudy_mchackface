@@ -1,26 +1,50 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { MutationCache, QueryCache, QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
-import { ApiError } from './api'
+import { ApiError, isUnauthorized } from './api'
 import { AppShell } from './components/AppShell'
+import { RequireAuth } from './components/RequireAuth'
+import { AuthPage } from './pages/AuthPage'
 import { ModulePage } from './pages/ModulePage'
 import { ModulesPage } from './pages/ModulesPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 
-/** Never retry client errors (4xx); retry everything else once. */
+/** Never retry client errors (4xx); retry everything else (5xx, network) once. */
 export function shouldRetry(failureCount: number, error: Error): boolean {
-  if (error instanceof ApiError && error.status < 500) return false
+  if (error instanceof ApiError && error.status >= 400 && error.status < 500) return false
   return failureCount < 1
 }
 
-const queryClient = new QueryClient({ defaultOptions: { queries: { retry: shouldRetry } } })
+/** A 401 anywhere means the session ended: re-check who is signed in, which sends them to /login. */
+export function makeQueryClient(retry: typeof shouldRetry | false = shouldRetry): QueryClient {
+  const client: QueryClient = new QueryClient({
+    queryCache: new QueryCache({
+      onError: (error, query) => {
+        if (isUnauthorized(error) && query.queryKey[0] !== 'me') void client.invalidateQueries({ queryKey: ['me'] })
+      },
+    }),
+    mutationCache: new MutationCache({
+      onError: (error) => {
+        if (isUnauthorized(error)) void client.invalidateQueries({ queryKey: ['me'] })
+      },
+    }),
+    defaultOptions: { queries: { retry } },
+  })
+  return client
+}
+
+const queryClient = makeQueryClient()
 
 export function AppRoutes() {
   return (
     <Routes>
-      <Route element={<AppShell />}>
-        <Route path="/" element={<ModulesPage />} />
-        <Route path="/modules/:key" element={<ModulePage />} />
-        <Route path="*" element={<NotFoundPage />} />
+      <Route path="/login" element={<AuthPage key="login" mode="login" />} />
+      <Route path="/signup" element={<AuthPage key="signup" mode="signup" />} />
+      <Route element={<RequireAuth />}>
+        <Route element={<AppShell />}>
+          <Route path="/" element={<ModulesPage />} />
+          <Route path="/modules/:key" element={<ModulePage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
       </Route>
     </Routes>
   )

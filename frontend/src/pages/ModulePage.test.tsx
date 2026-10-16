@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const summary = [
-  { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 2, task_count: 2, uplearn_url: 'https://up.test/602' },
+  { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 2, task_count: 2, completed_count: 0, week_numbers: [9, 10], uplearn_url: 'https://up.test/602' },
 ]
 const azure = {
   key: 'azure-account',
@@ -12,6 +12,7 @@ const azure = {
   note: 'Use a personal email.',
   external_url: 'https://azure.test/free',
   uplearn_url: 'https://up.test/how-azure',
+  completed: false,
 }
 
 const detail = {
@@ -33,8 +34,9 @@ const detail = {
           external_url: 'https://learn.test/lp1',
           uplearn_url: null,
           note: 'Skillable lab: the training key is in the Teams tutor-only channel.',
+          done: false,
         },
-        { key: 't2', title: 'Read the A3 brief', type: 'assessment_step', external_url: null, uplearn_url: 'https://up.test/a3', note: null },
+        { key: 't2', title: 'Read the A3 brief', type: 'assessment_step', external_url: null, uplearn_url: 'https://up.test/a3', note: null, done: false },
       ],
     },
     { key: 'ccc602-w10', submodule_key: 'dp203', week_number: 10, title: 'Quiet week', tasks: [] },
@@ -49,7 +51,7 @@ const detail = {
       last_week: 9,
       prerequisites: [
         azure,
-        { key: 'skillable-dp900', title: 'Register for the DP-900 Skillable class', note: null, external_url: null, uplearn_url: 'https://up.test/how-skillable' },
+        { key: 'skillable-dp900', title: 'Register for the DP-900 Skillable class', note: null, external_url: null, uplearn_url: 'https://up.test/how-skillable', completed: false },
       ],
     },
     { key: 'dp203', code: 'DP-203', title: 'Azure Data Engineer', uplearn_url: null, first_week: 10, last_week: 10, prerequisites: [azure] },

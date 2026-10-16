@@ -1,7 +1,8 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { fetchModules } from '../api'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { fetchModules, logout } from '../api'
+import { useMe } from '../hooks/useMe'
 import { ProgressBar } from './ProgressBar'
 
 function Icon({ children }: { children: ReactNode }) {
@@ -15,6 +16,16 @@ function Icon({ children }: { children: ReactNode }) {
 export function Sidebar() {
   const { pathname } = useLocation()
   const modules = useQuery({ queryKey: ['modules'], queryFn: fetchModules })
+  const me = useMe()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
+  const signOut = useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      navigate('/login', { replace: true })
+      queryClient.clear()
+    },
+  })
   const modulesCurrent = pathname === '/' ? 'page' : pathname.startsWith('/modules/') ? 'true' : undefined
 
   return (
@@ -87,6 +98,18 @@ export function Sidebar() {
           </ul>
         </section>
       )}
+
+      <div className="sidebar-foot">
+        {me.data && <p className="small muted sidebar-email">{me.data.email}</p>}
+        {signOut.isError && (
+          <p role="alert" className="error small">
+            Couldn't log out. Try again.
+          </p>
+        )}
+        <button type="button" className="button-secondary" onClick={() => signOut.mutate()} disabled={signOut.isPending}>
+          Log out
+        </button>
+      </div>
     </nav>
   )
 }
