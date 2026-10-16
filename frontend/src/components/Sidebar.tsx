@@ -87,6 +87,10 @@ export function Sidebar() {
           </ul>
         </section>
       )}
+
+      <Link to="/disclaimer" className="side-footer-link" aria-current={pathname === '/disclaimer' ? 'page' : undefined}>
+        Disclaimer
+      </Link>
     </nav>
   )
 }

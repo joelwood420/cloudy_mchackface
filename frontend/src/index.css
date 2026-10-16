@@ -162,3 +162,16 @@ button.button-secondary { cursor: pointer; }
 .prereq-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 6px 0; }
 .prereq-item + .prereq-item { border-top: 1px solid var(--accent-line); }
 .prereq-title { font-weight: 500; }
+
+/* Disclaimer */
+.gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 32px 16px; }
+.gate-card { max-width: 640px; width: 100%; padding: clamp(20px, 4vw, 36px); display: flex; flex-direction: column; gap: 20px; }
+.gate-card p, .disclaimer-page p { margin: 0; }
+.disclaimer-page { max-width: 760px; gap: 20px; }
+.disclaimer-list { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 12px; color: var(--text-2); }
+.disclaimer-list strong { color: var(--text); }
+.gate-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.button-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--surface); font-weight: 600; cursor: pointer; }
+.button-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+.side-footer-link { margin-top: auto; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 13px; color: var(--muted); }
+.side-footer-link[aria-current] { color: var(--accent-strong); font-weight: 600; }
