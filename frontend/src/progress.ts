@@ -2,7 +2,7 @@ import type { ModuleDetail, ModuleSummary, Week } from './api'
 
 /** Whole percent, rounded down so 100 only shows when everything is done. 0 when there is nothing to do. */
 export function percent(done: number, total: number): number {
-  return total === 0 ? 0 : Math.floor((done / total) * 100)
+  return total === 0 ? 0 : Math.floor((done * 100) / total)
 }
 
 export function weekDone(week: Week): number {

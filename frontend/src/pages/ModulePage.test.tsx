@@ -155,18 +155,80 @@ describe('ModulePage', () => {
   })
 
   it('unticks a task and rolls back when saving fails', async () => {
+    let release!: () => void
+    const held = new Promise<void>((resolve) => (release = resolve))
+    let gets = 0
     mockApi({
       '/api/modules': summary,
-      '/api/modules/ccc602': detail,
-      'DELETE /api/tasks/t1/complete': () => jsonResponse({ detail: 'Boom' }, 500),
+      // The refetch after the failure never answers, so only a real rollback can restore the box.
+      '/api/modules/ccc602': () => (++gets === 1 ? jsonResponse(detail) : new Promise<Response>(() => {})),
+      'DELETE /api/tasks/t1/complete': async () => {
+        await held
+        return jsonResponse({ detail: 'Boom' }, 500)
+      },
     })
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
     await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
     await userEvent.click(within(main).getByRole('checkbox', { name: 'DP-900 LP1' }))
+    expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).not.toBeChecked()
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '0')
+
+    release()
     expect(await within(main).findByRole('alert')).toHaveTextContent("Couldn't save that tick. Try again.")
     expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).toBeChecked()
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '50')
+  })
+
+  it('refetches once, after the last of two quick ticks has settled', async () => {
+    const serverDone = { t1: true, t2: false }
+    let gets = 0
+    const gate = (key: 't1' | 't2', value: boolean) => {
+      let release!: () => void
+      const held = new Promise<void>((resolve) => (release = resolve))
+      const handler = async () => {
+        await held
+        serverDone[key] = value
+        return new Response(null, { status: 204 })
+      }
+      return { release, handler }
+    }
+    const untickT1 = gate('t1', false)
+    const tickT2 = gate('t2', true)
+    mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': () => {
+        gets += 1
+        const w = detail.weeks[0]
+        const tasks = w.tasks.map((t) => ({ ...t, done: serverDone[t.key as 't1' | 't2'] }))
+        return jsonResponse({ ...detail, weeks: [{ ...w, tasks }, detail.weeks[1]] })
+      },
+      'DELETE /api/tasks/t1/complete': untickT1.handler,
+      'PUT /api/tasks/t2/complete': tickT2.handler,
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    expect(gets).toBe(1)
+
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'DP-900 LP1' }))
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
+    expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).not.toBeChecked()
+    expect(within(main).getByRole('checkbox', { name: 'Read the A3 brief' })).toBeChecked()
+
+    untickT1.release()
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(gets).toBe(1)
+
+    tickT2.release()
+    await waitFor(() => expect(gets).toBe(2))
+    await new Promise((resolve) => setTimeout(resolve, 50))
+    expect(gets).toBe(2)
+    expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).not.toBeChecked()
+    expect(within(main).getByRole('checkbox', { name: 'Read the A3 brief' })).toBeChecked()
+    expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '50')
   })
 
   it('uses headings for assessment titles', async () => {

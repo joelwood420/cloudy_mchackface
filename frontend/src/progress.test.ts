@@ -20,6 +20,10 @@ describe('percent', () => {
     expect(percent(1, 3)).toBe(33)
     expect(percent(3, 3)).toBe(100)
   })
+  it('is exact where floating point would round down too far', () => {
+    expect(percent(29, 100)).toBe(29)
+    expect(percent(57, 100)).toBe(57)
+  })
 })
 
 describe('moduleProgress', () => {
