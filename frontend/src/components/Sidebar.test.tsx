@@ -1,6 +1,6 @@
 import { screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
-import { jsonResponse, mockApi, renderAt } from '../test/utils'
+import { ME, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const modules = [
   { key: 'ccc601', code: 'CCC601', title: 'Public Cloud Administration', week_count: 0, task_count: 0, completed_count: 0, week_numbers: [], uplearn_url: null },
@@ -30,8 +30,25 @@ describe('Sidebar', () => {
     expect(within(nav()).getByRole('link', { name: 'Modules' })).toHaveAttribute('aria-current', 'page')
     expect(within(nav()).queryByRole('link', { name: /This week/ })).toBeNull()
     expect(within(nav()).queryByRole('link', { name: /^Assessments/ })).toBeNull()
-    expect(within(nav()).getByText('This week').closest('[aria-disabled="true"]')).not.toBeNull()
+    expect(within(nav()).getByText('This week').closest('.is-disabled')).not.toBeNull()
+    expect(within(nav()).getByText('This week').closest('[aria-disabled]')).toBeNull()
     expect(within(nav()).getAllByText('Soon')).toHaveLength(2)
+    expect(within(nav()).getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings')
+  })
+
+  it('prompts to set a current week, or shows it', async () => {
+    mockApi({ '/api/modules': modules })
+    renderAt('/')
+    await screen.findByRole('navigation', { name: 'Main' })
+    expect(await within(nav()).findByRole('link', { name: 'Set your week' })).toHaveAttribute('href', '/settings')
+  })
+
+  it('shows the current week with a link to change it', async () => {
+    mockApi({ '/api/me': { ...ME, current_week: 9 }, '/api/modules': modules })
+    renderAt('/')
+    await screen.findByRole('navigation', { name: 'Main' })
+    expect(await within(nav()).findByText('Week 9')).toBeInTheDocument()
+    expect(within(nav()).getByRole('link', { name: 'Change week' })).toHaveAttribute('href', '/settings')
   })
 
   it('highlights the module being viewed', async () => {

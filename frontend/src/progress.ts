@@ -54,3 +54,13 @@ export function withPrerequisiteDone(mod: ModuleDetail, prerequisiteKey: string,
     ),
   }
 }
+
+export function weekOptions(modules: ModuleSummary[]): { week: number; label: string }[] {
+  const byWeek = new Map<number, string[]>()
+  for (const m of modules) {
+    for (const week of m.week_numbers) byWeek.set(week, [...(byWeek.get(week) ?? []), m.code])
+  }
+  return [...byWeek.entries()]
+    .sort(([a], [b]) => a - b)
+    .map(([week, codes]) => ({ week, label: `Week ${week} · ${codes.join(', ')}` }))
+}

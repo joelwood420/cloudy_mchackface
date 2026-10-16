@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ModuleDetail, ModuleSummary, Submodule } from './api'
-import { moduleProgress, percent, programmeProgress, withPrerequisiteDone, withTaskDone } from './progress'
+import { moduleProgress, percent, programmeProgress, weekOptions, withPrerequisiteDone, withTaskDone } from './progress'
 
 const task = (key: string, done: boolean) => ({ key, title: key, type: 'lab' as const, external_url: null, uplearn_url: 'https://up.test', note: null, done })
 
@@ -65,5 +65,21 @@ describe('withPrerequisiteDone', () => {
     expect(next.submodules[1].prerequisites[0].completed).toBe(true)
     expect(next.submodules[2]).toBe(withSubs.submodules[2])
     expect(withSubs.submodules[0].prerequisites[0].completed).toBe(false)
+  })
+})
+
+describe('weekOptions', () => {
+  it('lists each week once, in order, with its modules', () => {
+    const modules = [
+      { code: 'CCC602', week_numbers: [9, 10] },
+      { code: 'CCC601', week_numbers: [1, 2] },
+      { code: 'CCC603', week_numbers: [10] },
+    ] as ModuleSummary[]
+    expect(weekOptions(modules)).toEqual([
+      { week: 1, label: 'Week 1 · CCC601' },
+      { week: 2, label: 'Week 2 · CCC601' },
+      { week: 9, label: 'Week 9 · CCC602' },
+      { week: 10, label: 'Week 10 · CCC602, CCC603' },
+    ])
   })
 })

@@ -6,6 +6,7 @@ import { ErrorMessage } from '../components/ErrorMessage'
 import { ModuleHeader } from '../components/module/ModuleHeader'
 import { ProgressCard } from '../components/module/ProgressCard'
 import { WeekTimeline } from '../components/module/WeekTimeline'
+import { useMe } from '../hooks/useMe'
 import { useTickPrerequisite, useTickTask } from '../hooks/useTickTask'
 import { moduleProgress } from '../progress'
 import { usePageTitle } from '../usePageTitle'
@@ -13,6 +14,7 @@ import { usePageTitle } from '../usePageTitle'
 export function ModulePage() {
   const { key = '' } = useParams()
   const query = useQuery({ queryKey: ['module', key], queryFn: () => fetchModule(key) })
+  const me = useMe()
   const tick = useTickTask(key)
   const prereqTick = useTickPrerequisite(key)
   usePageTitle(query.data ? `${query.data.code} ${query.data.title}` : 'Module')
@@ -55,6 +57,7 @@ export function ModulePage() {
           key={mod.key}
           weeks={mod.weeks}
           submodules={mod.submodules}
+          currentWeek={me.data?.current_week ?? null}
           onToggleTask={(taskKey, done) => tick.mutate({ taskKey, done })}
           onTogglePrerequisite={(prerequisiteKey, completed) => prereqTick.mutate({ prerequisiteKey, completed })}
         />

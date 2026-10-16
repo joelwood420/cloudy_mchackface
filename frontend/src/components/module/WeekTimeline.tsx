@@ -50,11 +50,13 @@ export function WeekCard({
   week,
   open,
   isLast,
+  isCurrent,
   onToggle,
   onToggleTask,
 }: {
   week: Week
   open: boolean
+  isCurrent: boolean
   isLast: boolean
   onToggle: () => void
   onToggleTask: (taskKey: string, done: boolean) => void
@@ -64,13 +66,14 @@ export function WeekCard({
     <li className="timeline-item">
       <div className="timeline-rail" aria-hidden="true">
         {!isLast && <span className="timeline-line" />}
-        <span className="timeline-dot">{week.week_number}</span>
+        <span className={`timeline-dot${isCurrent ? ' is-current' : ''}`}>{week.week_number}</span>
       </div>
       <div className={`card week-card${open ? ' is-open' : ''}`}>
         <h4 className="week-heading">
           <button type="button" className="week-toggle" aria-expanded={open} aria-controls={panelId} onClick={onToggle}>
             <span className="week-label">
               <span className="mono small muted">Week {week.week_number}</span>
+              {isCurrent && <span className="current-badge">Current week</span>}
               <span className="week-title">{week.title}</span>
             </span>
             <span className="week-meta">
@@ -136,15 +139,19 @@ function SubmoduleHead({ submodule }: { submodule: Submodule }) {
 export function WeekTimeline({
   weeks,
   submodules,
+  currentWeek,
   onToggleTask,
   onTogglePrerequisite,
 }: {
   weeks: Week[]
   submodules: Submodule[]
+  currentWeek: number | null
   onToggleTask: (taskKey: string, done: boolean) => void
   onTogglePrerequisite: (prerequisiteKey: string, completed: boolean) => void
 }) {
-  const [openKey, setOpenKey] = useState<string | null>(null)
+  const [openKey, setOpenKey] = useState<string | null>(
+    () => weeks.find((w) => w.week_number === currentWeek)?.key ?? null,
+  )
   const toggle = (key: string) => setOpenKey(openKey === key ? null : key)
   return (
     <section className="timeline" aria-labelledby="timeline-heading">
@@ -171,6 +178,7 @@ export function WeekTimeline({
                     week={week}
                     open={openKey === week.key}
                     isLast={i === group.weeks.length - 1}
+                    isCurrent={week.week_number === currentWeek}
                     onToggle={() => toggle(week.key)}
                     onToggleTask={onToggleTask}
                   />

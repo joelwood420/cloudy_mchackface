@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import type { ModuleDetail } from '../api'
 import { withPrerequisiteDone, withTaskDone } from '../progress'
-import { jsonResponse, mockApi, renderAt } from '../test/utils'
+import { ME, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const summary = [
   { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', week_count: 2, task_count: 2, completed_count: 0, week_numbers: [9, 10], uplearn_url: 'https://up.test/602' },
@@ -386,5 +386,16 @@ describe('ModulePage', () => {
     await userEvent.click(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' }))
     expect(await within(main).findByRole('alert')).toHaveTextContent("Couldn't save that tick. Try again.")
     expect(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' })).not.toBeChecked()
+  })
+
+  it('opens the current week and marks it', async () => {
+    mockApi({ '/api/me': { ...ME, current_week: 10 }, '/api/modules': summary, '/api/modules/ccc602': detail })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const week10 = within(main).getByRole('button', { name: /Week 10/ })
+    expect(week10).toHaveAttribute('aria-expanded', 'true')
+    expect(within(week10).getByText('Current week')).toBeInTheDocument()
+    expect(within(main).getByRole('button', { name: /Week 9/ })).toHaveAttribute('aria-expanded', 'false')
   })
 })

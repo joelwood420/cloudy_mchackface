@@ -7,6 +7,7 @@ import { AuthPage } from './pages/AuthPage'
 import { ModulePage } from './pages/ModulePage'
 import { ModulesPage } from './pages/ModulesPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { SettingsPage } from './pages/SettingsPage'
 
 /** Never retry client errors (4xx); retry everything else (5xx, network) once. */
 export function shouldRetry(failureCount: number, error: Error): boolean {
@@ -43,6 +44,7 @@ export function AppRoutes() {
         <Route element={<AppShell />}>
           <Route path="/" element={<ModulesPage />} />
           <Route path="/modules/:key" element={<ModulePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>
