@@ -1,4 +1,4 @@
-import type { ModuleDetail, ModuleSummary, Week } from './api'
+import type { Assessment, AssessmentStatus, ModuleDetail, ModuleSummary, Week } from './api'
 
 /** Whole percent, rounded down so 100 only shows when everything is done. 0 when there is nothing to do. */
 export function percent(done: number, total: number): number {
@@ -41,6 +41,17 @@ export function withTaskDone(mod: ModuleDetail, taskKey: string, done: boolean):
         : week,
     ),
   }
+}
+
+export function assessmentStatus(daysUntil: number | null, submitted: boolean): AssessmentStatus {
+  if (submitted) return 'submitted'
+  if (daysUntil === null) return 'no_date'
+  if (daysUntil < 0) return 'overdue'
+  return daysUntil === 0 ? 'due_today' : 'upcoming'
+}
+
+export function withAssessmentSubmitted<T extends Assessment>(list: T[], key: string, submitted: boolean): T[] {
+  return list.map((a) => (a.key === key ? { ...a, submitted, status: assessmentStatus(a.days_until, submitted) } : a))
 }
 
 /** Copy of `mod` with one prerequisite ticked or unticked in every submodule that lists it. */

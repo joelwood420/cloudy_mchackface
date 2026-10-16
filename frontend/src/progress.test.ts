@@ -1,6 +1,24 @@
 import { describe, expect, it } from 'vitest'
 import type { ModuleDetail, ModuleSummary, Submodule } from './api'
-import { moduleProgress, percent, programmeProgress, withPrerequisiteDone, withTaskDone } from './progress'
+import { assessmentStatus, moduleProgress, percent, programmeProgress, withAssessmentSubmitted, withPrerequisiteDone, withTaskDone } from './progress'
+
+describe('assessments', () => {
+  const a3 = { key: 'a3', title: 'A3', due_date: '2026-10-25', uplearn_url: null, submitted: false, status: 'upcoming' as const, days_until: 8 }
+  const a1 = { key: 'a1', title: 'A1', due_date: '2026-08-16', uplearn_url: null, submitted: false, status: 'overdue' as const, days_until: -62 }
+  it('works out status from days and the tick', () => {
+    expect(assessmentStatus(8, false)).toBe('upcoming')
+    expect(assessmentStatus(0, false)).toBe('due_today')
+    expect(assessmentStatus(-1, false)).toBe('overdue')
+    expect(assessmentStatus(-1, true)).toBe('submitted')
+    expect(assessmentStatus(null, false)).toBe('no_date')
+  })
+  it('ticks one assessment and recomputes its status', () => {
+    const [x, y] = withAssessmentSubmitted([a3, a1], 'a1', true)
+    expect(x).toBe(a3)
+    expect(y).toEqual({ ...a1, submitted: true, status: 'submitted' })
+    expect(withAssessmentSubmitted([y], 'a1', false)[0].status).toBe('overdue')
+  })
+})
 
 const task = (key: string, done: boolean) => ({ key, title: key, type: 'lab' as const, external_url: null, uplearn_url: 'https://up.test', note: null, done })
 

@@ -59,8 +59,8 @@ const detail = {
     { key: 'dp203', code: 'DP-203', title: 'Azure Data Engineer', uplearn_url: null, first_week: 10, last_week: 10, prerequisites: [azure] },
   ],
   assessments: [
-    { key: 'a3', title: 'Assessment 3', due_date: '2026-10-25', uplearn_url: 'https://up.test/a3' },
-    { key: 'a4', title: 'Assessment 4', due_date: null, uplearn_url: null },
+    { key: 'a3', title: 'Assessment 3', due_date: '2026-10-25', uplearn_url: 'https://up.test/a3', submitted: false, status: 'upcoming', days_until: 8 },
+    { key: 'a4', title: 'Assessment 4', due_date: null, uplearn_url: null, submitted: false, status: 'no_date', days_until: null },
   ],
 }
 

@@ -1,4 +1,4 @@
-import type { ThisWeek } from './api'
+import type { Assessment, ThisWeek } from './api'
 
 /** Format a YYYY-MM-DD date in local time so it never shifts a day. */
 export function formatDueDate(iso: string): string {
@@ -25,24 +25,20 @@ export function weekSummary(weekNumbers: number[], taskCount: number): string {
   return `${range} · ${plural(weekNumbers.length, 'week')} · ${plural(taskCount, 'task')}`
 }
 
-/** Whole calendar days from `today` to a YYYY-MM-DD date (negative when past). */
-export function daysUntil(iso: string, today: Date): number {
-  const [year, month, day] = iso.split('-').map(Number)
-  const due = Date.UTC(year, month - 1, day)
-  const now = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate())
-  return Math.round((due - now) / 86_400_000)
-}
-
-export function countdownLabel(days: number): string {
-  if (days < 0) return `${plural(-days, 'day')} overdue`
-  if (days === 0) return 'Due today'
-  return plural(days, 'day')
-}
-
-export function countdownTone(days: number): '' | 'is-soon' | 'is-overdue' {
-  if (days < 0) return 'is-overdue'
-  if (days <= 7) return 'is-soon'
-  return ''
+export function statusChip(a: Assessment): { label: string; tone: 'is-done' | 'is-soon' | 'is-overdue' | '' } | null {
+  const days = a.days_until ?? 0
+  switch (a.status) {
+    case 'submitted':
+      return { label: 'Submitted', tone: 'is-done' }
+    case 'due_today':
+      return { label: 'Due today', tone: 'is-soon' }
+    case 'upcoming':
+      return { label: `Due in ${plural(days, 'day')}`, tone: days <= 7 ? 'is-soon' : '' }
+    case 'overdue':
+      return { label: `${plural(-days, 'day')} overdue`, tone: 'is-overdue' }
+    default:
+      return null
+  }
 }
 
 const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']

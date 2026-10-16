@@ -149,9 +149,11 @@ button.button-secondary { cursor: pointer; }
 .assessment-card { padding: 18px; display: flex; flex-direction: column; gap: 8px; }
 .assessment-title { margin: 0; font-family: var(--font-body); font-size: 15px; font-weight: 600; line-height: 1.35; }
 .assessment-foot { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 12px; padding-top: 10px; border-top: 1px solid var(--border-soft); }
-.countdown { font-family: var(--font-display); font-weight: 600; font-size: 18px; }
-.countdown.is-soon { color: var(--soon); }
-.countdown.is-overdue { color: var(--overdue); }
+.status-chip { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--tag-bg); color: var(--text); }
+.status-chip.is-soon { background: #fcefdd; color: var(--soon); }
+.status-chip.is-overdue { background: #fde7e7; color: var(--overdue); }
+.status-chip.is-done { background: #e3eef9; color: #164f80; }
+.submitted-toggle { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; font-size: 14px; }
 
 /* Submodules and prerequisites */
 .submodule { display: flex; flex-direction: column; gap: 12px; }

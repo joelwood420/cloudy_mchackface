@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ThisWeek } from './api'
-import { countdownLabel, countdownTone, dateSpan, dayDate, daysUntil, formatDueDate, plural, shortDate, weekFooter, weekRange, weekSummary } from './format'
+import { dateSpan, dayDate, formatDueDate, plural, shortDate, statusChip, weekFooter, weekRange, weekSummary } from './format'
 import { THIS_WEEK } from './test/utils'
 
 describe('format', () => {
@@ -21,27 +21,17 @@ describe('format', () => {
     expect(weekSummary([], 0)).toBe('No weeks yet')
   })
 
-  it('counts calendar days until a due date', () => {
-    const lateEvening = new Date(2026, 9, 15, 23, 30)
-    expect(daysUntil('2026-10-25', lateEvening)).toBe(10)
-    expect(daysUntil('2026-10-15', lateEvening)).toBe(0)
-    expect(daysUntil('2026-10-16', lateEvening)).toBe(1)
-    expect(daysUntil('2026-10-12', lateEvening)).toBe(-3)
-  })
+})
 
-  it('words the countdown', () => {
-    expect(countdownLabel(10)).toBe('10 days')
-    expect(countdownLabel(1)).toBe('1 day')
-    expect(countdownLabel(0)).toBe('Due today')
-    expect(countdownLabel(-1)).toBe('1 day overdue')
-    expect(countdownLabel(-3)).toBe('3 days overdue')
-  })
-
-  it('picks a tone for the countdown', () => {
-    expect(countdownTone(8)).toBe('')
-    expect(countdownTone(7)).toBe('is-soon')
-    expect(countdownTone(0)).toBe('is-soon')
-    expect(countdownTone(-1)).toBe('is-overdue')
+describe('statusChip', () => {
+  const base = { key: 'a', title: 'A', due_date: '2026-10-25', uplearn_url: null, submitted: false }
+  it('labels each status', () => {
+    expect(statusChip({ ...base, status: 'submitted', days_until: 3 })).toEqual({ label: 'Submitted', tone: 'is-done' })
+    expect(statusChip({ ...base, status: 'due_today', days_until: 0 })).toEqual({ label: 'Due today', tone: 'is-soon' })
+    expect(statusChip({ ...base, status: 'upcoming', days_until: 1 })).toEqual({ label: 'Due in 1 day', tone: 'is-soon' })
+    expect(statusChip({ ...base, status: 'upcoming', days_until: 8 })).toEqual({ label: 'Due in 8 days', tone: '' })
+    expect(statusChip({ ...base, status: 'overdue', days_until: -2 })).toEqual({ label: '2 days overdue', tone: 'is-overdue' })
+    expect(statusChip({ ...base, due_date: null, status: 'no_date', days_until: null })).toBeNull()
   })
 })
 

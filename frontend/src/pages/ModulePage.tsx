@@ -7,6 +7,7 @@ import { ModuleHeader } from '../components/module/ModuleHeader'
 import { ProgressCard } from '../components/module/ProgressCard'
 import { WeekTimeline } from '../components/module/WeekTimeline'
 import { useThisWeek } from '../hooks/useThisWeek'
+import { useSubmitAssessment } from '../hooks/useSubmitAssessment'
 import { useTickPrerequisite, useTickTask } from '../hooks/useTickTask'
 import { moduleProgress } from '../progress'
 import { usePageTitle } from '../usePageTitle'
@@ -17,6 +18,7 @@ export function ModulePage() {
   const thisWeek = useThisWeek()
   const tick = useTickTask(key)
   const prereqTick = useTickPrerequisite(key)
+  const submit = useSubmitAssessment()
   usePageTitle(query.data ? `${query.data.code} ${query.data.title}` : 'Module')
 
   if (query.isPending) {
@@ -47,7 +49,7 @@ export function ModulePage() {
     <main className="page">
       <ModuleHeader code={mod.code} title={mod.title} weeks={mod.weeks} />
       <ProgressCard {...moduleProgress(mod)} />
-      {(tick.isError || prereqTick.isError) && (
+      {(tick.isError || prereqTick.isError || submit.isError) && (
         <p role="alert" className="error">
           Couldn't save that tick. Try again.
         </p>
@@ -61,7 +63,12 @@ export function ModulePage() {
           onToggleTask={(taskKey, done) => tick.mutate({ taskKey, done })}
           onTogglePrerequisite={(prerequisiteKey, completed) => prereqTick.mutate({ prerequisiteKey, completed })}
         />
-        <AssessmentsRail code={mod.code} assessments={mod.assessments} portalUrl={mod.uplearn_url} />
+        <AssessmentsRail
+          code={mod.code}
+          assessments={mod.assessments}
+          portalUrl={mod.uplearn_url}
+          onToggleSubmitted={(assessmentKey, submitted) => submit.mutate({ key: assessmentKey, submitted })}
+        />
       </div>
     </main>
   )

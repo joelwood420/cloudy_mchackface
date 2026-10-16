@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ApiError, isUnauthorized } from './api'
 import { AppShell } from './components/AppShell'
 import { RequireAuth } from './components/RequireAuth'
+import { AssessmentsPage } from './pages/AssessmentsPage'
 import { AuthPage } from './pages/AuthPage'
 import { DisclaimerGate } from './components/DisclaimerGate'
 import { DisclaimerPage } from './pages/DisclaimerPage'
@@ -48,6 +49,7 @@ export function AppRoutes() {
             <Route path="/" element={<ThisWeekPage />} />
             <Route path="/modules" element={<ModulesPage />} />
             <Route path="/modules/:key" element={<ModulePage />} />
+            <Route path="/assessments" element={<AssessmentsPage />} />
             <Route path="/disclaimer" element={<DisclaimerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>

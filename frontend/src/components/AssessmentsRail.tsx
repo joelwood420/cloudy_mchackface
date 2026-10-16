@@ -1,37 +1,48 @@
+import { useId } from 'react'
 import type { Assessment } from '../api'
-import { countdownLabel, countdownTone, daysUntil, formatDueDate } from '../format'
+import { formatDueDate, statusChip } from '../format'
 import { ExternalLink } from './ExternalLink'
 
 export function AssessmentsRail({
   code,
   assessments,
   portalUrl,
-  today = new Date(),
+  onToggleSubmitted,
+  emptyText = 'No assessments listed.',
+  heading = 'Assessments',
 }: {
-  code: string
-  assessments: Assessment[]
+  assessments: (Assessment & { module_code?: string })[]
+  code?: string
   portalUrl: string | null
-  today?: Date
+  onToggleSubmitted: (key: string, submitted: boolean) => void
+  emptyText?: string
+  heading?: string
 }) {
+  const headingId = useId()
   return (
-    <aside className="rail" aria-labelledby="assessments-heading">
-      <h2 id="assessments-heading">Assessments</h2>
+    <aside className="rail" aria-labelledby={headingId}>
+      <h2 id={headingId}>{heading}</h2>
       {assessments.length === 0 ? (
-        <p className="muted">No assessments listed.</p>
+        <p className="muted">{emptyText}</p>
       ) : (
         <ul className="rail-list">
           {assessments.map((a) => {
-            const days = a.due_date ? daysUntil(a.due_date, today) : null
+            const chip = statusChip(a)
+            const titleId = `assessment-${a.key}-title`
             return (
               <li key={a.key} className="card assessment-card">
-                <span className="mono small muted">{code}</span>
-                <h3 className="assessment-title">{a.title}</h3>
+                <span className="mono small muted">{a.module_code ?? code}</span>
+                <h3 id={titleId} className="assessment-title">{a.title}</h3>
                 <div className="assessment-foot">
                   <span className="muted small">
                     {a.due_date ? `Due ${formatDueDate(a.due_date)}` : 'Due date: see programme guide'}
                   </span>
-                  {days !== null && <span className={`countdown ${countdownTone(days)}`.trim()}>{countdownLabel(days)}</span>}
+                  {chip && <span className={`status-chip ${chip.tone}`.trim()}>{chip.label}</span>}
                 </div>
+                <label className="submitted-toggle">
+                  <input type="checkbox" checked={a.submitted} onChange={() => onToggleSubmitted(a.key, !a.submitted)} aria-describedby={titleId} />
+                  Mark submitted
+                </label>
                 {a.uplearn_url && (
                   <span className="task-links">
                     <ExternalLink href={a.uplearn_url} label={`${a.title} on UPLearn`}>UPLearn</ExternalLink>
