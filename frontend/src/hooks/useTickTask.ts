@@ -11,6 +11,7 @@ function settleTicks(queryClient: QueryClient, mutationKey: readonly unknown[]) 
   if (queryClient.isMutating({ mutationKey }) !== 1) return
   void queryClient.invalidateQueries({ queryKey: ['module'] })
   void queryClient.invalidateQueries({ queryKey: ['modules'] })
+  void queryClient.invalidateQueries({ queryKey: ['this-week'] })
 }
 
 /** Tick or untick a task: show it straight away, undo on error, then sync with the server once quiet. */

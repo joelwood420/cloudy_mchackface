@@ -1,4 +1,4 @@
-import type { Assessment, AssessmentStatus, ModuleDetail, ModuleSummary, Week } from './api'
+import type { Assessment, AssessmentStatus, ModuleDetail, ModuleSummary, ThisWeek, ThisWeekGroup, Week } from './api'
 
 /** Whole percent, rounded down so 100 only shows when everything is done. 0 when there is nothing to do. */
 export function percent(done: number, total: number): number {
@@ -64,4 +64,29 @@ export function withPrerequisiteDone(mod: ModuleDetail, prerequisiteKey: string,
         : sub,
     ),
   }
+}
+
+function tickGroups(groups: ThisWeekGroup[], taskKey: string, done: boolean): ThisWeekGroup[] {
+  return groups.map((g) =>
+    g.week.tasks.some((t) => t.key === taskKey)
+      ? { ...g, week: { ...g.week, tasks: g.week.tasks.map((t) => (t.key === taskKey ? { ...t, done } : t)) } }
+      : g,
+  )
+}
+
+export function withThisWeekTaskDone(tw: ThisWeek, taskKey: string, done: boolean): ThisWeek {
+  const groups = tickGroups(tw.groups, taskKey, done)
+  return {
+    ...tw,
+    groups,
+    ahead: tw.ahead && { ...tw.ahead, groups: tickGroups(tw.ahead.groups, taskKey, done) },
+    lurking: tw.lurking.map((w) => ({ ...w, tasks: w.tasks.map((t) => (t.key === taskKey ? { ...t, done } : t)) })),
+    stats: { ...tw.stats, done: groups.reduce((n, g) => n + weekDone(g.week), 0) },
+  }
+}
+
+export function withThisWeekPrerequisiteDone(tw: ThisWeek, key: string, completed: boolean): ThisWeek {
+  const tick = (groups: ThisWeekGroup[]) =>
+    groups.map((g) => ({ ...g, prerequisites: g.prerequisites.map((p) => (p.key === key ? { ...p, completed } : p)) }))
+  return { ...tw, groups: tick(tw.groups), ahead: tw.ahead && { ...tw.ahead, groups: tick(tw.ahead.groups) } }
 }

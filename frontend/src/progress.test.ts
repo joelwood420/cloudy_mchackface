@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { ModuleDetail, ModuleSummary, Submodule } from './api'
-import { assessmentStatus, moduleProgress, percent, programmeProgress, withAssessmentSubmitted, withPrerequisiteDone, withTaskDone } from './progress'
+import { assessmentStatus, moduleProgress, percent, programmeProgress, withAssessmentSubmitted, withPrerequisiteDone, withTaskDone, withThisWeekPrerequisiteDone, withThisWeekTaskDone } from './progress'
+import { THIS_WEEK } from './test/utils'
 
 describe('assessments', () => {
   const a3 = { key: 'a3', title: 'A3', due_date: '2026-10-25', uplearn_url: null, submitted: false, status: 'upcoming' as const, days_until: 8 }
@@ -83,5 +84,28 @@ describe('withPrerequisiteDone', () => {
     expect(next.submodules[1].prerequisites[0].completed).toBe(true)
     expect(next.submodules[2]).toBe(withSubs.submodules[2])
     expect(withSubs.submodules[0].prerequisites[0].completed).toBe(false)
+  })
+})
+
+describe('this week ticks', () => {
+  const task = (key: string, done = false) => ({ key, title: key, type: 'lab' as const, external_url: 'https://x.test', uplearn_url: null, note: null, done })
+  const group = (key: string, tasks: ReturnType<typeof task>[]) => ({
+    module_key: 'ccc602', module_code: 'CCC602', module_title: 'DE', module_uplearn_url: null,
+    submodule: { key: 'dp900', code: 'DP-900', title: 'DP', uplearn_url: null },
+    week: { key, submodule_key: 'dp900', week_number: 11, title: key, tasks },
+    prerequisites: [{ key: 'azure', title: 'Azure', note: null, external_url: 'https://a.test', uplearn_url: null, completed: false }],
+  })
+  const tw = { ...THIS_WEEK, groups: [group('w11', [task('t1'), task('t2')])], lurking: [{ week_number: 10, tasks: [{ ...task('t0'), module_code: 'CCC602' }] }], stats: { done: 0, total: 2, next_deadline_days: null } }
+
+  it('ticks a task in this week and recounts', () => {
+    const next = withThisWeekTaskDone(tw, 't1', true)
+    expect(next.groups[0].week.tasks[0].done).toBe(true)
+    expect(next.stats.done).toBe(1)
+  })
+  it('ticks a lurking task', () => {
+    expect(withThisWeekTaskDone(tw, 't0', true).lurking[0].tasks[0].done).toBe(true)
+  })
+  it('ticks a prerequisite in every group', () => {
+    expect(withThisWeekPrerequisiteDone(tw, 'azure', true).groups[0].prerequisites[0].completed).toBe(true)
   })
 })

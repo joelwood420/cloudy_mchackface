@@ -204,3 +204,5 @@ button.button-secondary { cursor: pointer; }
 .gate-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .side-footer-link { margin-top: auto; display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px; font-size: 13px; color: var(--muted); }
 .side-footer-link[aria-current] { color: var(--accent-strong); font-weight: 600; }
+.week-group { display: flex; flex-direction: column; gap: 12px; }
+.this-week-main { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
