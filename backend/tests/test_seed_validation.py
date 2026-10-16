@@ -3,6 +3,7 @@ from pathlib import Path
 import pytest
 
 from app.seed.loader import SeedError, load_seed_dir
+from tests.conftest import schedule_yaml
 
 VALID = """\
 module:
@@ -59,8 +60,10 @@ def write(dir: Path, name: str, text: str) -> None:
     (dir / name).write_bytes(text.encode("utf-8"))
 
 
-def write_valid(dir: Path, module: str = VALID, prereqs: str | None = PREREQS) -> None:
+def write_valid(dir: Path, module: str = VALID, prereqs: str | None = PREREQS, schedule: str | None = schedule_yaml()) -> None:
     write(dir, "ccc602.yaml", module)
+    if schedule is not None:
+        write(dir, "schedule.yaml", schedule)
     if prereqs is not None:
         write(dir, "prerequisites.yaml", prereqs)
 

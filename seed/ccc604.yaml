@@ -1,0 +1,15 @@
+# Source: docs/portal-extras.md (Programme Guide dates). Course 04 is still locked on UPLearn
+# ("complete 02 - Data Engineering first"), so it has no weeks yet; the app shows it as "Coming soon".
+# Weeks 25–32 (1 Mar – 25 Apr 2027) get added here once the FT schedule posts are visible.
+module:
+  key: ccc604
+  code: CCC604
+  title: "Multi-Cloud Security Integration and Project Management"
+  order: 4
+assessments:
+  - key: ccc604-a7
+    title: "Assessment 7: Multi-Cloud Security Integration Project (group)"
+    due_date: 2027-04-18
+  - key: ccc604-a8
+    title: "Assessment 8: Project Presentation (group)"
+    due_date: 2027-04-23

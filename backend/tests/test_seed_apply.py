@@ -2,10 +2,11 @@ from datetime import date
 
 from sqlalchemy import func, select
 
-from app.models import Assessment, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
+from app.models import Assessment, Intake, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
 from app.seed.__main__ import run
 from app.seed.loader import apply_seed
 from app.seed.schema import SeedFile, SeedPrerequisite
+from tests.conftest import schedule_yaml
 
 
 def seed(weeks=None, assessments=None, module_key="ccc602", submodules=None):
@@ -200,6 +201,7 @@ def test_run_with_invalid_files_writes_nothing(db, tmp_path, capsys):
     (tmp_path / "a.yaml").write_text(GOOD, encoding="utf-8")
     (tmp_path / "b.yaml").write_text(GOOD.replace("key: ccc602", "key: other"), encoding="utf-8")
     (tmp_path / "prerequisites.yaml").write_text(PREREQS, encoding="utf-8")
+    (tmp_path / "schedule.yaml").write_text(schedule_yaml(), encoding="utf-8")
 
     assert run(tmp_path, db) == 1
     assert count(db, Module) == 0
@@ -210,7 +212,9 @@ def test_run_with_invalid_files_writes_nothing(db, tmp_path, capsys):
 def test_run_with_valid_files_succeeds(db, tmp_path, capsys):
     (tmp_path / "a.yaml").write_text(GOOD, encoding="utf-8")
     (tmp_path / "prerequisites.yaml").write_text(PREREQS, encoding="utf-8")
+    (tmp_path / "schedule.yaml").write_text(schedule_yaml(), encoding="utf-8")
     assert run(tmp_path, db) == 0
     assert (count(db, Module), count(db, Submodule), count(db, Prerequisite)) == (1, 1, 1)
     assert links(db) == [("ccc602-s", "azure", 0)]
-    assert "Seeded 1 module(s) and 1 prerequisite(s)" in capsys.readouterr().out
+    assert count(db, Intake) == 1
+    assert "Seeded 1 module(s), 1 prerequisite(s) and 1 intake(s)" in capsys.readouterr().out

@@ -63,6 +63,14 @@ def intake(db):
     return row
 
 
+def schedule_yaml(numbers=range(1, 33)) -> str:
+    """A valid schedule.yaml with one intake whose weeks run Mondays from 20 Jul 2026, no gaps."""
+    weeks = "".join(
+        f"      - {{week_number: {n}, starts_on: {date(2026, 7, 20) + timedelta(weeks=n - 1)}}}\n" for n in numbers
+    )
+    return f"intakes:\n  - key: test-ft\n    title: Test FT\n    study_mode: FT\n    weeks:\n{weeks}"
+
+
 def add_schedule(db, intake, weeks=FT_WEEKS, holidays=()):
     intake.weeks = [IntakeWeek(week_number=n, starts_on=d) for n, d in weeks]
     intake.holidays = [IntakeHoliday(day=d, name=name) for d, name in holidays]

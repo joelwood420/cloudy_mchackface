@@ -19,7 +19,7 @@ def test_repo_seed_files_are_valid():
 
 
 def test_every_module_has_submodules():
-    assert all(s.submodules for s in bundle().modules)
+    assert all(s.submodules for s in bundle().modules if s.module.key != "ccc604")
 
 
 def test_ccc602_has_portal_link():
@@ -43,3 +43,16 @@ def test_notes_point_to_access_without_secrets():
     notes = [t.note for t in tasks.values()] + [p.note for p in prereqs.values()]
     for note in filter(None, notes):
         assert not any(s in note.lower() for s in FORBIDDEN_IN_NOTES), note
+
+
+def test_schedule_is_the_2607_full_time_intake():
+    [intake] = bundle().intakes
+    assert intake.key == "2607-online-ccc-ft"
+    assert [w.week_number for w in intake.weeks] == list(range(1, 33))
+    assert str(intake.weeks[0].starts_on) == "2026-07-20" and str(intake.weeks[-1].starts_on) == "2027-04-19"
+
+
+def test_ccc604_is_a_shell_with_its_two_deadlines():
+    ccc604 = modules()["ccc604"]
+    assert ccc604.submodules == []
+    assert [(a.key, str(a.due_date)) for a in ccc604.assessments] == [("ccc604-a7", "2027-04-18"), ("ccc604-a8", "2027-04-23")]

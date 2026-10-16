@@ -128,3 +128,50 @@ class SeedPrerequisiteFile(_Strict):
 
     def keys(self) -> list[str]:
         return [p.key for p in self.prerequisites]
+
+
+class SeedIntakeWeek(_Strict):
+    week_number: int = Field(ge=1)
+    starts_on: date
+
+
+class SeedHoliday(_Strict):
+    day: date
+    name: ShortTitle
+
+
+class SeedIntake(_Strict):
+    key: Key
+    title: ShortTitle
+    study_mode: Literal["FT", "PT"]
+    weeks: list[SeedIntakeWeek] = Field(min_length=1)
+    holidays: list[SeedHoliday] = []
+
+    @model_validator(mode="after")
+    def check_calendar(self) -> "SeedIntake":
+        for w in self.weeks:
+            if w.starts_on.weekday() != 0:
+                raise ValueError(f"week {w.week_number} starts on {w.starts_on}, which is not a Monday")
+        numbers = [w.week_number for w in self.weeks]
+        if numbers != sorted(set(numbers)):
+            raise ValueError(f"week numbers must be unique and ascending (got {numbers})")
+        for a, b in zip(self.weeks, self.weeks[1:]):
+            if (b.starts_on - a.starts_on).days < 7:
+                raise ValueError(f"week {b.week_number} starts less than 7 days after week {a.week_number}")
+        days = [h.day for h in self.holidays]
+        if len(set(days)) != len(days):
+            raise ValueError("a holiday date is listed more than once")
+        return self
+
+
+class SeedScheduleFile(_Strict):
+    """seed/schedule.yaml: each intake's week start dates and public holidays."""
+
+    intakes: list[SeedIntake] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def unique_keys(self) -> "SeedScheduleFile":
+        keys = [i.key for i in self.intakes]
+        if len(set(keys)) != len(keys):
+            raise ValueError("an intake key is used more than once")
+        return self
