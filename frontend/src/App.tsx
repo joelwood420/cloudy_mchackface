@@ -2,6 +2,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { ApiError } from './api'
 import { AppShell } from './components/AppShell'
+import { DisclaimerGate } from './components/DisclaimerGate'
+import { DisclaimerPage } from './pages/DisclaimerPage'
 import { ModulePage } from './pages/ModulePage'
 import { ModulesPage } from './pages/ModulesPage'
 import { NotFoundPage } from './pages/NotFoundPage'
@@ -16,13 +18,16 @@ const queryClient = new QueryClient({ defaultOptions: { queries: { retry: should
 
 export function AppRoutes() {
   return (
-    <Routes>
-      <Route element={<AppShell />}>
-        <Route path="/" element={<ModulesPage />} />
-        <Route path="/modules/:key" element={<ModulePage />} />
-        <Route path="*" element={<NotFoundPage />} />
-      </Route>
-    </Routes>
+    <DisclaimerGate>
+      <Routes>
+        <Route element={<AppShell />}>
+          <Route path="/" element={<ModulesPage />} />
+          <Route path="/modules/:key" element={<ModulePage />} />
+          <Route path="/disclaimer" element={<DisclaimerPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Route>
+      </Routes>
+    </DisclaimerGate>
   )
 }
 
