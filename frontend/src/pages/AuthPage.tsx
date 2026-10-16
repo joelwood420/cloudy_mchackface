@@ -30,6 +30,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
     setError(null)
     try {
       const me = await (mode === 'login' ? login : signup)(email, password)
+      queryClient.clear()
       queryClient.setQueryData(['me'], me)
       const from = (location.state as { from?: string } | null)?.from
       navigate(from && from !== '/login' && from !== '/signup' ? from : '/', { replace: true })

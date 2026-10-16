@@ -51,7 +51,7 @@ def upgrade() -> None:
         sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
         sa.Column("current_week", sa.Integer(), nullable=True),
         sa.Column("study_mode", sa.String(2), nullable=False, server_default="FT"),
-        sa.CheckConstraint("study_mode IN ('FT', 'PT')", name="user_settings_study_mode_check"),
+        sa.CheckConstraint("study_mode IN ('FT', 'PT')", name="study_mode"),
     )
 
 
