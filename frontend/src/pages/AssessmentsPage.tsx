@@ -16,7 +16,7 @@ export function AssessmentsPage() {
   const query = useQuery({ queryKey: ['assessments'], queryFn: fetchAssessments })
   const submit = useSubmitAssessment()
 
-  if (query.isPending) return <main className="page"><p className="muted">Loading…</p></main>
+  if (query.isPending) return <main className="page"><p className="muted">Loading assessments…</p></main>
   if (query.isError) return <main className="page"><ErrorMessage error={query.error} onRetry={() => query.refetch()} /></main>
 
   return (

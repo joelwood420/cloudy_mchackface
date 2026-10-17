@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Submodule, Task, TaskType, Week } from '../../api'
 import { weekRange } from '../../format'
 import { percent, weekDone } from '../../progress'
+import { uplearnLabel, uplearnName, uplearnTrackName } from '../../uplearn'
 import { ExternalLink } from '../ExternalLink'
 import { ProgressBar } from '../ProgressBar'
 import { PrerequisiteBox } from './PrerequisiteBox'
@@ -12,8 +13,32 @@ const TYPE_LABELS: Record<TaskType, string> = {
   assessment_step: 'Assessment',
 }
 
-export function TaskRow({ task, onToggle }: { task: Task; onToggle: (taskKey: string, done: boolean) => void }) {
+/** The track a task sits in, so its UPLearn link can be dropped when it only repeats the track's own link. */
+export interface TrackRef {
+  code: string
+  uplearn_url: string | null
+}
+
+/** A week's schedule post, which is where tutors put lab access details. */
+export interface SchedulePostRef {
+  weekNumber: number
+  url: string
+}
+
+export function TaskRow({
+  task,
+  onToggle,
+  track,
+  schedulePost,
+}: {
+  task: Task
+  onToggle: (taskKey: string, done: boolean) => void
+  track?: TrackRef
+  schedulePost?: SchedulePostRef | null
+}) {
   const id = `task-${task.key}`
+  const uplearn = task.uplearn_url && task.uplearn_url !== track?.uplearn_url ? task.uplearn_url : null
+  const uplearnText = uplearn ? uplearnLabel(uplearn, track?.code) : ''
   return (
     <li className="task-row">
       <input
@@ -36,11 +61,23 @@ export function TaskRow({ task, onToggle }: { task: Task; onToggle: (taskKey: st
             {task.note}
           </span>
         )}
+        {task.type === 'lab' && schedulePost && (
+          <span className="task-note">
+            <span>
+              Lab access details are in the{' '}
+              <ExternalLink href={schedulePost.url}>{`Week ${schedulePost.weekNumber} schedule post`}</ExternalLink>.
+            </span>
+          </span>
+        )}
       </span>
       <span className="tag">{TYPE_LABELS[task.type]}</span>
       <span className="task-links">
         {task.external_url && <ExternalLink href={task.external_url} label={`Open ${task.title}`}>Open</ExternalLink>}
-        {task.uplearn_url && <ExternalLink href={task.uplearn_url} label={`${task.title} on UPLearn`}>UPLearn</ExternalLink>}
+        {uplearn && (
+          <ExternalLink href={uplearn} label={uplearnName(uplearnText, task.title)}>
+            {uplearnText}
+          </ExternalLink>
+        )}
       </span>
     </li>
   )
@@ -53,6 +90,7 @@ export function WeekCard({
   isCurrent,
   onToggle,
   onToggleTask,
+  track,
 }: {
   week: Week
   open: boolean
@@ -60,8 +98,10 @@ export function WeekCard({
   isLast: boolean
   onToggle: () => void
   onToggleTask: (taskKey: string, done: boolean) => void
+  track?: TrackRef
 }) {
   const panelId = `week-panel-${week.key}`
+  const post = week.schedule_post_url ? { weekNumber: week.week_number, url: week.schedule_post_url } : null
   return (
     <li className="timeline-item">
       <div className="timeline-rail" aria-hidden="true">
@@ -89,12 +129,17 @@ export function WeekCard({
         </h4>
         {open && (
           <div id={panelId} className="week-panel">
+            {post && (
+              <p className="week-post">
+                <ExternalLink href={post.url}>{`Week ${post.weekNumber} schedule post`}</ExternalLink>
+              </p>
+            )}
             {week.tasks.length === 0 ? (
               <p className="muted">No tasks listed for this week.</p>
             ) : (
               <ul className="task-list">
                 {week.tasks.map((task) => (
-                  <TaskRow key={task.key} task={task} onToggle={onToggleTask} />
+                  <TaskRow key={task.key} task={task} onToggle={onToggleTask} track={track} schedulePost={post} />
                 ))}
               </ul>
             )}
@@ -128,8 +173,8 @@ function SubmoduleHead({ submodule }: { submodule: Submodule }) {
       </h3>
       {first !== null && last !== null && <span className="small muted">{weekRange(first, last)}</span>}
       {submodule.uplearn_url && (
-        <ExternalLink href={submodule.uplearn_url} label={`${submodule.code} on UPLearn`}>
-          UPLearn
+        <ExternalLink href={submodule.uplearn_url} label={uplearnTrackName(submodule.uplearn_url, submodule.code)}>
+          {uplearnLabel(submodule.uplearn_url, submodule.code)}
         </ExternalLink>
       )}
     </header>
@@ -149,10 +194,10 @@ export function WeekTimeline({
   onToggleTask: (taskKey: string, done: boolean) => void
   onTogglePrerequisite: (prerequisiteKey: string, completed: boolean) => void
 }) {
-  const [openKey, setOpenKey] = useState<string | null>(
-    () => weeks.find((w) => w.week_number === currentWeek)?.key ?? null,
-  )
-  const toggle = (key: string) => setOpenKey(openKey === key ? null : key)
+  // Until the user opens or closes a week, the current week is open. It may only be known after this-week loads.
+  const [choice, setChoice] = useState<{ key: string | null } | null>(null)
+  const openKey = choice ? choice.key : (weeks.find((w) => w.week_number === currentWeek)?.key ?? null)
+  const toggle = (key: string) => setChoice({ key: openKey === key ? null : key })
   return (
     <section className="timeline" aria-labelledby="timeline-heading">
       <div className="section-head">
@@ -181,6 +226,7 @@ export function WeekTimeline({
                     isCurrent={week.week_number === currentWeek}
                     onToggle={() => toggle(week.key)}
                     onToggleTask={onToggleTask}
+                    track={group.submodule ?? undefined}
                   />
                 ))}
               </ol>

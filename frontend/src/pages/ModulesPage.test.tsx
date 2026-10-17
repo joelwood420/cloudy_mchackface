@@ -46,7 +46,7 @@ describe('ModulesPage', () => {
   it('shows a hint when there are no modules', async () => {
     mockApi({ '/api/modules': [] })
     renderAt('/modules')
-    expect(await screen.findByText(/No modules yet/)).toBeInTheDocument()
+    expect(await screen.findByText(/No modules are loaded yet/)).toBeInTheDocument()
   })
 
   it('shows an error and retries', async () => {

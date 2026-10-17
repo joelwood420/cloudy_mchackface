@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { fetchModules, logout } from '../api'
 import { weekFooter } from '../format'
@@ -31,20 +31,34 @@ export function Sidebar() {
     },
   })
   const modulesCurrent = pathname === '/modules' ? 'page' : pathname.startsWith('/modules/') ? 'true' : undefined
+  // The phone menu remembers the page it was opened on, so moving to another page closes it.
+  const [menuOpenOn, setMenuOpenOn] = useState<string | null>(null)
+  const menuOpen = menuOpenOn === pathname
 
   return (
-    <nav className="sidebar" aria-label="Main">
-      <Link to="/" className="brand">
-        <span className="brand-mark" aria-hidden="true">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 18h4V12H4zM10 18h4V8h-4zM16 18h4V4h-4z" />
-          </svg>
-        </span>
-        <span className="brand-text">
-          <span className="brand-name">Cloudy McHackface</span>
-          <span className="brand-sub">Level 6 Cloud &amp; Cyber</span>
-        </span>
-      </Link>
+    <nav className={`sidebar${menuOpen ? ' is-menu-open' : ''}`} aria-label="Main">
+      <div className="sidebar-top">
+        <Link to="/" className="brand">
+          <span className="brand-mark" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 18h4V12H4zM10 18h4V8h-4zM16 18h4V4h-4z" />
+            </svg>
+          </span>
+          <span className="brand-text">
+            <span className="brand-name">Cloudy McHackface</span>
+            <span className="brand-sub">Level 6 Cloud &amp; Cyber</span>
+          </span>
+        </Link>
+        <button
+          type="button"
+          className="menu-button"
+          aria-expanded={menuOpen}
+          aria-controls="sidebar-more"
+          onClick={() => setMenuOpenOn(menuOpen ? null : pathname)}
+        >
+          {menuOpen ? 'Close' : 'Menu'}
+        </button>
+      </div>
 
       <ul className="nav-list">
         <li>
@@ -75,62 +89,70 @@ export function Sidebar() {
         </li>
       </ul>
 
-      {modules.data && modules.data.length > 0 && (
-        <section aria-labelledby="side-modules-heading">
-          <h2 id="side-modules-heading" className="side-heading">
-            Your modules
-          </h2>
-          <ul className="side-modules">
-            {modules.data.map((m) => {
-              if (m.week_count === 0) {
+      <div
+        id="sidebar-more"
+        className="sidebar-more"
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') setMenuOpenOn(null)
+        }}
+      >
+        {modules.data && modules.data.length > 0 && (
+          <section aria-labelledby="side-modules-heading">
+            <h2 id="side-modules-heading" className="side-heading">
+              Your modules
+            </h2>
+            <ul className="side-modules">
+              {modules.data.map((m) => {
+                if (m.week_count === 0) {
+                  return (
+                    <li key={m.key}>
+                      <span className="side-module is-coming-soon">
+                        <span className="side-module-top">
+                          <span>{m.code}</span>
+                          <span className="soon">Soon</span>
+                        </span>
+                        <span className="side-module-title">{m.title}</span>
+                      </span>
+                    </li>
+                  )
+                }
+                const pct = percent(m.completed_count, m.task_count)
                 return (
                   <li key={m.key}>
-                    <span className="side-module is-coming-soon">
+                    <Link
+                      to={`/modules/${m.key}`}
+                      className="side-module"
+                      aria-current={pathname === `/modules/${m.key}` ? 'page' : undefined}
+                    >
                       <span className="side-module-top">
                         <span>{m.code}</span>
-                        <span className="soon">Soon</span>
+                        <span aria-hidden="true">{pct}%</span>
                       </span>
                       <span className="side-module-title">{m.title}</span>
-                    </span>
+                      <ProgressBar value={pct} label={`${m.code} progress`} size="sm" decorative />
+                    </Link>
                   </li>
                 )
-              }
-              const pct = percent(m.completed_count, m.task_count)
-              return (
-                <li key={m.key}>
-                  <Link
-                    to={`/modules/${m.key}`}
-                    className="side-module"
-                    aria-current={pathname === `/modules/${m.key}` ? 'page' : undefined}
-                  >
-                    <span className="side-module-top">
-                      <span>{m.code}</span>
-                      <span aria-hidden="true">{pct}%</span>
-                    </span>
-                    <span className="side-module-title">{m.title}</span>
-                    <ProgressBar value={pct} label={`${m.code} progress`} size="sm" decorative />
-                  </Link>
-                </li>
-              )
-            })}
-          </ul>
-        </section>
-      )}
-
-      <div className="sidebar-foot">
-        <Link to="/disclaimer" className="side-footer-link" aria-current={pathname === '/disclaimer' ? 'page' : undefined}>
-          Disclaimer
-        </Link>
-        {thisWeek.data && <p className="small">{weekFooter(thisWeek.data)}</p>}
-        {me.data && <p className="small muted sidebar-email">{me.data.email}</p>}
-        {signOut.isError && (
-          <p role="alert" className="error small">
-            Couldn't log out. Try again.
-          </p>
+              })}
+            </ul>
+          </section>
         )}
-        <button type="button" className="button-secondary" onClick={() => signOut.mutate()} disabled={signOut.isPending}>
-          Log out
-        </button>
+
+        <div className="sidebar-foot">
+          <Link to="/disclaimer" className="side-footer-link" aria-current={pathname === '/disclaimer' ? 'page' : undefined}>
+            Disclaimer
+          </Link>
+          {thisWeek.data && <p className="small">{weekFooter(thisWeek.data)}</p>}
+          {me.data && <p className="small muted sidebar-email">{me.data.email}</p>}
+          {signOut.isError && (
+            <p role="alert" className="error small">
+              Couldn't log out. Try again.
+            </p>
+          )}
+          <button type="button" className="button-secondary" onClick={() => signOut.mutate()} disabled={signOut.isPending}>
+            Log out
+          </button>
+        </div>
       </div>
     </nav>
   )

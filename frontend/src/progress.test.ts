@@ -26,9 +26,9 @@ const task = (key: string, done: boolean) => ({ key, title: key, type: 'lab' as 
 const mod: ModuleDetail = {
   key: 'm', code: 'M', title: 'M', uplearn_url: null, assessments: [], submodules: [],
   weeks: [
-    { key: 'w1', submodule_key: 's', week_number: 1, title: 'W1', tasks: [task('a', true), task('b', true)] },
-    { key: 'w2', submodule_key: 's', week_number: 2, title: 'W2', tasks: [task('c', true), task('d', false)] },
-    { key: 'w3', submodule_key: 's', week_number: 3, title: 'W3', tasks: [] },
+    { key: 'w1', submodule_key: 's', week_number: 1, title: 'W1', tasks: [task('a', true), task('b', true)], schedule_post_url: null },
+    { key: 'w2', submodule_key: 's', week_number: 2, title: 'W2', tasks: [task('c', true), task('d', false)], schedule_post_url: null },
+    { key: 'w3', submodule_key: 's', week_number: 3, title: 'W3', tasks: [], schedule_post_url: null },
   ],
 }
 
@@ -92,10 +92,10 @@ describe('this week ticks', () => {
   const group = (key: string, tasks: ReturnType<typeof task>[]) => ({
     module_key: 'ccc602', module_code: 'CCC602', module_title: 'DE', module_uplearn_url: null,
     submodule: { key: 'dp900', code: 'DP-900', title: 'DP', uplearn_url: null },
-    week: { key, submodule_key: 'dp900', week_number: 11, title: key, tasks },
+    week: { key, submodule_key: 'dp900', week_number: 11, title: key, tasks, schedule_post_url: null },
     prerequisites: [{ key: 'azure', title: 'Azure', note: null, external_url: 'https://a.test', uplearn_url: null, completed: false }],
   })
-  const tw = { ...THIS_WEEK, groups: [group('w11', [task('t1'), task('t2')])], lurking: [{ week_number: 10, tasks: [{ ...task('t0'), module_code: 'CCC602' }] }], stats: { done: 0, total: 2, next_deadline_days: null } }
+  const tw = { ...THIS_WEEK, groups: [group('w11', [task('t1'), task('t2')])], lurking: [{ week_number: 10, tasks: [{ ...task('t0'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] }], stats: { done: 0, total: 2, next_deadline_days: null } }
 
   it('ticks a task in this week and recounts', () => {
     const next = withThisWeekTaskDone(tw, 't1', true)

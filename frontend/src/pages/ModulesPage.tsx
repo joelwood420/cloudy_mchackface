@@ -16,7 +16,7 @@ function ProgrammeProgress({ modules }: { modules: ModuleSummary[] }) {
           <h2 id="programme-heading">Programme progress</h2>
           <span className="big-number">{pct}%</span>
         </div>
-        <ProgressBar value={pct} label="Programme progress" size="lg" />
+        <ProgressBar value={pct} label="Programme progress" valueText={`${done} of ${total} tasks done`} size="lg" />
         <p className="muted small">
           {done} of {plural(total, 'task')} done
         </p>
@@ -32,7 +32,7 @@ export function ModulesPage() {
   if (query.isPending) {
     return (
       <main className="page">
-        <p className="muted">Loading…</p>
+        <p className="muted">Loading modules…</p>
       </main>
     )
   }
@@ -52,7 +52,7 @@ export function ModulesPage() {
       </header>
       {query.data.length > 0 && <ProgrammeProgress modules={query.data} />}
       {query.data.length === 0 ? (
-        <p className="muted">No modules yet. Run the seed loader.</p>
+        <p className="muted">No modules are loaded yet.</p>
       ) : (
         <ul className="card-grid">
           {query.data.map((m) =>
@@ -71,7 +71,11 @@ export function ModulesPage() {
                 <span className="muted small">
                   {plural(m.week_count, 'week')} · {plural(m.task_count, 'task')}
                 </span>
-                <ProgressBar value={percent(m.completed_count, m.task_count)} label={`${m.code} progress`} />
+                <ProgressBar
+                  value={percent(m.completed_count, m.task_count)}
+                  label={`${m.code} progress`}
+                  valueText={`${m.completed_count} of ${m.task_count} tasks done`}
+                />
               </li>
             ),
           )}

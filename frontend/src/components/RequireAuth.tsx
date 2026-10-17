@@ -17,7 +17,7 @@ export function RequireAuth() {
   if (me.isPending) {
     return (
       <main className="page">
-        <p className="muted">Loading…</p>
+        <p className="muted">Checking you're logged in…</p>
       </main>
     )
   }

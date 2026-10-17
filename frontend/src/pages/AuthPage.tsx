@@ -5,8 +5,8 @@ import { type SignupResult, login, signup } from '../api'
 import { usePageTitle } from '../usePageTitle'
 
 const COPY = {
-  login: { title: 'Log in', submit: 'Log in', prompt: 'New here?', link: 'Create an account', to: '/signup' },
-  signup: { title: 'Create your account', submit: 'Create account', prompt: 'Already have an account?', link: 'Log in', to: '/login' },
+  login: { title: 'Log in', submit: 'Log in', busy: 'Logging in…', prompt: 'New here?', link: 'Create an account', to: '/signup' },
+  signup: { title: 'Create your account', submit: 'Create account', busy: 'Creating account…', prompt: 'Already have an account?', link: 'Log in', to: '/login' },
 } as const
 
 export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
@@ -77,7 +77,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
             </p>
           )}
           <button type="submit" className="button-primary" disabled={busy}>
-            {copy.submit}
+            {busy ? copy.busy : copy.submit}
           </button>
         </form>
         <p className="muted small">
