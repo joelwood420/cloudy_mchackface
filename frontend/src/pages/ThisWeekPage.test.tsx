@@ -188,6 +188,30 @@ describe('ThisWeekPage', () => {
     expect(screen.getByRole('checkbox', { name: 'Task old1' })).toBeChecked()
   })
 
+  it('closes the quarantine list with Back to this week once it is cleared', async () => {
+    let saved = false
+    const before = { ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602' }] }] }
+    const after = { ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1', true), module_code: 'CCC602' }] }] }
+    show(before, {
+      '/api/this-week': () => jsonResponse(saved ? after : before),
+      'PUT /api/tasks/old1/complete': () => { saved = true; return new Response(null, { status: 204 }) },
+    })
+    await userEvent.click(await screen.findByRole('button', { name: 'Quarantine them' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Task old1' }))
+    expect(await screen.findByText('Threat neutralised. System clean.')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Back to this week' }))
+    expect(screen.queryByRole('region', { name: 'Unfinished tasks from earlier weeks' })).not.toBeInTheDocument()
+  })
+
+  it('can leave the quarantine list before it is cleared', async () => {
+    show({ ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602' }] }] })
+    await userEvent.click(await screen.findByRole('button', { name: 'Quarantine them' }))
+    expect(screen.queryByText('Threat neutralised. System clean.')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Back to this week' }))
+    expect(screen.queryByRole('checkbox', { name: 'Task old1' })).not.toBeInTheDocument()
+    expect(screen.getByText('MALWARE DETECTED')).toBeInTheDocument()
+  })
+
   it('uses the singular for one lurking task', async () => {
     show({ ...teaching, lurking: [{ week_number: 8, tasks: [{ ...task('old'), module_code: 'CCC601' }] }] })
     expect(await screen.findByText('1 unfinished task is lurking in Week 8.')).toBeInTheDocument()
