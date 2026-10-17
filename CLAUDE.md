@@ -17,9 +17,20 @@ Monorepo, built and run locally first; Fly.io deployment comes later (phase 5):
 - `frontend/`: React + Vite + TypeScript, TanStack Query. Vite proxies `/api` to the backend in dev.
 - `backend/`: FastAPI, SQLAlchemy, Alembic, pytest. Serves the API under `/api`.
 - `seed/`: YAML content files, one per module plus `prerequisites.yaml` (shared one-off setup steps) and `schedule.yaml` (each intake's week start dates and public holidays), loaded by a CLI seed loader.
-- Database: Neon. Dev branch via `DATABASE_URL`, separate test branch via `TEST_DATABASE_URL`, both in git-ignored `backend/.env`.
+- Database: Neon. Dev branch via `DATABASE_URL`, separate test branch via `TEST_DATABASE_URL`, both in git-ignored `backend/.env`. The Neon `production` branch is for the deployed app. CI tests use their own Postgres container, not Neon.
 
 Structure is **Module → Submodule (certification track) → Week → Task**, one tick per task. Submodules list shared prerequisites by key; prerequisites are never counted in progress. Every seed item has a stable `key`; the loader upserts by key so re-seeding doesn't break users' ticks. Progress is computed from completions, never stored.
+
+## Branches and pushing
+
+The repo is public. `main` is production (merging into it will deploy); `dev` is where work happens. GitHub rulesets enforce the server side: `main` only takes PRs from `dev` that pass CI (`source-branch`, `backend`, `frontend` in `.github/workflows/ci.yml`), and neither branch can be deleted or force-pushed.
+
+- Never commit to `main` locally or push to it. All work goes on `dev`, or on a feature branch cut from `dev` and merged back into `dev`.
+- Never open a PR into `main` from anything but `dev`, and never merge a PR into `main`. Open the `dev` → `main` PR only when the owner asks; the owner reviews and merges it.
+- Push to `dev` (or push a feature branch) only when the owner asks. Before pushing `dev`, run the same checks CI runs (backend pytest, frontend lint, test and build).
+- Never delete, force-push or rewrite history on `dev` or `main`. Feature branches can be deleted once merged into `dev`, after checking with the owner.
+- After the owner merges a PR, bring `dev` up to date: `git switch dev && git pull --ff-only origin main && git push`. `main` requires PRs to be up to date, so the next PR is blocked until `dev` contains `main`'s merge commit.
+- Don't change rulesets, branch protection, repo visibility, Actions secrets or deploy settings without asking.
 
 ## Commands
 
