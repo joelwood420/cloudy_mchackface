@@ -4,11 +4,11 @@ import { describe, expect, it } from 'vitest'
 import type { ThisWeek, ThisWeekGroup } from '../api'
 import { ME, THIS_WEEK, jsonResponse, mockApi, renderAt } from '../test/utils'
 
-const task = (key: string, done = false) => ({ key, title: `Task ${key}`, type: 'lab' as const, external_url: 'https://x.test/' + key, uplearn_url: null, note: null, done })
-const group = (weekNumber: number, tasks: ReturnType<typeof task>[]) => ({
+const task = (key: string, done = false) => ({ key, title: `Task ${key}`, type: 'lab' as const, external_url: 'https://x.test/' + key, uplearn_url: null as string | null, note: null, done })
+const group = (weekNumber: number, tasks: ReturnType<typeof task>[], post: string | null = null) => ({
   module_key: 'ccc602', module_code: 'CCC602', module_title: 'Data Engineering in the Public Cloud', module_uplearn_url: 'https://up.test/602',
   submodule: { key: 'dp900', code: 'DP-900', title: 'Azure Data Fundamentals', uplearn_url: null },
-  week: { key: `w${weekNumber}`, submodule_key: 'dp900', week_number: weekNumber, title: `Week ${weekNumber} work`, tasks },
+  week: { key: `w${weekNumber}`, submodule_key: 'dp900', week_number: weekNumber, title: `Week ${weekNumber} work`, tasks, schedule_post_url: post },
   prerequisites: [{ key: 'azure', title: 'Create an Azure account', note: null, external_url: 'https://azure.test', uplearn_url: null, completed: false }],
 })
 const teaching: ThisWeek = { ...THIS_WEEK, groups: [group(11, [task('t1', true), task('t2')])], stats: { done: 1, total: 2, next_deadline_days: 8 } }
@@ -35,7 +35,7 @@ describe('ThisWeekPage', () => {
   it('says when this week has no content yet', async () => {
     show({ ...THIS_WEEK })
     expect(await screen.findByText(/Content for this week isn't in the app yet\./)).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Open UPLearn' })).toHaveAttribute('href', 'https://yoobee.uplearn.education/')
+    expect(screen.getByRole('link', { name: 'Open UPLearn (opens in new tab)' })).toHaveAttribute('href', 'https://yoobee.uplearn.education/')
   })
 
   it("shows next week when you're ahead", async () => {
@@ -122,7 +122,7 @@ describe('ThisWeekPage', () => {
   })
 
   it('lists upcoming assessments in the rail', async () => {
-    const a = { key: 'a3', title: 'Assessment 3', due_date: '2026-10-25', uplearn_url: null, submitted: false, status: 'upcoming' as const, days_until: 8, module_key: 'ccc602', module_code: 'CCC602' }
+    const a = { key: 'a3', title: 'Assessment 3', due_date: '2026-10-25', uplearn_url: null, submitted: false, status: 'upcoming' as const, days_until: 8, module_key: 'ccc602', module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }
     show({ ...teaching, assessments: [a] })
     const title = await screen.findByText('Assessment 3')
     const rail = title.closest('aside') ?? title.closest('section') ?? document.body
@@ -155,8 +155,8 @@ describe('ThisWeekPage', () => {
 
   it('warns about lurking tasks and opens them on Quarantine', async () => {
     show({ ...teaching, lurking: [
-      { week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602' }] },
-      { week_number: 10, tasks: [{ ...task('old2'), module_code: 'CCC602' }] },
+      { week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] },
+      { week_number: 10, tasks: [{ ...task('old2'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] },
     ] })
     const banner = await screen.findByRole('status')
     expect(within(banner).getByText('MALWARE DETECTED')).toBeInTheDocument()
@@ -171,11 +171,11 @@ describe('ThisWeekPage', () => {
   it('counts only unticked lurking tasks, straight after a tick', async () => {
     let saved = false
     const before = { ...teaching, lurking: [
-      { week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602' }] },
-      { week_number: 10, tasks: [{ ...task('old2'), module_code: 'CCC602' }] },
+      { week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] },
+      { week_number: 10, tasks: [{ ...task('old2'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] },
     ] }
     const after = { ...before, lurking: [
-      { week_number: 9, tasks: [{ ...task('old1', true), module_code: 'CCC602' }] },
+      { week_number: 9, tasks: [{ ...task('old1', true), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] },
       before.lurking[1],
     ] }
     show(before, {
@@ -190,8 +190,8 @@ describe('ThisWeekPage', () => {
 
   it('closes the quarantine list with Back to this week once it is cleared', async () => {
     let saved = false
-    const before = { ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602' }] }] }
-    const after = { ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1', true), module_code: 'CCC602' }] }] }
+    const before = { ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] }] }
+    const after = { ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1', true), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] }] }
     show(before, {
       '/api/this-week': () => jsonResponse(saved ? after : before),
       'PUT /api/tasks/old1/complete': () => { saved = true; return new Response(null, { status: 204 }) },
@@ -204,7 +204,7 @@ describe('ThisWeekPage', () => {
   })
 
   it('can leave the quarantine list before it is cleared', async () => {
-    show({ ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602' }] }] })
+    show({ ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] }] })
     await userEvent.click(await screen.findByRole('button', { name: 'Quarantine them' }))
     expect(screen.queryByText('Threat neutralised. System clean.')).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Back to this week' }))
@@ -213,7 +213,7 @@ describe('ThisWeekPage', () => {
   })
 
   it('uses the singular for one lurking task', async () => {
-    show({ ...teaching, lurking: [{ week_number: 8, tasks: [{ ...task('old'), module_code: 'CCC601' }] }] })
+    show({ ...teaching, lurking: [{ week_number: 8, tasks: [{ ...task('old'), module_code: 'CCC601', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] }] })
     expect(await screen.findByText('1 unfinished task is lurking in Week 8.')).toBeInTheDocument()
   })
 
@@ -234,7 +234,7 @@ describe('ThisWeekPage', () => {
   })
 
   it('shows the lurking banner on a break too', async () => {
-    show({ ...THIS_WEEK, status: 'break', week: null, current_break: { starts_on: '2026-09-14', ends_on: '2026-09-27', week_of_break: 1, length_weeks: 2 }, next_week: { week_number: 9, starts_on: '2026-09-28' }, lurking: [{ week_number: 8, tasks: [{ ...task('old'), module_code: 'CCC601' }] }] })
+    show({ ...THIS_WEEK, status: 'break', week: null, current_break: { starts_on: '2026-09-14', ends_on: '2026-09-27', week_of_break: 1, length_weeks: 2 }, next_week: { week_number: 9, starts_on: '2026-09-28' }, lurking: [{ week_number: 8, tasks: [{ ...task('old'), module_code: 'CCC601', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] }] })
     expect(await screen.findByText('1 unfinished task is lurking in Week 8.')).toBeInTheDocument()
   })
 
@@ -256,5 +256,33 @@ describe('ThisWeekPage', () => {
     expect(await screen.findByText("We've marked weeks 1–10 as done. Untick anything you haven't finished.")).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
     expect(screen.queryByText(/We've marked weeks/)).not.toBeInTheDocument()
+  })
+})
+
+describe('ThisWeekPage UPLearn links', () => {
+  const post = 'https://yoobee.uplearn.education/mod/forum/discuss.php?d=11'
+
+  it("links this week's schedule post in the header and from lab rows", async () => {
+    show({ ...teaching, groups: [group(11, [task('t1')], post)] })
+    expect(await screen.findByRole('link', { name: 'Week 11 schedule post on UPLearn (opens in new tab)' })).toHaveAttribute('href', post)
+    expect(screen.getByText(/Lab access details are in the/)).toBeInTheDocument()
+    expect(screen.getAllByRole('link', { name: /Week 11 schedule post/ }).every((a) => a.getAttribute('href') === post)).toBe(true)
+  })
+
+  it('shows no schedule post link when the week has none', async () => {
+    show(teaching)
+    await screen.findByRole('heading', { level: 1, name: 'Week 11' })
+    expect(screen.queryByRole('link', { name: /schedule post/ })).toBeNull()
+    expect(screen.queryByText(/Lab access details/)).toBeNull()
+  })
+
+  it("drops a task's UPLearn link when it only repeats the track's link, and names the rest", async () => {
+    const tile = 'https://yoobee.uplearn.education/course/section.php?id=9656'
+    const assign = 'https://yoobee.uplearn.education/mod/assign/view.php?id=1'
+    const g = group(11, [{ ...task('t1'), uplearn_url: tile }, { ...task('t2'), uplearn_url: assign }])
+    show({ ...teaching, groups: [{ ...g, submodule: { ...g.submodule, uplearn_url: tile } }] })
+    expect(await screen.findByRole('link', { name: 'DP-900 tile on UPLearn (opens in new tab)' })).toHaveTextContent('DP-900 tile')
+    expect(screen.queryByRole('link', { name: /Task t1 on UPLearn/ })).toBeNull()
+    expect(screen.getByRole('link', { name: 'Assignment for Task t2 on UPLearn (opens in new tab)' })).toHaveTextContent('Assignment')
   })
 })

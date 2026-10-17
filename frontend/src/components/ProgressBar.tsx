@@ -1,11 +1,14 @@
 export function ProgressBar({
   value,
   label,
+  valueText,
   size = 'md',
   decorative = false,
 }: {
   value: number
   label: string
+  /** What the bar counts, for screen readers, e.g. "3 of 5 tasks done". */
+  valueText?: string
   size?: 'sm' | 'md' | 'lg'
   decorative?: boolean
 }) {
@@ -25,6 +28,7 @@ export function ProgressBar({
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={pct}
+      aria-valuetext={valueText ? `${pct}%, ${valueText}` : undefined}
     >
       <div className="progress-fill" style={{ width: `${pct}%` }} />
     </div>

@@ -30,6 +30,7 @@ export interface Week {
   week_number: number
   title: string
   tasks: Task[]
+  schedule_post_url: string | null
 }
 
 export interface Prerequisite {
@@ -102,6 +103,9 @@ export interface ThisWeekGroup {
 
 export interface LurkingTask extends Task {
   module_code: string
+  submodule_code: string
+  submodule_uplearn_url: string | null
+  schedule_post_url: string | null
 }
 
 export interface ThisWeek {
@@ -143,7 +147,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     throw new ApiError(0, "Can't reach the server. Check your connection and try again.")
   }
   if (!res.ok) {
-    let message = `Request failed (${res.status})`
+    let message = `The server had a problem (error ${res.status}). Try again in a moment.`
     try {
       const data = await res.json()
       if (typeof data?.detail === 'string') message = data.detail

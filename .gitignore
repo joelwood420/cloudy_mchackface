@@ -8,3 +8,6 @@ dist/
 
 # Personal copies of Yoobee assessment files. Never commit (academic integrity / IP).
 docs/assessments/
+
+# Impeccable live-mode runtime state
+.impeccable/live/

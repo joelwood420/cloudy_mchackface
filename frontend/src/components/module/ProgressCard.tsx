@@ -20,7 +20,7 @@ export function ProgressCard({
           <h2 id="progress-heading">Module progress</h2>
           <span className="big-number">{pct}%</span>
         </div>
-        <ProgressBar value={pct} label="Module progress" size="lg" />
+        <ProgressBar value={pct} label="Module progress" valueText={`${done} of ${total} tasks done`} size="lg" />
       </div>
       <dl className="stats">
         <div>

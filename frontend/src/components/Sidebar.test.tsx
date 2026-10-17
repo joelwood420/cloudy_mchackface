@@ -1,4 +1,5 @@
 import { screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import { jsonResponse, mockApi, renderAt } from '../test/utils'
 
@@ -78,5 +79,18 @@ describe('Sidebar', () => {
     expect(within(nav()).queryByRole('alert')).toBeNull()
     expect(screen.queryByRole('alert')).toBeNull()
     expect(within(nav()).queryByText('Your modules')).toBeNull()
+  })
+})
+
+describe('Sidebar phone menu', () => {
+  it('opens and closes, and closes itself when you move to another page', async () => {
+    mockApi({ '/api/modules': modules, '/api/modules/ccc602': detail })
+    renderAt('/modules')
+    const menu = await within(await screen.findByRole('navigation', { name: 'Main' })).findByRole('button', { name: 'Menu' })
+    expect(menu).toHaveAttribute('aria-expanded', 'false')
+    await userEvent.click(menu)
+    expect(within(nav()).getByRole('button', { name: 'Close' })).toHaveAttribute('aria-expanded', 'true')
+    await userEvent.click(await within(nav()).findByRole('link', { name: /Data Engineering in the Public Cloud/ }))
+    expect(await within(nav()).findByRole('button', { name: 'Menu' })).toHaveAttribute('aria-expanded', 'false')
   })
 })

@@ -6,7 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.api.assessments import assessment_out, submitted_ids
-from app.api.modules import _done_prerequisite_ids, _done_task_ids
+from app.api.modules import _done_prerequisite_ids, _done_task_ids, schedule_post_urls
 from app.api.schemas import (
     AheadOut, AssessmentStatusOut, CurrentBreakOut, HolidayOut, LurkingTaskOut, LurkingWeekOut, NextWeekOut,
     PrerequisiteOut, StatsOut, SubmoduleRef, TaskOut, ThisWeekGroup, ThisWeekOut, UpcomingBreakOut, WeekOut,
@@ -23,10 +23,11 @@ router = APIRouter(tags=["this-week"])
 ASSESSMENT_WINDOW = timedelta(days=28)
 
 
-def _group(week: Week, done: set[int], done_prereqs: set[int]) -> ThisWeekGroup:
+def _group(week: Week, done: set[int], done_prereqs: set[int], posts: dict[tuple[int, int], str]) -> ThisWeekGroup:
     week_out = WeekOut.model_validate(week)
     for task, task_out in zip(week.tasks, week_out.tasks):
         task_out.done = task.id in done
+    week_out.schedule_post_url = posts.get((week.module_id, week.week_number))
     m, s = week.module, week.submodule
     return ThisWeekGroup(
         module_key=m.key, module_code=m.code, module_title=m.title, module_uplearn_url=m.uplearn_url,
@@ -48,6 +49,7 @@ def this_week(
     weeks = [TeachingWeek(w.week_number, w.starts_on) for w in intake.weeks]
     pos = locate(weeks, today_)
     done, done_prereqs, submitted = _done_task_ids(db, user), _done_prerequisite_ids(db, user), submitted_ids(db, user)
+    posts = schedule_post_urls(db, user)
 
     content = db.scalars(
         select(Week)
@@ -63,7 +65,7 @@ def this_week(
     ).all()
 
     def groups_for(number: int) -> list[ThisWeekGroup]:
-        return [_group(w, done, done_prereqs) for w in content if w.week_number == number]
+        return [_group(w, done, done_prereqs, posts) for w in content if w.week_number == number]
 
     groups = groups_for(pos.week.week_number) if pos.week else []
     tasks_now = [t for g in groups for t in g.week.tasks]
@@ -82,7 +84,11 @@ def this_week(
                 for task in w.tasks:
                     if task.id not in done:
                         lurking.setdefault(w.week_number, []).append(
-                            LurkingTaskOut(**TaskOut.model_validate(task).model_dump(), module_code=w.module.code)
+                            LurkingTaskOut(
+                                **TaskOut.model_validate(task).model_dump(), module_code=w.module.code,
+                                submodule_code=w.submodule.code, submodule_uplearn_url=w.submodule.uplearn_url,
+                                schedule_post_url=posts.get((w.module_id, w.week_number)),
+                            )
                         )
 
     modules = db.scalars(select(Module).options(selectinload(Module.assessments)).order_by(Module.position)).all()

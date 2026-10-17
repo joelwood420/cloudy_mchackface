@@ -266,3 +266,14 @@ assessments:
     title: "Assessment 6: Report and Proof of Concepts (Network Security Expert using Fortinet)"
     due_date: 2027-02-07
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
+
+# FT schedule posts: one forum discussion per teaching week (links only). Collected 2026-10-18.
+schedule_posts:
+  - {week_number: 17, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48982"}
+  - {week_number: 18, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48984"}
+  - {week_number: 19, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48986"}
+  - {week_number: 20, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48988"}
+  - {week_number: 21, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48990"}
+  - {week_number: 22, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48992"}
+  - {week_number: 23, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48994"}
+  - {week_number: 24, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48996"}

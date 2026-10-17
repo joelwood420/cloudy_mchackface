@@ -24,7 +24,7 @@ export function ModulePage() {
   if (query.isPending) {
     return (
       <main className="page">
-        <p className="muted">Loading…</p>
+        <p className="muted">Loading module…</p>
       </main>
     )
   }

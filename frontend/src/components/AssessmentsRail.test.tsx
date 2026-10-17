@@ -43,7 +43,7 @@ describe('AssessmentsRail', () => {
 
   it('links each assessment to UPLearn when it has a link', () => {
     render(<AssessmentsRail assessments={list} portalUrl={null} onToggleSubmitted={noop} />)
-    const link = within(card('Assessment 3')).getByRole('link', { name: 'Assessment 3 on UPLearn' })
+    const link = within(card('Assessment 3')).getByRole('link', { name: 'Assessment 3 on UPLearn (opens in new tab)' })
     expect(link).toHaveAttribute('href', 'https://up.test/a3')
     expect(link).toHaveAttribute('rel', 'noopener noreferrer')
     expect(within(card('Assessment 4')).queryByRole('link')).toBeNull()
@@ -51,12 +51,12 @@ describe('AssessmentsRail', () => {
 
   it('shows the portal button only when the module has a portal link', () => {
     const { rerender } = render(<AssessmentsRail code="CCC602" assessments={[]} portalUrl="https://up.test/602" onToggleSubmitted={noop} />)
-    const portal = screen.getByRole('link', { name: 'Open in Yoobee portal' })
+    const portal = screen.getByRole('link', { name: /course page on UPLearn \(opens in new tab\)$/ })
     expect(portal).toHaveAttribute('href', 'https://up.test/602')
     expect(portal).toHaveAttribute('target', '_blank')
     expect(screen.getByText('No assessments listed.')).toBeInTheDocument()
 
     rerender(<AssessmentsRail code="CCC602" assessments={[]} portalUrl={null} onToggleSubmitted={noop} />)
-    expect(screen.queryByRole('link', { name: 'Open in Yoobee portal' })).toBeNull()
+    expect(screen.queryByRole('link', { name: /course page on UPLearn/ })).toBeNull()
   })
 })

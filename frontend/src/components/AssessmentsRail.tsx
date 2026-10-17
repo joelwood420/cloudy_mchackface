@@ -1,6 +1,7 @@
 import { useId } from 'react'
 import type { Assessment } from '../api'
 import { formatDueDate, statusChip } from '../format'
+import { uplearnLabel, uplearnName } from '../uplearn'
 import { ExternalLink } from './ExternalLink'
 
 export function AssessmentsRail({
@@ -45,7 +46,7 @@ export function AssessmentsRail({
                 </label>
                 {a.uplearn_url && (
                   <span className="task-links">
-                    <ExternalLink href={a.uplearn_url} label={`${a.title} on UPLearn`}>UPLearn</ExternalLink>
+                    <ExternalLink href={a.uplearn_url} label={uplearnName(uplearnLabel(a.uplearn_url), a.title)}>{uplearnLabel(a.uplearn_url)}</ExternalLink>
                   </span>
                 )}
               </li>
@@ -54,8 +55,14 @@ export function AssessmentsRail({
         </ul>
       )}
       {portalUrl && (
-        <a className="button-secondary" href={portalUrl} target="_blank" rel="noopener noreferrer">
-          Open in Yoobee portal
+        <a
+          className="button-secondary"
+          href={portalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={`${code ? `${code} course page` : 'Course page'} on UPLearn (opens in new tab)`}
+        >
+          {code ? `${code} course page on UPLearn` : 'Course page on UPLearn'}
         </a>
       )}
     </aside>

@@ -36,6 +36,7 @@ class WeekOut(_Out):
     week_number: int
     title: str
     tasks: list[TaskOut]
+    schedule_post_url: str | None = None
 
 
 class AssessmentOut(_Out):
@@ -169,6 +170,9 @@ class AheadOut(BaseModel):
 
 class LurkingTaskOut(TaskOut):
     module_code: str
+    submodule_code: str
+    submodule_uplearn_url: str | None
+    schedule_post_url: str | None = None
 
 
 class LurkingWeekOut(BaseModel):

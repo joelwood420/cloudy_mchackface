@@ -247,3 +247,26 @@ def test_url_longer_than_its_column_is_rejected(tmp_path):
 def test_submodule_code_fits_its_column(tmp_path):
     write_valid(tmp_path, module=VALID.replace("code: DP-900", "code: " + "C" * 21))
     assert any(p.startswith("ccc602.yaml: submodules.0.code") for p in problems(tmp_path))
+
+
+POSTS = """\
+schedule_posts:
+  - {week_number: 9, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=1"}
+  - {week_number: 9, study_mode: PT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=2"}
+"""
+
+
+def test_schedule_posts_load_per_study_mode(tmp_path):
+    write_valid(tmp_path, module=VALID + POSTS)
+    [seed] = load_seed_dir(tmp_path).modules
+    assert [(p.week_number, p.study_mode) for p in seed.schedule_posts] == [(9, "FT"), (9, "PT")]
+
+
+def test_schedule_post_for_a_week_the_module_lacks_is_rejected(tmp_path):
+    write_valid(tmp_path, module=VALID + POSTS.replace("week_number: 9, study_mode: PT", "week_number: 12, study_mode: PT"))
+    assert any(p.startswith("ccc602.yaml") and "week 12" in p for p in problems(tmp_path))
+
+
+def test_two_schedule_posts_for_the_same_week_and_mode_are_rejected(tmp_path):
+    write_valid(tmp_path, module=VALID + POSTS.replace("study_mode: PT", "study_mode: FT"))
+    assert any("more than one FT schedule post" in p for p in problems(tmp_path))

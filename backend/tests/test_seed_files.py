@@ -56,3 +56,11 @@ def test_ccc604_is_a_shell_with_its_two_deadlines():
     ccc604 = modules()["ccc604"]
     assert ccc604.submodules == []
     assert [(a.key, str(a.due_date)) for a in ccc604.assessments] == [("ccc604-a7", "2027-04-18"), ("ccc604-a8", "2027-04-23")]
+
+
+def test_every_seeded_week_links_its_ft_schedule_post():
+    for key in ("ccc601", "ccc602", "ccc603"):
+        seed = modules()[key]
+        posts = {p.week_number for p in seed.schedule_posts if p.study_mode == "FT"}
+        assert posts == {w.week_number for w in seed.all_weeks()}, key
+        assert all(str(p.url).startswith("https://yoobee.uplearn.education/mod/forum/discuss.php?d=") for p in seed.schedule_posts)

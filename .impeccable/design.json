@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-18T00:00:00Z",
+  "title": "Design System: Cloudy McHackface",
+  "extensions": {
+    "colorMeta": {
+      "terminal-teal": { "role": "primary", "displayName": "Terminal Teal", "canonical": "#0e7c72", "tonalRamp": ["#06302c", "#084f48", "#0b5f57", "#0e7c72", "#3f9b92", "#8cc6c0", "#cfe5e2", "#f5faf9"] },
+      "cool-paper": { "role": "neutral", "displayName": "Cool Paper", "canonical": "#f4f5f7", "tonalRamp": ["#12161c", "#3a4350", "#5a6472", "#8a93a0", "#cfd4db", "#e3e6eb", "#eef0f3", "#f4f5f7"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#12161c" },
+      "slate": { "role": "neutral", "displayName": "Slate", "canonical": "#5a6472" },
+      "deadline-amber-ink": { "role": "semantic", "displayName": "Deadline Amber", "canonical": "#9a4f08" },
+      "overdue-red": { "role": "semantic", "displayName": "Overdue Red", "canonical": "#b42318" },
+      "notice-blue": { "role": "semantic", "displayName": "Notice Blue", "canonical": "#164f80" },
+      "night-console": { "role": "tertiary", "displayName": "Night Console", "canonical": "#0f1e33" },
+      "alarm-amber": { "role": "tertiary", "displayName": "Alarm Amber", "canonical": "#f2a33a" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page titles: Week 11, module names." },
+      "headline": { "displayName": "Headline", "purpose": "Section headings: Tasks, Assessments, Weekly timeline." },
+      "title": { "displayName": "Title", "purpose": "Track and week headings." },
+      "body": { "displayName": "Body", "purpose": "Task titles and running text." },
+      "label": { "displayName": "Label", "purpose": "Uppercase small labels: Your modules, Current week, Soon." },
+      "code": { "displayName": "Code", "purpose": "Course codes and week numbers only." }
+    },
+    "shadows": [
+      { "name": "open-lift", "value": "0 6px 20px rgba(14, 124, 114, 0.1)", "purpose": "Only on the expanded week card, paired with a teal border." }
+    ],
+    "motion": [
+      { "name": "chevron-turn", "value": "transform 160ms ease", "purpose": "Week card chevron rotates when opened." }
+    ],
+    "breakpoints": [
+      { "name": "phone", "value": "800px", "purpose": "Below this: sticky top bar with Menu, bottom tab bar." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action on forms and the disclaimer gate.",
+      "html": "<button class=\"ds-btn-primary\">Log in</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--accent, #0e7c72); background: var(--accent, #0e7c72); color: #fff; font: 600 15px 'IBM Plex Sans', system-ui, sans-serif; cursor: pointer; } .ds-btn-primary:hover { background: var(--accent-strong, #0b5f57); border-color: var(--accent-strong, #0b5f57); } .ds-btn-primary:focus-visible { outline: 3px solid var(--accent, #0e7c72); outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Quieter actions: Log out, Try again, course page links.",
+      "html": "<button class=\"ds-btn-secondary\">Log out</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border-radius: 8px; border: 1px solid var(--dot-border, #cfd4db); background: #fff; color: var(--text, #12161c); font: 500 15px 'IBM Plex Sans', system-ui, sans-serif; cursor: pointer; } .ds-btn-secondary:hover { color: var(--accent-strong, #0b5f57); border-color: var(--accent, #0e7c72); } .ds-btn-secondary:focus-visible { outline: 3px solid var(--accent, #0e7c72); outline-offset: 2px; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Labelled input on the auth pages.",
+      "html": "<label class=\"ds-field\"><span>Email</span><input type=\"email\" placeholder=\"you@example.com\"></label>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; font: 500 15px 'IBM Plex Sans', system-ui, sans-serif; color: var(--text, #12161c); } .ds-field input { font: inherit; font-weight: 400; min-height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--dot-border, #cfd4db); background: #fff; color: var(--text, #12161c); } .ds-field input:focus-visible { outline: 2px solid var(--accent, #0e7c72); outline-offset: 1px; }"
+    },
+    {
+      "name": "Navigation",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Sidebar nav on desktop; becomes the bottom tab bar on phones.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-item is-active\" href=\"#\">This week</a><a class=\"ds-nav-item\" href=\"#\">Modules</a><a class=\"ds-nav-item\" href=\"#\">Assessments</a></nav>",
+      "css": ".ds-nav { display: flex; flex-direction: column; gap: 4px; width: 220px; font: 500 15px 'IBM Plex Sans', system-ui, sans-serif; } .ds-nav-item { display: flex; align-items: center; min-height: 44px; padding: 0 12px; border-radius: 8px; color: var(--text-2, #3a4350); text-decoration: none; } .ds-nav-item:hover { background: var(--accent-tint, #f5faf9); } .ds-nav-item.is-active { background: var(--accent-soft, #e4f2f0); color: var(--accent-strong, #0b5f57); font-weight: 600; } .ds-nav-item:focus-visible { outline: 3px solid var(--accent, #0e7c72); outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Chips and Tags",
+      "kind": "chip",
+      "refersTo": "status-chip-soon",
+      "description": "Semantic deadline chips and task type tags.",
+      "html": "<div class=\"ds-chips\"><span class=\"ds-chip is-soon\">Due in 7 days</span><span class=\"ds-chip is-overdue\">2 days overdue</span><span class=\"ds-chip is-done\">Submitted</span><span class=\"ds-tag\">Learning path</span></div>",
+      "css": ".ds-chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; font-family: 'IBM Plex Sans', system-ui, sans-serif; } .ds-chip { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; } .ds-chip.is-soon { background: var(--soon-bg, #fcefdd); color: var(--soon, #9a4f08); } .ds-chip.is-overdue { background: var(--overdue-bg, #fde7e7); color: var(--overdue, #b42318); } .ds-chip.is-done { background: var(--info-bg, #e3eef9); color: var(--info, #164f80); } .ds-tag { font-size: 12px; padding: 2px 8px; border-radius: 4px; background: var(--tag-bg, #f0f2f5); color: var(--text-2, #3a4350); }"
+    },
+    {
+      "name": "Week Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Signature timeline card; the open state lifts with a teal border.",
+      "html": "<div class=\"ds-week is-open\"><div class=\"ds-week-head\"><span class=\"ds-week-num\">Week 11</span><span class=\"ds-week-badge\">Current week</span><span class=\"ds-week-title\">DP-203 Modules 5–7</span></div><div class=\"ds-week-meta\">0/5 done<div class=\"ds-bar\"><div style=\"width:20%\"></div></div></div></div>",
+      "css": ".ds-week { width: 420px; background: #fff; border: 1px solid var(--border, #e3e6eb); border-radius: 12px; padding: 14px 18px; display: flex; gap: 20px; align-items: center; font-family: 'IBM Plex Sans', system-ui, sans-serif; } .ds-week.is-open { border-color: var(--accent, #0e7c72); box-shadow: 0 6px 20px rgba(14, 124, 114, 0.1); } .ds-week-head { flex: 1; display: flex; flex-direction: column; gap: 2px; } .ds-week-num { font: 13px 'IBM Plex Mono', ui-monospace, monospace; color: var(--muted, #5a6472); } .ds-week-badge { align-self: flex-start; font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; background: var(--accent-soft, #e4f2f0); color: var(--accent-strong, #0b5f57); } .ds-week-title { font-weight: 600; font-size: 16px; color: var(--text, #12161c); } .ds-week-meta { width: 140px; font-size: 13px; color: var(--muted, #5a6472); display: flex; flex-direction: column; gap: 6px; } .ds-bar { height: 6px; border-radius: 999px; background: var(--track, #e3e6eb); overflow: hidden; } .ds-bar > div { height: 100%; background: var(--accent, #0e7c72); border-radius: inherit; }"
+    },
+    {
+      "name": "Malware Banner",
+      "kind": "custom",
+      "refersTo": "malware-banner",
+      "description": "The one alarm: overdue tasks from earlier weeks. Not dismissible.",
+      "html": "<div class=\"ds-malware\"><span class=\"ds-malware-icon\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><rect x=\"8\" y=\"7\" width=\"8\" height=\"12\" rx=\"4\"/><path d=\"M12 7V4M9 5l-2-2M15 5l2-2M8 11H4M16 11h4M8 15H5M16 15h3\"/></svg></span><span class=\"ds-malware-text\"><span class=\"ds-malware-label\">MALWARE DETECTED</span><span>3 unfinished tasks are lurking in Week 2.</span></span><button class=\"ds-malware-btn\">Quarantine them</button></div>",
+      "css": ".ds-malware { display: flex; align-items: center; gap: 16px; padding: 14px 18px; border-radius: 12px; background: var(--night, #0f1e33); color: #fff; font: 500 15px 'IBM Plex Sans', system-ui, sans-serif; width: 560px; } .ds-malware-icon { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 10px; background: var(--amber, #f2a33a); color: var(--night, #0f1e33); display: flex; align-items: center; justify-content: center; } .ds-malware-text { flex: 1; display: flex; flex-direction: column; } .ds-malware-label { font: 12px 'IBM Plex Mono', ui-monospace, monospace; letter-spacing: 0.04em; color: var(--amber-light, #f7c47e); } .ds-malware-btn { min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: var(--amber, #f2a33a); color: var(--night, #0f1e33); font: 700 15px 'IBM Plex Sans', system-ui, sans-serif; cursor: pointer; } .ds-malware-btn:focus-visible { outline: 2px solid var(--amber-light, #f7c47e); outline-offset: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Field Guide",
+    "overview": "A pocket guide to a messy place. UPLearn is the wilderness; this app is the guide you keep open beside Microsoft Learn or a lab: where you are this week, what's next, and exactly where each thing lives. The look is cool paper and Terminal Teal ink, with course codes and week numbers in mono like grid references on a map.\n\nIt should feel friendly and tactile, not clinical. Cards are white on a cool grey page with gently rounded corners and generous 44px touch targets. The open week lifts slightly off the page. Colour carries state and wayfinding: teal for \"you are here\" and progress, amber for \"due soon\", red for \"overdue\". The one loud element is the malware banner, a night-blue console panel with an amber alarm. It is deliberately in-your-face and not dismissible, because showing you're falling behind is its job.\n\nThe guide is a study tool, not a dashboard of vanity numbers. Every bar and count comes from real ticks; nothing decorative pretends to be data.",
+    "keyCharacteristics": [
+      "Cool grey page, white cards, thin hairline borders.",
+      "One accent (Terminal Teal) for progress, current location and primary actions.",
+      "Mono type for codes, week numbers and machine-ish labels only.",
+      "Status colour is semantic: amber soon, red overdue, blue informational.",
+      "One intentional alarm: the night-blue and amber malware banner."
+    ],
+    "rules": [
+      { "name": "The You-Are-Here Rule", "body": "Terminal Teal marks where you are and how far you've come. Don't spend it on decoration.", "section": "colors" },
+      { "name": "The One Alarm Rule", "body": "Night Console and Alarm Amber belong to the malware banner alone. No other component borrows them.", "section": "colors" },
+      { "name": "The Grid Reference Rule", "body": "Mono is for codes and numbers that point somewhere. Never set sentences in mono.", "section": "typography" },
+      { "name": "The Lift-On-Open Rule", "body": "Surfaces are flat at rest. Only the thing you've opened lifts.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use Terminal Teal (#0e7c72) only for progress, current location, primary actions and focus.",
+      "Do keep every interactive target at least 44px tall.",
+      "Do set course codes and week numbers in IBM Plex Mono.",
+      "Do name UPLearn links by where they go (\"DP-203 tile\", \"Assignment\", \"Week 11 schedule post\").",
+      "Do use the semantic chips (amber soon, red overdue, blue done) for status, never plain teal."
+    ],
+    "donts": [
+      "Don't reuse Night Console or Alarm Amber outside the malware banner.",
+      "Don't make the malware banner dismissible or quieter; it is meant to be in your face.",
+      "Don't show progress or numbers that don't come from real ticks.",
+      "Don't fade text with opacity to mark \"coming soon\"; use Slate (#5a6472).",
+      "Don't add shadows to resting cards."
+    ]
+  }
+}

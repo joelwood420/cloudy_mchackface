@@ -12,6 +12,7 @@ from app.db import get_db
 from app.models import (
     Module,
     PrerequisiteCompletion,
+    SchedulePost,
     Submodule,
     SubmodulePrerequisite,
     TaskCompletion,
@@ -30,6 +31,12 @@ def _done_prerequisite_ids(db: Session, user: User) -> set[int]:
     return set(
         db.scalars(select(PrerequisiteCompletion.prerequisite_id).where(PrerequisiteCompletion.user_id == user.id))
     )
+
+
+def schedule_post_urls(db: Session, user: User) -> dict[tuple[int, int], str]:
+    """(module id, week number) -> the schedule post for the user's study mode."""
+    posts = db.scalars(select(SchedulePost).where(SchedulePost.study_mode == user.settings.intake.study_mode))
+    return {(p.module_id, p.week_number): p.url for p in posts}
 
 
 @router.get("", response_model=list[ModuleSummary])
@@ -94,11 +101,13 @@ def get_module(
         raise HTTPException(status_code=404, detail="Module not found")
     done_tasks = _done_task_ids(db, user)
     done_prereqs = _done_prerequisite_ids(db, user)
+    posts = schedule_post_urls(db, user)
     weeks = []
     for week in module.weeks:
         week_out = WeekOut.model_validate(week)
         for task, task_out in zip(week.tasks, week_out.tasks):
             task_out.done = task.id in done_tasks
+        week_out.schedule_post_url = posts.get((module.id, week.week_number))
         weeks.append(week_out)
     done_assessments = submitted_ids(db, user)
     assessments = [assessment_out(a, done_assessments, today_) for a in sorted(module.assessments, key=_sort_key)]

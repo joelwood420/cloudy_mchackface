@@ -119,7 +119,7 @@ describe('ModulePage', () => {
     expect(box).toBeEnabled()
     expect(box).toBeChecked()
     expect(within(lp1).getByText('Learning path')).toBeInTheDocument()
-    const openLink = within(lp1).getByRole('link', { name: 'Open DP-900 LP1' })
+    const openLink = within(lp1).getByRole('link', { name: 'Open DP-900 LP1 (opens in new tab)' })
     expect(openLink).toHaveAttribute('href', 'https://learn.test/lp1')
     expect(openLink).toHaveAttribute('target', '_blank')
     expect(openLink).toHaveAttribute('rel', 'noopener noreferrer')
@@ -128,7 +128,7 @@ describe('ModulePage', () => {
     expect(within(brief).getByRole('checkbox', { name: 'Read the A3 brief' })).not.toBeChecked()
     expect(within(brief).getByText('Assessment')).toBeInTheDocument()
     expect(within(brief).queryByRole('link', { name: /^Open/ })).toBeNull()
-    expect(within(brief).getByRole('link', { name: 'Read the A3 brief on UPLearn' })).toHaveAttribute('href', 'https://up.test/a3')
+    expect(within(brief).getByRole('link', { name: 'Read the A3 brief on UPLearn (opens in new tab)' })).toHaveAttribute('href', 'https://up.test/a3')
   })
 
   it('ticks a task and progress follows', async () => {
@@ -256,12 +256,12 @@ describe('ModulePage', () => {
     const rail = within(main).getByRole('complementary', { name: 'Assessments' })
     expect(within(rail).getByText('Assessment 3').closest('li')).toHaveTextContent(/Due Sun, 25 Oct 2026/)
     expect(within(rail).getByText('Assessment 4').closest('li')).toHaveTextContent('Due date: see programme guide')
-    expect(within(rail).getByRole('link', { name: 'Open in Yoobee portal' })).toHaveAttribute('href', 'https://up.test/602')
+    expect(within(rail).getByRole('link', { name: 'CCC602 course page on UPLearn (opens in new tab)' })).toHaveAttribute('href', 'https://up.test/602')
   })
 
   it('hides the portal button when the module has no portal link', async () => {
     const main = await open({ ...detail, uplearn_url: null })
-    expect(within(main).queryByRole('link', { name: 'Open in Yoobee portal' })).toBeNull()
+    expect(within(main).queryByRole('link', { name: /course page on UPLearn/ })).toBeNull()
   })
 
   it('shows "Module not found" for an unknown key', async () => {
@@ -284,7 +284,7 @@ describe('ModulePage', () => {
     expect(dp900.querySelector('.submodule-head')).toHaveTextContent('Week 9')
     expect(within(dp900).getByRole('button', { name: /Week 9/ })).toBeInTheDocument()
     expect(within(dp900).queryByRole('button', { name: /Week 10/ })).toBeNull()
-    expect(within(dp900).getByRole('link', { name: 'DP-900 on UPLearn' })).toHaveAttribute('href', 'https://up.test/dp900')
+    expect(within(dp900).getByRole('link', { name: 'DP-900 on UPLearn (opens in new tab)' })).toHaveAttribute('href', 'https://up.test/dp900')
 
     const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
     expect(within(dp203).getByRole('button', { name: /Week 10/ })).toBeInTheDocument()
@@ -298,10 +298,10 @@ describe('ModulePage', () => {
 
     const azureItem = within(dp900).getByText('Create an Azure account').closest('li')!
     expect(within(azureItem).getByText('Use a personal email.')).toBeInTheDocument()
-    const doIt = within(azureItem).getByRole('link', { name: 'Do it: Create an Azure account' })
+    const doIt = within(azureItem).getByRole('link', { name: 'Do it: Create an Azure account (opens in new tab)' })
     expect(doIt).toHaveAttribute('href', 'https://azure.test/free')
     expect(doIt).toHaveAttribute('rel', 'noopener noreferrer')
-    expect(within(azureItem).getByRole('link', { name: 'Watch the guide: Create an Azure account' })).toHaveAttribute(
+    expect(within(azureItem).getByRole('link', { name: 'Watch the guide: Create an Azure account (opens in new tab)' })).toHaveAttribute(
       'href',
       'https://up.test/how-azure',
     )
@@ -446,6 +446,54 @@ describe('ModulePage', () => {
     const week10 = within(main).getByRole('button', { name: /Week 10/ })
     expect(week10).toHaveAttribute('aria-expanded', 'true')
     expect(within(week10).getByText('Current week')).toBeInTheDocument()
+    expect(within(main).getByRole('button', { name: /Week 9/ })).toHaveAttribute('aria-expanded', 'false')
+  })
+})
+
+describe('ModulePage schedule posts', () => {
+  it("links the week's schedule post at the top of the open week", async () => {
+    const post = 'https://yoobee.uplearn.education/mod/forum/discuss.php?d=9'
+    const withPost = { ...detail, weeks: [{ ...detail.weeks[0], schedule_post_url: post }, detail.weeks[1]] }
+    const main = await open(withPost)
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    expect(within(main).getByRole('link', { name: 'Week 9 schedule post (opens in new tab)' })).toHaveAttribute('href', post)
+  })
+})
+
+describe('ModulePage current week', () => {
+  it('opens the current week once this week loads after the module', async () => {
+    let release: () => void = () => {}
+    const gate = new Promise<void>((r) => { release = r })
+    mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': detail,
+      '/api/this-week': async () => { await gate; return jsonResponse({ ...THIS_WEEK, week: { week_number: 9, starts_on: '2026-09-28', ends_on: '2026-10-04' } }) },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const week9 = await within(main).findByRole('button', { name: /Week 9/ })
+    expect(week9).toHaveAttribute('aria-expanded', 'false')
+    release()
+    await waitFor(() => expect(week9).toHaveAttribute('aria-expanded', 'true'))
+  })
+
+  it("leaves the weeks as you set them when this week loads later", async () => {
+    let release: () => void = () => {}
+    const gate = new Promise<void>((r) => { release = r })
+    mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': detail,
+      '/api/this-week': async () => { await gate; return jsonResponse({ ...THIS_WEEK, week: { week_number: 9, starts_on: '2026-09-28', ends_on: '2026-10-04' } }) },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const week10 = await within(main).findByRole('button', { name: /Week 10/ })
+    await userEvent.click(week10)
+    release()
+    await within(main).findByText('Current week')
+    expect(week10).toHaveAttribute('aria-expanded', 'true')
     expect(within(main).getByRole('button', { name: /Week 9/ })).toHaveAttribute('aria-expanded', 'false')
   })
 })

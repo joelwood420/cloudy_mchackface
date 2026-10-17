@@ -2,6 +2,7 @@ import type { ThisWeekGroup } from '../../api'
 import { ExternalLink } from '../ExternalLink'
 import { PrerequisiteBox } from '../module/PrerequisiteBox'
 import { TaskRow } from '../module/WeekTimeline'
+import { uplearnLabel, uplearnTrackName } from '../../uplearn'
 
 export function WeekGroups({
   groups,
@@ -22,7 +23,9 @@ export function WeekGroups({
             </h3>
             <span className="small muted">{g.week.title}</span>
             {g.submodule.uplearn_url && (
-              <ExternalLink href={g.submodule.uplearn_url} label={`${g.submodule.code} on UPLearn`}>UPLearn</ExternalLink>
+              <ExternalLink href={g.submodule.uplearn_url} label={uplearnTrackName(g.submodule.uplearn_url, g.submodule.code)}>
+                {uplearnLabel(g.submodule.uplearn_url, g.submodule.code)}
+              </ExternalLink>
             )}
           </header>
           <PrerequisiteBox
@@ -34,7 +37,15 @@ export function WeekGroups({
             <p className="muted">No tasks listed for this week.</p>
           ) : (
             <ul className="task-list">
-              {g.week.tasks.map((t) => <TaskRow key={t.key} task={t} onToggle={onToggleTask} />)}
+              {g.week.tasks.map((t) => (
+                <TaskRow
+                  key={t.key}
+                  task={t}
+                  onToggle={onToggleTask}
+                  track={g.submodule}
+                  schedulePost={g.week.schedule_post_url ? { weekNumber: g.week.week_number, url: g.week.schedule_post_url } : null}
+                />
+              ))}
             </ul>
           )}
         </section>
