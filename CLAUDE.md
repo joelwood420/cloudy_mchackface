@@ -12,14 +12,25 @@ Status: Phase 3 done: This week home screen (week worked out from the intake's d
 
 Full design: `docs/superpowers/specs/2026-10-15-yoobee-study-guide-design.md`.
 
-Monorepo, built and run locally first; Fly.io deployment comes later (phase 5):
+Monorepo. Runs locally for development; deployed to Fly.io as one container (`Dockerfile`, `fly.toml`, app `cloudy-mchackface`, region `syd`) where FastAPI also serves the built frontend:
 
 - `frontend/`: React + Vite + TypeScript, TanStack Query. Vite proxies `/api` to the backend in dev.
 - `backend/`: FastAPI, SQLAlchemy, Alembic, pytest. Serves the API under `/api`.
 - `seed/`: YAML content files, one per module plus `prerequisites.yaml` (shared one-off setup steps) and `schedule.yaml` (each intake's week start dates and public holidays), loaded by a CLI seed loader.
-- Database: Neon. Dev branch via `DATABASE_URL`, separate test branch via `TEST_DATABASE_URL`, both in git-ignored `backend/.env`.
+- Database: Neon. Dev branch via `DATABASE_URL`, separate test branch via `TEST_DATABASE_URL`, both in git-ignored `backend/.env` (Neon project `green-thunder-35736067`, US East; its `production` branch is unused). Prod is a separate Neon project in Sydney (`delicate-fire-20993762`); its URL lives only as the Fly secret `DATABASE_URL`. CI tests use their own Postgres container, not Neon.
 
 Structure is **Module → Submodule (certification track) → Week → Task**, one tick per task. Submodules list shared prerequisites by key; prerequisites are never counted in progress. Every seed item has a stable `key`; the loader upserts by key so re-seeding doesn't break users' ticks. Progress is computed from completions, never stored.
+
+## Branches and pushing
+
+The repo is public. `main` is production: every push to it runs `.github/workflows/deploy.yml` (CI again, then `flyctl deploy`, whose release command migrates and seeds the prod DB); `dev` is where work happens. GitHub rulesets enforce the server side: `main` only takes PRs from `dev` that pass CI (`source-branch`, `backend`, `frontend` in `.github/workflows/ci.yml`), and neither branch can be deleted or force-pushed.
+
+- Never commit to `main` locally or push to it. All work goes on `dev`, or on a feature branch cut from `dev` and merged back into `dev`.
+- Never open a PR into `main` from anything but `dev`, and never merge a PR into `main`. Open the `dev` → `main` PR only when the owner asks; the owner reviews and merges it.
+- Push to `dev` (or push a feature branch) only when the owner asks. Before pushing `dev`, run the same checks CI runs (backend pytest, frontend lint, test and build).
+- Never delete, force-push or rewrite history on `dev` or `main`. Feature branches can be deleted once merged into `dev`, after checking with the owner.
+- After the owner merges a PR, bring `dev` up to date: `git switch dev && git pull --ff-only origin main && git push`. `main` requires PRs to be up to date, so the next PR is blocked until `dev` contains `main`'s merge commit.
+- Don't change rulesets, branch protection, repo visibility, Actions secrets or deploy settings without asking.
 
 ## Commands
 
@@ -39,7 +50,8 @@ uv run python -m app.seed                  # validate + load seed/*.yaml
 - `uv run python -m app.seed [dir]` deletes any module not present in that folder.
 - Migration 0005 clears content tables; re-run the seed loader after upgrading an older database.
 - The seed loader requires `schedule.yaml` and refuses to drop an intake that users are on. Migration 0008 moves existing users onto `2607-online-ccc-ft`.
-- Set COOKIE_SECURE=true in backend/.env once the app is served over HTTPS.
+- On Fly, `fly.toml` sets COOKIE_SECURE and TRUST_FLY_CLIENT_IP (rate limit by the real client IP). Leave both off locally.
+- Prod runs on one machine (`--ha=false`) because the login rate limiter is in memory.
 
 Frontend (run in `frontend/`):
 

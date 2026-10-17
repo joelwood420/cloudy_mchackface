@@ -1,6 +1,7 @@
 from sqlalchemy import select
 
-from app.auth.ratelimit import email_limiter
+from app.auth.ratelimit import email_limiter, ip_limiter
+from app.config import get_settings
 from app.disclaimer import DISCLAIMER_VERSION
 from app.models import User
 from tests.conftest import PASSWORD, signup_body
@@ -97,6 +98,26 @@ def test_login_is_rate_limited_per_email(client):
     response = login(client)
     assert response.status_code == 429
     assert response.json() == {"detail": "Too many attempts. Wait a few minutes and try again."}
+
+
+def _fill_ip_limit(client, headers):
+    for i in range(ip_limiter.limit):
+        client.post("/api/auth/login", json={"email": f"x{i}@example.com", "password": "nope"}, headers=headers)
+
+
+def test_ip_limit_uses_fly_client_ip_when_trusted(client, monkeypatch):
+    monkeypatch.setattr(get_settings(), "trust_fly_client_ip", True)
+    _fill_ip_limit(client, {"Fly-Client-IP": "203.0.113.1"})
+    blocked = client.post("/api/auth/login", json={"email": "a@example.com", "password": "nope"}, headers={"Fly-Client-IP": "203.0.113.1"})
+    other = client.post("/api/auth/login", json={"email": "b@example.com", "password": "nope"}, headers={"Fly-Client-IP": "203.0.113.2"})
+    assert blocked.status_code == 429
+    assert other.status_code == 401
+
+
+def test_fly_client_ip_is_ignored_unless_trusted(client):
+    _fill_ip_limit(client, {"Fly-Client-IP": "203.0.113.1"})
+    response = client.post("/api/auth/login", json={"email": "b@example.com", "password": "nope"}, headers={"Fly-Client-IP": "203.0.113.2"})
+    assert response.status_code == 429
 
 
 def test_signup_needs_the_schedule_loaded(client, db, intake):

@@ -1,0 +1,71 @@
+name: CI
+
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [main]
+  # deploy.yml reruns these before deploying.
+  workflow_call:
+
+jobs:
+  # main only takes PRs from dev. Required by the main ruleset.
+  source-branch:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: PR must come from dev
+        run: |
+          if [ "${{ github.head_ref }}" != "dev" ]; then
+            echo "PRs into main must come from dev (got ${{ github.head_ref }})"
+            exit 1
+          fi
+
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: studyguide
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/studyguide
+      TEST_DATABASE_URL: postgresql://ci:ci@localhost:5432/studyguide_test
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/setup-uv@v6
+      - run: uv sync --locked
+      - name: Create test database
+        run: PGPASSWORD=ci psql -h localhost -U ci -d studyguide -c "CREATE DATABASE studyguide_test"
+      - name: Migrations apply and match models
+        run: |
+          uv run alembic upgrade head
+          uv run alembic check
+      - name: Seed files load
+        run: uv run python -m app.seed
+      - run: uv run pytest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
