@@ -14,7 +14,7 @@ describe('sign-in flow', () => {
     mockApi({ '/api/me': unauthorized })
     renderAt('/')
     expect(await screen.findByRole('heading', { level: 1, name: 'Log in' })).toBeInTheDocument()
-    expect(document.title).toBe('Log in · Cloudy McHackface')
+    await waitFor(() => expect(document.title).toBe('Log in · Cloudy McHackface'))
   })
 
   it('logs in and returns to the page they asked for', async () => {
