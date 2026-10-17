@@ -25,8 +25,14 @@ NO_SCHEDULE = "The course schedule isn't loaded yet. Try again later."
 STALE_DISCLAIMER = "The disclaimer has changed. Reload the page and accept it to continue."
 
 
+def _client_ip(request: Request) -> str:
+    if get_settings().trust_fly_client_ip and (fly_ip := request.headers.get("fly-client-ip")):
+        return fly_ip
+    return request.client.host if request.client else "unknown"
+
+
 def _limit(request: Request, email: str) -> None:
-    ip = request.client.host if request.client else "unknown"
+    ip = _client_ip(request)
     if not ip_limiter.hit(f"ip:{ip}") or not email_limiter.hit(f"email:{email}"):
         raise HTTPException(status_code=429, detail="Too many attempts. Wait a few minutes and try again.")
 

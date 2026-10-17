@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     test_database_url: str | None = None
     # Send the session cookie over HTTPS only. Off for local http://localhost; turn on when deployed.
     cookie_secure: bool = False
+    # Behind Fly's proxy every request comes from the proxy's IP; the real one is in Fly-Client-IP.
+    # Only turn on when deployed on Fly, since anyone can send that header straight to the app.
+    trust_fly_client_ip: bool = False
+    # Built frontend (frontend/dist) to serve alongside the API. Unset in dev, where Vite serves it.
+    frontend_dist: Path | None = None
     # Intake new accounts are put on (seed/schedule.yaml).
     default_intake_key: str = "2607-online-ccc-ft"
 

@@ -5,6 +5,8 @@ on:
     branches: [dev]
   pull_request:
     branches: [main]
+  # deploy.yml reruns these before deploying.
+  workflow_call:
 
 jobs:
   # main only takes PRs from dev. Required by the main ruleset.
@@ -23,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres:17
+        image: postgres:18
         env:
           POSTGRES_USER: ci
           POSTGRES_PASSWORD: ci
