@@ -1,6 +1,8 @@
 from datetime import date
 
-from app.models import Assessment, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
+from sqlalchemy import select
+
+from app.models import Assessment, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
 
 
 def add_content(db):
@@ -96,3 +98,15 @@ def test_submodule_without_weeks_has_no_week_range(user_client, db):
     db.expire_all()
     [sub] = user_client.get("/api/modules/m").json()["submodules"]
     assert (sub["first_week"], sub["last_week"]) == (None, None)
+
+
+def test_weeks_carry_the_schedule_post_for_the_users_study_mode(user_client, db):
+    add_content(db)
+    de = db.scalars(select(Module).where(Module.key == "ccc602")).one()
+    db.add_all([
+        SchedulePost(module_id=de.id, study_mode="FT", week_number=9, url="https://up.test/w9-ft"),
+        SchedulePost(module_id=de.id, study_mode="PT", week_number=10, url="https://up.test/w10-pt"),
+    ])
+    db.flush()
+    weeks = user_client.get("/api/modules/ccc602").json()["weeks"]
+    assert [(w["week_number"], w["schedule_post_url"]) for w in weeks] == [(9, "https://up.test/w9-ft"), (10, None)]

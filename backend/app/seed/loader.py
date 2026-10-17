@@ -14,6 +14,7 @@ from app.models import (
     IntakeWeek,
     Module,
     Prerequisite,
+    SchedulePost,
     Submodule,
     SubmodulePrerequisite,
     Task,
@@ -181,11 +182,13 @@ def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[
         prereq.external_url, prereq.uplearn_url = _url(sp.external_url), _url(sp.uplearn_url)
 
     wanted_links: list[tuple[Submodule, str, int]] = []
+    wanted_posts: list[tuple[Module, SeedFile]] = []
     for seed in seeds:
         sm = seed.module
         module = upsert(Module, sm.key)
         module.code, module.title, module.position = sm.code, sm.title, sm.order
         module.uplearn_url = _url(sm.uplearn_url)
+        wanted_posts.append((module, seed))
 
         week_position = 0  # module-wide, so the flat week list comes out in submodule order
         for s_pos, ss in enumerate(seed.submodules):
@@ -230,6 +233,16 @@ def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[
     ]
     if rows:
         session.execute(insert(SubmodulePrerequisite), rows)
+
+    # Schedule posts are links only, with no per-user data: rebuild them the same way.
+    session.execute(delete(SchedulePost))
+    posts = [
+        {"module_id": module.id, "study_mode": p.study_mode, "week_number": p.week_number, "url": str(p.url)}
+        for module, seed in wanted_posts
+        for p in seed.schedule_posts
+    ]
+    if posts:
+        session.execute(insert(SchedulePost), posts)
     session.flush()
     # Bulk deletes bypass the identity map; drop cached state so later reads see the database.
     session.expire_all()

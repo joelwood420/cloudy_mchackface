@@ -2,10 +2,10 @@ from datetime import date
 
 from sqlalchemy import func, select
 
-from app.models import Assessment, Intake, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
+from app.models import Assessment, Intake, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
 from app.seed.__main__ import run
 from app.seed.loader import apply_seed
-from app.seed.schema import SeedFile, SeedPrerequisite
+from app.seed.schema import SeedFile, SeedPrerequisite, SeedSchedulePost
 from tests.conftest import schedule_yaml
 
 
@@ -218,3 +218,18 @@ def test_run_with_valid_files_succeeds(db, tmp_path, capsys):
     assert links(db) == [("ccc602-s", "azure", 0)]
     assert count(db, Intake) == 1
     assert "Seeded 1 module(s), 1 prerequisite(s) and 1 intake(s)" in capsys.readouterr().out
+
+
+def test_schedule_posts_are_rebuilt_on_every_run(db):
+    def with_posts(*posts):
+        s = seed([week("w9", 9), week("w10", 10)])
+        s.schedule_posts = [
+            SeedSchedulePost.model_validate({"week_number": n, "study_mode": mode, "url": f"https://up.test/{n}{mode}"})
+            for n, mode in posts
+        ]
+        return s
+
+    apply_seed(db, [with_posts((9, "FT"), (10, "FT"))])
+    apply_seed(db, [with_posts((10, "FT"), (10, "PT"))])
+    rows = db.execute(select(SchedulePost.week_number, SchedulePost.study_mode, SchedulePost.url).order_by(SchedulePost.study_mode)).all()
+    assert rows == [(10, "FT", "https://up.test/10FT"), (10, "PT", "https://up.test/10PT")]

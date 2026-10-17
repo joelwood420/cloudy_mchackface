@@ -27,6 +27,19 @@ class Module(Base):
         back_populates="module", cascade="all, delete-orphan", passive_deletes=True,
         order_by="Submodule.position"
     )
+    schedule_posts: Mapped[list["SchedulePost"]] = relationship(cascade="all, delete-orphan", passive_deletes=True)
+
+
+class SchedulePost(Base):
+    """The UPLearn forum post a module's tutors put up for one teaching week. FT and PT have their own posts."""
+
+    __tablename__ = "schedule_posts"
+    __table_args__ = (CheckConstraint("study_mode IN ('FT', 'PT')", name="study_mode"),)
+
+    module_id: Mapped[int] = mapped_column(ForeignKey("modules.id", ondelete="CASCADE"), primary_key=True)
+    study_mode: Mapped[str] = mapped_column(String(2), primary_key=True)
+    week_number: Mapped[int] = mapped_column(primary_key=True)
+    url: Mapped[str] = mapped_column(String(1000))
 
 
 class Submodule(Base):

@@ -2,7 +2,9 @@ from datetime import date
 
 import pytest
 
-from app.models import Assessment, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
+from sqlalchemy import select
+
+from app.models import Assessment, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
 from tests.conftest import add_schedule
 
 
@@ -72,6 +74,7 @@ def test_lurking_lists_unticked_tasks_from_earlier_weeks(user_client, content, t
     lurking = get(user_client)["lurking"]
     assert [(w["week_number"], [t["key"] for t in w["tasks"]]) for w in lurking] == [(8, ["t8"])]
     assert lurking[0]["tasks"][0]["module_code"] == "CCC601"
+    assert (lurking[0]["tasks"][0]["submodule_code"], lurking[0]["tasks"][0]["submodule_uplearn_url"]) == ("AZ-104", None)
 
 
 def test_ahead_when_every_task_this_week_is_ticked(user_client, content, today_is):
@@ -161,3 +164,17 @@ def test_groups_cover_every_module_in_the_week_in_module_order(user_client, db, 
 
 def test_this_week_needs_a_session(client):
     assert client.get("/api/this-week").status_code == 401
+
+
+def test_groups_and_lurking_tasks_link_their_weeks_schedule_post(user_client, db, content, today_is):
+    admin, de = db.scalars(select(Module).order_by(Module.position)).all()
+    db.add_all([
+        SchedulePost(module_id=admin.id, study_mode="FT", week_number=8, url="https://up.test/601-w8"),
+        SchedulePost(module_id=de.id, study_mode="FT", week_number=11, url="https://up.test/602-w11"),
+    ])
+    db.flush()
+    today_is(date(2026, 10, 14))
+    body = get(user_client)
+    assert body["groups"][0]["week"]["schedule_post_url"] == "https://up.test/602-w11"
+    by_key = {t["key"]: t["schedule_post_url"] for w in body["lurking"] for t in w["tasks"]}
+    assert by_key == {"t8": "https://up.test/601-w8", "t10": None}

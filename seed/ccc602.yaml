@@ -314,3 +314,14 @@ assessments:
     title: "Assessment 4: Scenario-Based Activity Design and Implementation (AWS)"
     due_date: 2026-11-22
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
+
+# FT schedule posts: one forum discussion per teaching week (links only). Collected 2026-10-18.
+schedule_posts:
+  - {week_number: 9, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48958"}
+  - {week_number: 10, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48960"}
+  - {week_number: 11, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48962"}
+  - {week_number: 12, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48964"}
+  - {week_number: 13, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48966"}
+  - {week_number: 14, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48968"}
+  - {week_number: 15, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48970"}
+  - {week_number: 16, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48972"}

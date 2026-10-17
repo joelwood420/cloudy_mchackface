@@ -600,3 +600,14 @@ assessments:
     title: "Assessment 2: Azure Theoretical and Practical Concepts Evaluation"
     due_date: 2026-09-13
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
+
+# FT schedule posts: one forum discussion per teaching week (links only). Collected 2026-10-18.
+schedule_posts:
+  - {week_number: 1, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48871"}
+  - {week_number: 2, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48875"}
+  - {week_number: 3, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48878"}
+  - {week_number: 4, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48880"}
+  - {week_number: 5, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48883"}
+  - {week_number: 6, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48885"}
+  - {week_number: 7, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48887"}
+  - {week_number: 8, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48890"}

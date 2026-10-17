@@ -85,12 +85,21 @@ class SeedAssessment(_Strict):
     uplearn_url: Url | None = None
 
 
+class SeedSchedulePost(_Strict):
+    """A link to the module's weekly schedule post on UPLearn. Only the URL is stored, never the post's text."""
+
+    week_number: int = Field(ge=1)
+    study_mode: Literal["FT", "PT"]
+    url: Url
+
+
 class SeedFile(_Strict):
     """One module file: seed/<module>.yaml."""
 
     module: SeedModule
     submodules: list[SeedSubmodule] = []
     assessments: list[SeedAssessment] = []
+    schedule_posts: list[SeedSchedulePost] = []
 
     @model_validator(mode="after")
     def unique_week_numbers(self) -> "SeedFile":
@@ -99,6 +108,13 @@ class SeedFile(_Strict):
             if week.week_number in seen:
                 raise ValueError(f"week_number {week.week_number} is used by more than one week")
             seen.add(week.week_number)
+        posts: set[tuple[str, int]] = set()
+        for post in self.schedule_posts:
+            if post.week_number not in seen:
+                raise ValueError(f"schedule post for week {post.week_number} has no matching week in this module")
+            if (post.study_mode, post.week_number) in posts:
+                raise ValueError(f"week {post.week_number} has more than one {post.study_mode} schedule post")
+            posts.add((post.study_mode, post.week_number))
         return self
 
     def all_weeks(self) -> list[SeedWeek]:
