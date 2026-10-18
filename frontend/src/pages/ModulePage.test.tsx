@@ -86,13 +86,13 @@ describe('ModulePage', () => {
     expect(within(main).getByText('50%')).toBeInTheDocument()
     expect(within(main).getByText('Tasks done').nextElementSibling).toHaveTextContent('1/2')
     expect(within(main).getByText('Weeks complete').nextElementSibling).toHaveTextContent('0/1')
-    expect(within(main).getByRole('button', { name: /Week 9/ })).toHaveTextContent('1/2 done')
+    expect(within(main).getByRole('button', { name: /^Week 9/ })).toHaveTextContent('1/2 done')
   })
 
   it('starts with weeks collapsed and opens one at a time', async () => {
     const main = await open()
-    const week9 = within(main).getByRole('button', { name: /Week 9/ })
-    const week10 = within(main).getByRole('button', { name: /Week 10/ })
+    const week9 = within(main).getByRole('button', { name: /^Week 9/ })
+    const week10 = within(main).getByRole('button', { name: /^Week 10/ })
     expect(week9).toHaveAttribute('aria-expanded', 'false')
     expect(within(main).queryByText('DP-900 LP1')).toBeNull()
 
@@ -112,7 +112,7 @@ describe('ModulePage', () => {
 
   it('shows task rows with tick boxes, type tags and named links', async () => {
     const main = await open()
-    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 9/ }))
 
     const lp1 = within(main).getByText('DP-900 LP1').closest('li')!
     const box = within(lp1).getByRole('checkbox', { name: 'DP-900 LP1' })
@@ -145,7 +145,7 @@ describe('ModulePage', () => {
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
-    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 9/ }))
     await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
     expect(await within(main).findByRole('checkbox', { name: 'Read the A3 brief', checked: true })).toBeInTheDocument()
     await waitFor(() =>
@@ -167,7 +167,7 @@ describe('ModulePage', () => {
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
-    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 9/ }))
     await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
     expect(await within(main).findByText('Week 9 complete.')).toBeInTheDocument()
     expect(await within(main).findByText('Module complete')).toHaveClass('is-slam')
@@ -191,7 +191,7 @@ describe('ModulePage', () => {
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
-    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 9/ }))
     await userEvent.click(within(main).getByRole('checkbox', { name: 'DP-900 LP1' }))
     expect(within(main).getByRole('checkbox', { name: 'DP-900 LP1' })).not.toBeChecked()
     expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', '0')
@@ -231,7 +231,7 @@ describe('ModulePage', () => {
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
-    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 9/ }))
     expect(gets).toBe(1)
 
     await userEvent.click(within(main).getByRole('checkbox', { name: 'DP-900 LP1' }))
@@ -260,7 +260,7 @@ describe('ModulePage', () => {
 
   it('shows a task note as a hint under the title', async () => {
     const main = await open()
-    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 9/ }))
 
     const lp1 = within(main).getByText('DP-900 LP1').closest('li')!
     expect(within(lp1).getByText('Skillable lab: the training key is in the Teams tutor-only channel.')).toBeInTheDocument()
@@ -303,12 +303,12 @@ describe('ModulePage', () => {
     const main = await open()
     const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
     expect(dp900.querySelector('.submodule-head')).toHaveTextContent('Week 9')
-    expect(within(dp900).getByRole('button', { name: /Week 9/ })).toBeInTheDocument()
-    expect(within(dp900).queryByRole('button', { name: /Week 10/ })).toBeNull()
+    expect(within(dp900).getByRole('button', { name: /^Week 9/ })).toBeInTheDocument()
+    expect(within(dp900).queryByRole('button', { name: /^Week 10/ })).toBeNull()
     expect(within(dp900).getByRole('link', { name: 'DP-900 on UPLearn (opens in new tab)' })).toHaveAttribute('href', 'https://up.test/dp900')
 
     const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
-    expect(within(dp203).getByRole('button', { name: /Week 10/ })).toBeInTheDocument()
+    expect(within(dp203).getByRole('button', { name: /^Week 10/ })).toBeInTheDocument()
     expect(within(dp203).queryByRole('link', { name: /on UPLearn/ })).toBeNull()
   })
 
@@ -345,7 +345,7 @@ describe('ModulePage', () => {
 
   it('still shows weeks whose submodule is missing from the list', async () => {
     const main = await open({ ...detail, submodules: [detail.submodules[0]] })
-    expect(within(main).getByRole('button', { name: /Week 10/ })).toBeInTheDocument()
+    expect(within(main).getByRole('button', { name: /^Week 10/ })).toBeInTheDocument()
   })
 
   it('ticks a prerequisite and hides it everywhere it is shared, without moving progress', async () => {
@@ -369,7 +369,7 @@ describe('ModulePage', () => {
     await waitFor(() => expect(within(main).queryByText('Create an Azure account')).toBeNull())
     expect(within(dp900).getByRole('checkbox', { name: 'Register for the DP-900 Skillable class' })).not.toBeChecked()
     const dp203 = within(main).getByRole('region', { name: 'DP-203 · Azure Data Engineer' })
-    expect(within(dp203).getByText("You're ready to start learning.")).toBeInTheDocument()
+    expect(within(dp203).getByText('Setup done')).toBeInTheDocument()
     expect(within(main).getByRole('progressbar', { name: 'Module progress' })).toHaveAttribute('aria-valuenow', progressBefore!)
     expect(fetchMock).toHaveBeenCalledWith('/api/prerequisites/azure-account/complete', expect.objectContaining({ method: 'PUT' }))
   })
@@ -444,7 +444,7 @@ describe('ModulePage', () => {
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
     await waitFor(() => expect(modulesGets).toBeGreaterThan(0))
-    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 9/ }))
     const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
 
     await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
@@ -464,10 +464,10 @@ describe('ModulePage', () => {
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
-    const week10 = within(main).getByRole('button', { name: /Week 10/ })
+    const week10 = within(main).getByRole('button', { name: /^Week 10/ })
     expect(week10).toHaveAttribute('aria-expanded', 'true')
     expect(within(week10).getByText('Current week')).toBeInTheDocument()
-    expect(within(main).getByRole('button', { name: /Week 9/ })).toHaveAttribute('aria-expanded', 'false')
+    expect(within(main).getByRole('button', { name: /^Week 9/ })).toHaveAttribute('aria-expanded', 'false')
   })
 })
 
@@ -476,7 +476,7 @@ describe('ModulePage schedule posts', () => {
     const post = 'https://yoobee.uplearn.education/mod/forum/discuss.php?d=9'
     const withPost = { ...detail, weeks: [{ ...detail.weeks[0], schedule_post_url: post }, detail.weeks[1]] }
     const main = await open(withPost)
-    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 9/ }))
     expect(within(main).getByRole('link', { name: 'Week 9 schedule post (opens in new tab)' })).toHaveAttribute('href', post)
   })
 })
@@ -493,7 +493,7 @@ describe('ModulePage current week', () => {
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
-    const week9 = await within(main).findByRole('button', { name: /Week 9/ })
+    const week9 = await within(main).findByRole('button', { name: /^Week 9/ })
     expect(week9).toHaveAttribute('aria-expanded', 'false')
     release()
     await waitFor(() => expect(week9).toHaveAttribute('aria-expanded', 'true'))
@@ -510,11 +510,90 @@ describe('ModulePage current week', () => {
     renderAt('/modules/ccc602')
     await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
     const main = screen.getByRole('main')
-    const week10 = await within(main).findByRole('button', { name: /Week 10/ })
+    const week10 = await within(main).findByRole('button', { name: /^Week 10/ })
     await userEvent.click(week10)
     release()
     await within(main).findByText('Current week')
     expect(week10).toHaveAttribute('aria-expanded', 'true')
-    expect(within(main).getByRole('button', { name: /Week 9/ })).toHaveAttribute('aria-expanded', 'false')
+    expect(within(main).getByRole('button', { name: /^Week 9/ })).toHaveAttribute('aria-expanded', 'false')
+  })
+})
+
+describe('ModulePage wayfinding', () => {
+  const doneDetail = withTaskDone(detail as ModuleDetail, 't2', true)
+  const atWeek10 = { ...THIS_WEEK, week: { week_number: 10, starts_on: '2026-10-05', ends_on: '2026-10-11' } }
+
+  it('folds a track that was already finished to one line, and opens it on request', async () => {
+    mockApi({ '/api/this-week': atWeek10, '/api/modules': summary, '/api/modules/ccc602': doneDetail })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const dp900 = await within(main).findByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+    expect(within(dp900).getByText('Week 9 done · 2/2 tasks')).toBeInTheDocument()
+    expect(within(dp900).queryByRole('button', { name: /^Week 9/ })).toBeNull()
+    await userEvent.click(within(dp900).getByRole('button', { name: 'Show weeks' }))
+    expect(within(dp900).getByRole('button', { name: /^Week 9/ })).toBeInTheDocument()
+  })
+
+  it('keeps a track you finish while watching open', async () => {
+    let t2Done = false
+    mockApi({
+      '/api/modules': summary,
+      '/api/modules/ccc602': () => jsonResponse(withTaskDone(detail as ModuleDetail, 't2', t2Done)),
+      'PUT /api/tasks/t2/complete': () => {
+        t2Done = true
+        return new Response(null, { status: 204 })
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 9/ }))
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
+    expect(await within(main).findByText('Week 9 complete.')).toBeInTheDocument()
+    expect(within(main).getByRole('button', { name: /^Week 9/ })).toBeInTheDocument()
+    expect(within(main).queryByRole('button', { name: 'Show weeks' })).toBeNull()
+  })
+
+  it('jumps to the current week and opens it', async () => {
+    mockApi({ '/api/this-week': atWeek10, '/api/modules': summary, '/api/modules/ccc602': detail })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    const jump = await within(main).findByRole('button', { name: 'Jump to Week 10' })
+    const week10 = within(main).getByRole('button', { name: /^Week 10/ })
+    await userEvent.click(week10)
+    expect(week10).toHaveAttribute('aria-expanded', 'false')
+    await userEvent.click(jump)
+    await waitFor(() => expect(week10).toHaveAttribute('aria-expanded', 'true'))
+  })
+
+  it('offers no jump when the current week is in another module', async () => {
+    mockApi({ '/api/this-week': THIS_WEEK, '/api/modules': summary, '/api/modules/ccc602': detail })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    await screen.findByText('Week 11 · 12–18 Oct')
+    expect(screen.queryByRole('button', { name: /^Jump to/ })).toBeNull()
+  })
+
+  it('names the next deadline under the title', async () => {
+    const main = await open()
+    expect(within(main).getByRole('link', { name: 'Assessment 3' })).toHaveAttribute('href', '#module-assessments')
+  })
+
+  it('remembers which week you opened for the rest of the session', async () => {
+    const main = await open()
+    await userEvent.click(within(main).getByRole('button', { name: /^Week 10/ }))
+    expect(JSON.parse(sessionStorage.getItem('open-week:ccc602')!)).toEqual({ key: 'ccc602-w10' })
+  })
+
+  it('shrinks the setup box to one line once every step is done', async () => {
+    const ready = withPrerequisiteDone(withPrerequisiteDone(detail as ModuleDetail, 'azure-account', true), 'skillable-dp900', true)
+    const main = await open(ready)
+    const dp900 = within(main).getByRole('region', { name: 'DP-900 · Azure Data Fundamentals' })
+    expect(within(dp900).getByText('Setup done')).toBeInTheDocument()
+    expect(within(dp900).queryByRole('heading', { name: 'Before you start' })).toBeNull()
+    await userEvent.click(within(dp900).getByRole('button', { name: 'Show done (2)' }))
+    expect(within(dp900).getByRole('checkbox', { name: 'Create an Azure account' })).toBeChecked()
   })
 })

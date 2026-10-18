@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { type SignupResult, login, signup } from '../api'
+import { BrandLockup } from '../components/BrandMark'
 import { usePageTitle } from '../usePageTitle'
 
 const COPY = {
@@ -48,7 +49,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   return (
     <main className="auth-page">
       <div className="card auth-card">
-        <p className="brand-name">Cloudy McHackface</p>
+        <BrandLockup />
         <h1>{copy.title}</h1>
         <form className="form" onSubmit={onSubmit} noValidate>
           <label className="field">

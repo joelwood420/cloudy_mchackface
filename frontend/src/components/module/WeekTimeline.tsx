@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Submodule, Task, TaskType, Week } from '../../api'
-import { weekRange } from '../../format'
+import { plural, weekRange } from '../../format'
 import { useJustReached } from '../../hooks/useJustReached'
+import { useSessionState } from '../../hooks/useSessionState'
 import { percent, weekDone } from '../../progress'
 import { uplearnLabel, uplearnName, uplearnTrackName } from '../../uplearn'
 import { ExternalLink } from '../ExternalLink'
@@ -43,17 +44,21 @@ export function TaskRow({
   const uplearnText = uplearn ? uplearnLabel(uplearn, track?.code) : ''
   return (
     <li className={`task-row${task.done ? ' is-done' : ''}`}>
-      <input
-        type="checkbox"
-        id={id}
-        checked={task.done}
-        onChange={() => onToggle(task.key, !task.done)}
-        aria-describedby={task.note ? `${id}-note` : undefined}
-      />
+      {/* The box gets a full-size tap target of its own, so tapping the title to read it doesn't tick the task. */}
+      <label className="tick">
+        <input
+          type="checkbox"
+          id={id}
+          checked={task.done}
+          onChange={() => onToggle(task.key, !task.done)}
+          aria-labelledby={`${id}-title`}
+          aria-describedby={task.note ? `${id}-note` : undefined}
+        />
+      </label>
       <span className="task-main">
-        <label htmlFor={id} className="task-title">
+        <span id={`${id}-title`} className="task-title">
           {task.title}
-        </label>
+        </span>
         {task.note && (
           <span id={`${id}-note`} className="task-note">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -107,7 +112,7 @@ export function WeekCard({
   const complete = week.tasks.length > 0 && weekDone(week) === week.tasks.length
   const justCompleted = useJustReached(complete, SLAM_MS)
   return (
-    <li className="timeline-item">
+    <li className="timeline-item" id={`week-${week.key}`}>
       <div className="timeline-rail" aria-hidden="true">
         {!isLast && <span className="timeline-line" />}
         <span className={`timeline-dot${isCurrent ? ' is-current' : ''}`}>{week.week_number}</span>
@@ -191,23 +196,69 @@ function SubmoduleHead({ submodule }: { submodule: Submodule }) {
   )
 }
 
+/** Every week in the track has tasks and all of them are ticked. */
+function trackComplete(weeks: Week[]): boolean {
+  return weeks.length > 0 && weeks.every((w) => w.tasks.length > 0 && weekDone(w) === w.tasks.length)
+}
+
+/** A finished track folded to one line, so the weeks still to do sit near the top. */
+function FinishedTrack({ weeks, expanded, controls, onToggle }: { weeks: Week[]; expanded: boolean; controls: string; onToggle: () => void }) {
+  const tasks = weeks.reduce((n, w) => n + w.tasks.length, 0)
+  return (
+    <div className="track-done">
+      <span className="small muted">{`${weeks.length === 1 ? `Week ${weeks[0].week_number}` : `All ${plural(weeks.length, 'week')}`} done · ${tasks}/${tasks} tasks`}</span>
+      <CompletionStamp complete size="sm">
+        Complete
+      </CompletionStamp>
+      <button type="button" className="link-button" aria-expanded={expanded} aria-controls={controls} onClick={onToggle}>
+        {expanded ? 'Hide weeks' : 'Show weeks'}
+      </button>
+    </div>
+  )
+}
+
 export function WeekTimeline({
+  moduleKey,
   weeks,
   submodules,
   currentWeek,
+  jumpRequest = 0,
   onToggleTask,
   onTogglePrerequisite,
 }: {
+  moduleKey: string
   weeks: Week[]
   submodules: Submodule[]
   currentWeek: number | null
+  /** Goes up by one each time "Jump to this week" is pressed. */
+  jumpRequest?: number
   onToggleTask: (taskKey: string, done: boolean) => void
   onTogglePrerequisite: (prerequisiteKey: string, completed: boolean) => void
 }) {
   // Until the user opens or closes a week, the current week is open. It may only be known after this-week loads.
-  const [choice, setChoice] = useState<{ key: string | null } | null>(null)
-  const openKey = choice ? choice.key : (weeks.find((w) => w.week_number === currentWeek)?.key ?? null)
+  // Both choices are kept for the tab, so a reload (e.g. after a lab) opens the module the way you left it.
+  const [choice, setChoice] = useSessionState<{ key: string | null } | null>(`open-week:${moduleKey}`, null)
+  const [expandedTracks, setExpandedTracks] = useSessionState<string[]>(`open-tracks:${moduleKey}`, [])
+  // Only tracks already finished when the page opened start folded; one you finish now stays open so you see it land.
+  const [foldable] = useState(() => new Set(groupWeeks(weeks, submodules).filter((g) => trackComplete(g.weeks)).map((g) => g.submodule?.key ?? 'other')))
+  const currentKey = weeks.find((w) => w.week_number === currentWeek)?.key ?? null
+  const openKey = choice ? choice.key : currentKey
   const toggle = (key: string) => setChoice({ key: openKey === key ? null : key })
+
+  // A press made on another module's page (before this one mounted) isn't a jump here.
+  const handledJump = useRef(jumpRequest)
+  useEffect(() => {
+    if (jumpRequest === handledJump.current || currentKey === null) return
+    handledJump.current = jumpRequest
+    setChoice({ key: currentKey })
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    requestAnimationFrame(() => {
+      const item = document.getElementById(`week-${currentKey}`)
+      item?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
+      item?.querySelector<HTMLButtonElement>('.week-toggle')?.focus({ preventScroll: true })
+    })
+  }, [jumpRequest, currentKey, setChoice])
+
   return (
     <section className="timeline" aria-labelledby="timeline-heading">
       <div className="section-head">
@@ -217,32 +268,47 @@ export function WeekTimeline({
       {weeks.length === 0 && submodules.length === 0 ? (
         <p className="muted">No weeks listed yet.</p>
       ) : (
-        groupWeeks(weeks, submodules).map((group) => (
-          <section
-            key={group.submodule?.key ?? 'other'}
-            className="submodule"
-            aria-labelledby={group.submodule ? `submodule-${group.submodule.key}` : undefined}
-          >
-            {group.submodule && <SubmoduleHead submodule={group.submodule} />}
-            {group.submodule && <PrerequisiteBox submodule={group.submodule} onToggle={onTogglePrerequisite} />}
-            {group.weeks.length > 0 && (
-              <ol className="timeline-list">
-                {group.weeks.map((week, i) => (
-                  <WeekCard
-                    key={week.key}
-                    week={week}
-                    open={openKey === week.key}
-                    isLast={i === group.weeks.length - 1}
-                    isCurrent={week.week_number === currentWeek}
-                    onToggle={() => toggle(week.key)}
-                    onToggleTask={onToggleTask}
-                    track={group.submodule ?? undefined}
-                  />
-                ))}
-              </ol>
-            )}
-          </section>
-        ))
+        groupWeeks(weeks, submodules).map((group) => {
+          const groupKey = group.submodule?.key ?? 'other'
+          const listId = `track-weeks-${groupKey}`
+          const finished = foldable.has(groupKey) && trackComplete(group.weeks) && !group.weeks.some((w) => w.key === currentKey)
+          const expanded = expandedTracks.includes(groupKey)
+          const showWeeks = group.weeks.length > 0 && (!finished || expanded)
+          return (
+            <section
+              key={groupKey}
+              className={`submodule${finished ? ' is-finished' : ''}`}
+              aria-labelledby={group.submodule ? `submodule-${group.submodule.key}` : undefined}
+            >
+              {group.submodule && <SubmoduleHead submodule={group.submodule} />}
+              {group.submodule && <PrerequisiteBox submodule={group.submodule} onToggle={onTogglePrerequisite} />}
+              {finished && (
+                <FinishedTrack
+                  weeks={group.weeks}
+                  expanded={expanded}
+                  controls={listId}
+                  onToggle={() => setExpandedTracks(expanded ? expandedTracks.filter((k) => k !== groupKey) : [...expandedTracks, groupKey])}
+                />
+              )}
+              {showWeeks && (
+                <ol className="timeline-list" id={listId}>
+                  {group.weeks.map((week, i) => (
+                    <WeekCard
+                      key={week.key}
+                      week={week}
+                      open={openKey === week.key}
+                      isLast={i === group.weeks.length - 1}
+                      isCurrent={week.week_number === currentWeek}
+                      onToggle={() => toggle(week.key)}
+                      onToggleTask={onToggleTask}
+                      track={group.submodule ?? undefined}
+                    />
+                  ))}
+                </ol>
+              )}
+            </section>
+          )
+        })
       )}
     </section>
   )

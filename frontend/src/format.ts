@@ -19,6 +19,12 @@ export function weekRange(first: number, last: number): string {
   return first === last ? `Week ${first}` : `Weeks ${first}–${last}`
 }
 
+/** "Week 9", "Weeks 9 and 10", "Weeks 8, 9 and 10". */
+export function weekList(weeks: number[]): string {
+  if (weeks.length <= 1) return `Week ${weeks.join('')}`
+  return `Weeks ${weeks.slice(0, -1).join(', ')} and ${weeks[weeks.length - 1]}`
+}
+
 export function weekSummary(weekNumbers: number[], taskCount: number): string {
   if (weekNumbers.length === 0) return 'No weeks yet'
   const range = weekRange(Math.min(...weekNumbers), Math.max(...weekNumbers))

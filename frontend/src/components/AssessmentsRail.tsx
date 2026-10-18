@@ -5,6 +5,7 @@ import { uplearnLabel, uplearnName } from '../uplearn'
 import { ExternalLink } from './ExternalLink'
 
 export function AssessmentsRail({
+  id,
   code,
   assessments,
   portalUrl,
@@ -12,6 +13,7 @@ export function AssessmentsRail({
   emptyText = 'No assessments listed.',
   heading = 'Assessments',
 }: {
+  id?: string
   assessments: (Assessment & { module_code?: string })[]
   code?: string
   portalUrl: string | null
@@ -21,7 +23,7 @@ export function AssessmentsRail({
 }) {
   const headingId = useId()
   return (
-    <aside className="rail" aria-labelledby={headingId}>
+    <aside className="rail" id={id} aria-labelledby={headingId}>
       <h2 id={headingId}>{heading}</h2>
       {assessments.length === 0 ? (
         <p className="muted">{emptyText}</p>
