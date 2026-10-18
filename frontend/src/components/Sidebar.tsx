@@ -7,6 +7,7 @@ import { useMe } from '../hooks/useMe'
 import { useThisWeek } from '../hooks/useThisWeek'
 import { percent } from '../progress'
 import { ProgressBar } from './ProgressBar'
+import { CompletionStamp } from './Stamp'
 
 function Icon({ children }: { children: ReactNode }) {
   return (
@@ -126,7 +127,10 @@ export function Sidebar() {
                     >
                       <span className="side-module-top">
                         <span>{m.code}</span>
-                        <span aria-hidden="true">{pct}%</span>
+                        <CompletionStamp complete={m.task_count > 0 && m.completed_count === m.task_count} size="sm">
+                          Complete
+                        </CompletionStamp>
+                        {pct < 100 && <span aria-hidden="true">{pct}%</span>}
                       </span>
                       <span className="side-module-title">{m.title}</span>
                       <ProgressBar value={pct} label={`${m.code} progress`} size="sm" decorative />

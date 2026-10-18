@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { ModuleSummary, ThisWeek } from './api'
-import { crossedMilestone, findThisWeekTask, milestoneMessage, weekClearedLine, withModuleCompleted } from './rewards'
+import { crossedMilestone, findThisWeekTask, milestoneMessage, withModuleCompleted } from './rewards'
 import { THIS_WEEK } from './test/utils'
 
 describe('crossedMilestone', () => {
@@ -33,7 +33,6 @@ describe('messages', () => {
     expect(milestoneMessage('CCC601', 75)).toBe('CCC601 · privilege escalated: root')
     expect(milestoneMessage('CCC601', 100)).toBe('CCC601 · system owned. 100% complete.')
   })
-  it('patches the week', () => expect(weekClearedLine(11)).toBe('> week_11 :: all tasks patched'))
 })
 
 const summary = (key: string, code: string, done: number): ModuleSummary => ({

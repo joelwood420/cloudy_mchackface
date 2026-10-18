@@ -24,8 +24,6 @@ const RANKS: Record<Milestone, string> = {
 
 export const milestoneMessage = (moduleCode: string, milestone: Milestone) => `${moduleCode} · ${RANKS[milestone]}`
 
-export const weekClearedLine = (weekNumber: number) => `> week_${weekNumber} :: all tasks patched`
-
 /** Copy of the module list with one module's completed count moved by `delta`, kept within 0 and its task count. */
 export function withModuleCompleted(list: ModuleSummary[], match: (m: ModuleSummary) => boolean, delta: number): ModuleSummary[] {
   return list.map((m) =>

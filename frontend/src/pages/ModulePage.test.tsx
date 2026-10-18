@@ -169,8 +169,11 @@ describe('ModulePage', () => {
     const main = screen.getByRole('main')
     await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
     await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
-    expect(await within(main).findByText('> week_9 :: all tasks patched')).toBeInTheDocument()
+    expect(await within(main).findByText('Week 9 complete.')).toBeInTheDocument()
     expect(await screen.findByText('CCC602 · system owned. 100% complete.')).toBeInTheDocument()
+    expect(within(main).getByText('Module complete')).toHaveClass('is-slam')
+    const side = screen.getByRole('navigation', { name: 'Main' })
+    expect(within(side).getByText('Complete')).toHaveClass('stamp')
   })
 
   it('unticks a task and rolls back when saving fails', async () => {

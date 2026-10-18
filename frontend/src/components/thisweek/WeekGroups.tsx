@@ -2,7 +2,7 @@ import type { ThisWeekGroup } from '../../api'
 import { useJustReached } from '../../hooks/useJustReached'
 import { weekDone } from '../../progress'
 import { ExternalLink } from '../ExternalLink'
-import { READOUT_MS, WeekClearedReadout } from '../WeekClearedReadout'
+import { CompletionStamp, LiveNote, SLAM_MS } from '../Stamp'
 import { PrerequisiteBox } from '../module/PrerequisiteBox'
 import { TaskRow } from '../module/WeekTimeline'
 import { uplearnLabel, uplearnTrackName } from '../../uplearn'
@@ -34,8 +34,8 @@ function WeekGroup({
   onToggleTask: (taskKey: string, done: boolean) => void
   onTogglePrerequisite: (prerequisiteKey: string, completed: boolean) => void
 }) {
-  const cleared = g.week.tasks.length > 0 && weekDone(g.week) === g.week.tasks.length
-  const justCleared = useJustReached(cleared, READOUT_MS)
+  const complete = g.week.tasks.length > 0 && weekDone(g.week) === g.week.tasks.length
+  const justCompleted = useJustReached(complete, SLAM_MS)
   return (
     <section className="card week-group" aria-labelledby={`group-${g.week.key}`}>
       <header className="submodule-head">
@@ -48,7 +48,6 @@ function WeekGroup({
             {uplearnLabel(g.submodule.uplearn_url, g.submodule.code)}
           </ExternalLink>
         )}
-        {cleared && !justCleared && <span className="status-chip is-done">Week cleared</span>}
       </header>
       <PrerequisiteBox
         submodule={{ ...g.submodule, first_week: null, last_week: null, prerequisites: g.prerequisites }}
@@ -70,7 +69,10 @@ function WeekGroup({
           ))}
         </ul>
       )}
-      <WeekClearedReadout weekNumber={g.week.week_number} show={justCleared} />
+      <LiveNote text={`Week ${g.week.week_number} complete.`} show={justCompleted} />
+      <CompletionStamp complete={complete} size="lg" slot>
+        Week complete
+      </CompletionStamp>
     </section>
   )
 }

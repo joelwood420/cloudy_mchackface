@@ -1,4 +1,5 @@
 import { ProgressBar } from '../ProgressBar'
+import { CompletionStamp } from '../Stamp'
 
 export function ProgressCard({
   done,
@@ -38,6 +39,9 @@ export function ProgressCard({
           </dd>
         </div>
       </dl>
+      <CompletionStamp complete={total > 0 && done === total} size="md" slot>
+        Module complete
+      </CompletionStamp>
     </section>
   )
 }

@@ -265,15 +265,23 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 .progress-fill.is-sweeping::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent); transform: translateX(-100%); animation: progress-sweep 900ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both; }
 @keyframes progress-sweep { to { transform: translateX(100%); } }
 
-.readout { margin: 0; font-family: var(--font-mono); font-size: 13px; line-height: 20px; color: var(--accent-strong); }
-.week-group > .readout { margin: -4px 0 6px; }
-.week-group > .readout:empty { margin: -12px 0 0; }
-.week-panel > .readout { margin: 10px 0 0; }
-.week-panel > .readout:empty { margin: 0; }
-.readout-line { display: inline-block; max-width: 100%; overflow: hidden; white-space: nowrap; vertical-align: bottom; animation: readout-type 640ms steps(var(--chars), end) both; }
-.readout:not(:empty)::after { content: '_'; animation: readout-blink 1s steps(1) infinite; }
-@keyframes readout-type { from { width: 0; } to { width: calc(var(--chars) * 1ch); } }
-@keyframes readout-blink { 50% { opacity: 0; } }
+.stamp { --tilt: -8deg; display: inline-flex; align-items: center; justify-content: center; padding: 0.28em 0.6em 0.22em; border: 0.15em solid var(--accent-strong); border-radius: 0.22em; outline: 0.06em solid var(--accent-strong); outline-offset: 0.14em; color: var(--accent-strong); font-family: var(--font-mono); font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1; white-space: nowrap; transform: rotate(var(--tilt)); opacity: 0.9; mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -3 0 0 0 2.15'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 240px 240px; }
+.stamp-lg { font-size: 26px; }
+.stamp-md { font-size: 24px; --tilt: -7deg; }
+.stamp-sm { font-size: 11px; padding: 0.3em 0.55em 0.25em; border-width: 2px; outline-width: 1px; outline-offset: 2px; --tilt: -6deg; }
+.stamp.is-slam { animation: stamp-slam 520ms cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+@keyframes stamp-slam {
+  0% { opacity: 0; transform: rotate(calc(var(--tilt) - 8deg)) scale(2.1); filter: blur(2px); }
+  55% { opacity: 0.95; transform: rotate(var(--tilt)) scale(0.94); filter: blur(0); }
+  75% { transform: rotate(var(--tilt)) scale(1.03); }
+  100% { opacity: 0.9; transform: rotate(var(--tilt)) scale(1); }
+}
+.week-group:has(.stamp.is-slam), .progress-card:has(.stamp.is-slam) { animation: card-thud 300ms ease-out 260ms; }
+@keyframes card-thud { 30% { transform: translate(1px, 2px); } 60% { transform: translate(-1px, -1px); } }
+.stamp-slot { display: flex; justify-content: flex-end; padding: 8px 6px 14px; }
+.progress-card .stamp-slot { flex: 0 0 auto; padding: 0 6px; }
+.week-meta-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.side-module-top .stamp { align-self: center; }
 
 .toast-region { position: fixed; right: 24px; bottom: 24px; z-index: 30; width: max-content; max-width: min(400px, calc(100vw - 32px)); }
 .toast { display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 12px; border-radius: 12px; border: 1px solid var(--accent-line); background: var(--surface); box-shadow: var(--shadow-open); animation: toast-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
@@ -285,6 +293,7 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 .toast-close:hover { background: var(--tag-bg); color: var(--text); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
 @keyframes toast-fade { from { opacity: 0; } }
+@keyframes stamp-fade { from { opacity: 0; } }
 @media (max-width: 800px) {
   .toast-region { left: 16px; right: 16px; bottom: calc(76px + env(safe-area-inset-bottom)); width: auto; max-width: none; }
 }
@@ -294,11 +303,12 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
   input[type='checkbox']:active { transform: none; }
   input[type='checkbox']::before, .progress-fill { transition: none; }
   .progress-fill.is-sweeping::after { content: none; }
-  .readout-line { animation: none; }
-  .readout:not(:empty)::after { content: none; }
+  .stamp.is-slam { animation: stamp-fade 300ms ease-out both; }
+  .week-group:has(.stamp.is-slam), .progress-card:has(.stamp.is-slam) { animation: none; }
   .toast { animation-name: toast-fade; }
 }
 @media (forced-colors: active) {
   input[type='checkbox'] { appearance: auto; }
+  .stamp { mask: none; }
   input[type='checkbox']::before { content: none; }
 }

@@ -167,24 +167,25 @@ describe('ThisWeekPage', () => {
     expect(screen.getByRole('checkbox', { name: 'Task old1' })).toBeInTheDocument()
   })
 
-  it('patches the week when its last task is ticked, then settles into a chip', async () => {
+  it('stamps the week complete when its last task is ticked', async () => {
     let saved = false
     const done = { ...teaching, groups: [group(11, [task('t1', true), task('t2', true)])] }
     show(teaching, {
       '/api/this-week': () => jsonResponse(saved ? done : teaching),
       'PUT /api/tasks/t2/complete': () => { saved = true; return new Response(null, { status: 204 }) },
     })
-    await userEvent.click(await screen.findByRole('checkbox', { name: 'Task t2' }))
-    expect(await screen.findByText('> week_11 :: all tasks patched')).toBeInTheDocument()
-    expect(screen.getByText('Week 11 cleared.')).toBeInTheDocument()
-    expect(await screen.findByText('Week cleared', {}, { timeout: 6000 })).toBeInTheDocument()
-    expect(screen.queryByText('> week_11 :: all tasks patched')).not.toBeInTheDocument()
-  }, 10000)
+    await screen.findByRole('checkbox', { name: 'Task t2' })
+    expect(screen.queryByText('Week complete')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Task t2' }))
+    expect(await screen.findByText('Week complete')).toHaveClass('stamp', 'is-slam')
+    expect(screen.getByText('Week 11 complete.')).toBeInTheDocument()
+  })
 
-  it('shows a cleared week as a chip on load, without the readout', async () => {
+  it('shows a complete week stamped on load, without the slam', async () => {
     show({ ...teaching, groups: [group(11, [task('t1', true), task('t2', true)])] })
-    expect(await screen.findByText('Week cleared')).toBeInTheDocument()
-    expect(screen.queryByText('> week_11 :: all tasks patched')).not.toBeInTheDocument()
+    const stamp = await screen.findByText('Week complete')
+    expect(stamp).not.toHaveClass('is-slam')
+    expect(screen.queryByText('Week 11 complete.')).not.toBeInTheDocument()
   })
 
   it('pops a milestone toast when a tick takes a module past a milestone', async () => {
