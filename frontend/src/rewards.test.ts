@@ -1,39 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import type { ModuleSummary, ThisWeek } from './api'
-import { crossedMilestone, findThisWeekTask, milestoneMessage, withModuleCompleted } from './rewards'
+import { findThisWeekTask, withModuleCompleted } from './rewards'
 import { THIS_WEEK } from './test/utils'
-
-describe('crossedMilestone', () => {
-  it('fires when one tick crosses a milestone', () => {
-    expect(crossedMilestone(1, 2, 8)).toBe(25)
-    expect(crossedMilestone(3, 4, 8)).toBe(50)
-    expect(crossedMilestone(5, 6, 8)).toBe(75)
-    expect(crossedMilestone(7, 8, 8)).toBe(100)
-  })
-  it('stays quiet between milestones', () => {
-    expect(crossedMilestone(2, 3, 8)).toBeNull()
-    expect(crossedMilestone(0, 1, 8)).toBeNull()
-  })
-  it('only counts a single step up, so unticks, loads and syncs never fire', () => {
-    expect(crossedMilestone(4, 3, 8)).toBeNull()
-    expect(crossedMilestone(0, 8, 8)).toBeNull()
-    expect(crossedMilestone(4, 4, 8)).toBeNull()
-  })
-  it('gives the highest milestone when one tick crosses two', () => {
-    expect(crossedMilestone(0, 1, 2)).toBe(50)
-    expect(crossedMilestone(0, 1, 1)).toBe(100)
-  })
-  it('ignores an empty module', () => expect(crossedMilestone(0, 1, 0)).toBeNull())
-})
-
-describe('messages', () => {
-  it('escalates privileges by milestone', () => {
-    expect(milestoneMessage('CCC601', 25)).toBe('CCC601 · access granted: user')
-    expect(milestoneMessage('CCC601', 50)).toBe('CCC601 · privilege escalated: admin')
-    expect(milestoneMessage('CCC601', 75)).toBe('CCC601 · privilege escalated: root')
-    expect(milestoneMessage('CCC601', 100)).toBe('CCC601 · system owned. 100% complete.')
-  })
-})
 
 const summary = (key: string, code: string, done: number): ModuleSummary => ({
   key, code, title: code, submodule_count: 1, week_count: 1, task_count: 8, completed_count: done, week_numbers: [1], uplearn_url: null,

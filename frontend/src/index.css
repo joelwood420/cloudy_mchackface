@@ -305,22 +305,9 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 .week-meta-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .side-module-top .stamp { align-self: center; }
 
-.toast-region { position: fixed; right: 24px; bottom: 24px; z-index: 30; width: max-content; max-width: min(400px, calc(100vw - 32px)); }
-.toast { display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 12px; border-radius: 12px; border: 1px solid var(--accent-line); background: var(--surface); box-shadow: var(--shadow-open); animation: toast-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-.toast.is-owned { border-color: var(--accent); }
-.toast-icon { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 8px; background: var(--accent); color: var(--surface); display: flex; align-items: center; justify-content: center; }
-.toast-text { flex: 1 1 auto; margin: 0; font-family: var(--font-mono); font-size: 13px; line-height: 1.4; color: var(--text); overflow-wrap: anywhere; }
-.toast.is-owned .toast-text { font-weight: 600; color: var(--accent-strong); }
-.toast-close { flex: 0 0 44px; width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.toast-close:hover { background: var(--tag-bg); color: var(--text); }
-@keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
-@keyframes toast-fade { from { opacity: 0; } }
 @keyframes stamp-fade { from { opacity: 0; } }
 @keyframes lurk-fade { to { opacity: 0; max-height: 0; min-height: 0; padding-block: 0; margin-block: 0; border-width: 0; } }
 @keyframes all-clear-fade { to { opacity: 0; } }
-@media (max-width: 800px) {
-  .toast-region { left: 16px; right: 16px; bottom: calc(76px + env(safe-area-inset-bottom)); width: auto; max-width: none; }
-}
 
 @media (prefers-reduced-motion: reduce) {
   input[type='checkbox'] { transition: background-color 120ms ease-out, border-color 120ms ease-out; }
@@ -329,7 +316,6 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
   .progress-fill.is-sweeping::after { content: none; }
   .stamp.is-slam { animation: stamp-fade 300ms ease-out both; }
   .week-group:has(.stamp.is-slam), .progress-card:has(.stamp.is-slam) { animation: none; }
-  .toast { animation-name: toast-fade; }
   .malware-list .task-row.is-done, .malware-week.is-done { animation-name: lurk-fade; }
   .malware-banner.is-clear { animation-name: all-clear-fade; }
 }

@@ -1,5 +1,4 @@
 import { Outlet } from 'react-router-dom'
-import { MilestoneToast } from './MilestoneToast'
 import { Sidebar } from './Sidebar'
 
 export function AppShell() {
@@ -12,7 +11,6 @@ export function AppShell() {
       <div className="content" id="main-content" tabIndex={-1}>
         <Outlet />
       </div>
-      <MilestoneToast />
     </div>
   )
 }

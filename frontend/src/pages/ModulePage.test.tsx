@@ -154,7 +154,7 @@ describe('ModulePage', () => {
     expect(fetchMock).toHaveBeenCalledWith('/api/tasks/t2/complete', expect.objectContaining({ method: 'PUT' }))
   })
 
-  it('rewards the tick that clears a week and passes a module milestone', async () => {
+  it('stamps the week and module complete on the tick that finishes them', async () => {
     let t2Done = false
     mockApi({
       '/api/modules': () => jsonResponse([{ ...summary[0], completed_count: t2Done ? 2 : 1 }]),
@@ -170,8 +170,7 @@ describe('ModulePage', () => {
     await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
     await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
     expect(await within(main).findByText('Week 9 complete.')).toBeInTheDocument()
-    expect(await screen.findByText('CCC602 · system owned. 100% complete.')).toBeInTheDocument()
-    expect(within(main).getByText('Module complete')).toHaveClass('is-slam')
+    expect(await within(main).findByText('Module complete')).toHaveClass('is-slam')
     const side = screen.getByRole('navigation', { name: 'Main' })
     expect(within(side).getByText('Complete')).toHaveClass('stamp')
   })

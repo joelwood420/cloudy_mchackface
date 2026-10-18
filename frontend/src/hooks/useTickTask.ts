@@ -16,8 +16,8 @@ function settleTicks(queryClient: QueryClient, mutationKey: readonly unknown[]) 
 }
 
 /**
- * Move a module's count in the cached module list straight away, so the sidebar and milestone rewards keep up with the
- * tick. Returns the list as it was, for undoing on error.
+ * Move a module's count in the cached module list straight away, so the sidebar and its completion stamps keep up with
+ * the tick. Returns the list as it was, for undoing on error.
  */
 export async function bumpModuleCount(queryClient: QueryClient, match: (m: ModuleSummary) => boolean, delta: number) {
   await queryClient.cancelQueries({ queryKey: ['modules'] })

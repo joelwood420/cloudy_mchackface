@@ -189,35 +189,16 @@ describe('ThisWeekPage', () => {
     expect(screen.queryByText('Week 11 complete.')).not.toBeInTheDocument()
   })
 
-  it('pops a milestone toast when a tick takes a module past a milestone', async () => {
+  it('moves the sidebar module count with the tick', async () => {
     const mod = (completed: number) => [{ key: 'ccc602', code: 'CCC602', title: 'Data Engineering', submodule_count: 1, week_count: 1, task_count: 4, completed_count: completed, week_numbers: [11], uplearn_url: null }]
-    let saved = false
     show(teaching, {
-      '/api/modules': () => jsonResponse(mod(saved ? 2 : 1)),
-      'PUT /api/tasks/t2/complete': () => { saved = true; return new Response(null, { status: 204 }) },
+      '/api/modules': mod(1),
+      'PUT /api/tasks/t2/complete': () => new Promise<Response>(() => {}), // still saving, so only the optimistic count shows
     })
-    await screen.findByRole('checkbox', { name: 'Task t2' })
-    await waitFor(() => expect(screen.getAllByText('CCC602').length).toBeGreaterThan(0))
-    expect(screen.queryByText(/privilege escalated/)).not.toBeInTheDocument()
-    await userEvent.click(screen.getByRole('checkbox', { name: 'Task t2' }))
-    expect(await screen.findByText('CCC602 · privilege escalated: admin')).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
-    expect(screen.queryByText('CCC602 · privilege escalated: admin')).not.toBeInTheDocument()
-  })
-
-  it('stays quiet when unticking back below a milestone', async () => {
-    const mod = (completed: number) => [{ key: 'ccc602', code: 'CCC602', title: 'Data Engineering', submodule_count: 1, week_count: 1, task_count: 2, completed_count: completed, week_numbers: [11], uplearn_url: null }]
-    let saved = false
-    const unticked = { ...teaching, groups: [group(11, [task('t1'), task('t2')])] }
-    show(teaching, {
-      '/api/this-week': () => jsonResponse(saved ? unticked : teaching),
-      '/api/modules': () => jsonResponse(mod(saved ? 0 : 1)),
-      'DELETE /api/tasks/t1/complete': () => { saved = true; return new Response(null, { status: 204 }) },
-    })
-    await waitFor(() => expect(screen.getAllByText('CCC602').length).toBeGreaterThan(0))
-    await userEvent.click(await screen.findByRole('checkbox', { name: 'Task t1' }))
-    expect(await screen.findByRole('checkbox', { name: 'Task t1', checked: false })).toBeInTheDocument()
-    expect(screen.queryByText(/CCC602 ·/)).not.toBeInTheDocument()
+    const side = await screen.findByRole('navigation', { name: 'Main' })
+    expect(await within(side).findByText('25%')).toBeInTheDocument()
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Task t2' }))
+    expect(await within(side).findByText('50%')).toBeInTheDocument()
   })
 
   it('counts only unticked lurking tasks, straight after a tick', async () => {
