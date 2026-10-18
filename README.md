@@ -37,9 +37,7 @@ So I built the thing I wanted: one screen that tells me what this week is about,
 | --- | --- |
 | ![Modules screen with programme progress](docs/readme/modules.png) | ![Module page with weekly timeline and assessments](docs/readme/module.png) |
 
-| Assessments | On your phone |
-| --- | --- |
-| ![Assessments screen](docs/readme/assessments.png) | <img src="docs/readme/phone.png" alt="This week on a phone" width="260"> |
+![Assessments screen](docs/readme/assessments.png)
 
 ## Have a look around
 
