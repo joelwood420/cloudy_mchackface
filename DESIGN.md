@@ -240,7 +240,7 @@ Gently rounded throughout: 12px for cards, panels and the malware banner; 10px f
 Numbered 32px dots on a grey spine, each beside an expandable week card (Week N in mono, title, x/y done, slim progress bar, chevron). The current week fills its dot with Terminal Teal and carries a "Current week" badge. Open cards lift and show their schedule post link, then task rows.
 
 ### Malware Banner (signature)
-A Night Console panel with an amber bug tile, "MALWARE DETECTED" in mono Alarm Amber Light, the lurking-task count, and an amber "Quarantine them" button that opens the overdue list. It stays put until the backlog is cleared.
+A Night Console panel with an amber bug tile, "MALWARE DETECTED" in mono Alarm Amber Light, the lurking-task count, and an amber "Quarantine them" button. The button opens the overdue tasks inside the banner itself (light titles, Alarm Amber Light links, amber tick boxes) and flips to "Back to this week". Ticked tasks slide out at once. It stays put until the backlog is cleared, then shows "SYSTEM CLEAN · Threat neutralised. You're back on track." with a teal shield tile for about 2.5s and fades away.
 
 ## Do's and Don'ts
 

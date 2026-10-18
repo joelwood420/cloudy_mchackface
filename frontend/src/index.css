@@ -237,17 +237,39 @@ button.button-secondary { cursor: pointer; }
 .week-stats-text { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 16px; color: var(--muted); }
 .week-stats-text span:first-child { font-weight: 600; color: var(--text-2); }
 
-.malware-banner { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 14px 18px; border-radius: 12px; background: var(--night); color: var(--surface); }
+.malware-banner { display: flex; flex-direction: column; padding: 14px 18px; border-radius: 12px; background: var(--night); color: var(--surface); }
+.malware-top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; }
 .malware-status { flex: 1 1 280px; display: flex; align-items: center; gap: 12px 16px; }
 .malware-icon { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 10px; background: var(--amber); color: var(--night); display: flex; align-items: center; justify-content: center; }
 .malware-text { flex: 1 1 280px; display: flex; flex-direction: column; font-weight: 500; }
 .malware-label { font-family: var(--font-mono); font-size: 12px; color: var(--amber-light); letter-spacing: 0.04em; }
 .malware-button { min-height: 44px; padding: 0 16px; border-radius: 10px; border: 0; background: var(--amber); color: var(--night); font-weight: 700; cursor: pointer; }
 .malware-button:focus-visible { outline: 2px solid var(--amber-light); outline-offset: 2px; }
-.quarantine { padding: 14px 20px 18px; display: flex; flex-direction: column; gap: 12px; }
-.quarantine-week { font-size: 17px; font-weight: 600; }
-.quarantine-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
-.quarantine-clear { margin: 0; font-family: var(--font-mono); font-size: 13px; color: var(--accent-strong); }
+.malware-list { margin-top: 14px; padding-top: 6px; border-top: 1px solid rgb(255 255 255 / 0.18); display: flex; flex-direction: column; }
+.malware-week-title { margin: 12px 0 2px; font-size: 15px; font-weight: 600; color: var(--surface); }
+.malware-list .task-row { border-bottom-color: rgb(255 255 255 / 0.1); }
+.malware-list .malware-week:last-child .task-row:last-child { border-bottom: 0; }
+.malware-list .task-title { color: var(--surface); }
+.malware-list .task-note { color: #b9c4d3; }
+.malware-list .tag { background: rgb(255 255 255 / 0.1); color: #dbe2eb; }
+.malware-list a { color: var(--amber-light); }
+.malware-list a:hover { color: var(--surface); }
+.malware-banner :focus-visible { outline-color: var(--amber-light); }
+.malware-list input[type='checkbox'] { background: transparent; border-color: #8d9db3; }
+.malware-list input[type='checkbox']:hover { border-color: var(--amber-light); }
+.malware-list input[type='checkbox']:checked { background: var(--amber); border-color: var(--amber); }
+.malware-list input[type='checkbox']::before { background: var(--night); }
+/* A ticked lurking task leaves at once instead of waiting for the server to drop it. */
+.malware-list .task-row.is-done, .malware-week.is-done { overflow: hidden; animation: lurk-out 420ms cubic-bezier(0.16, 1, 0.3, 1) 120ms forwards; }
+@keyframes lurk-out {
+  0% { opacity: 1; max-height: 240px; }
+  45% { opacity: 0; transform: translateX(16px); max-height: 240px; }
+  100% { opacity: 0; transform: translateX(16px); max-height: 0; min-height: 0; padding-block: 0; margin-block: 0; border-width: 0; }
+}
+.malware-banner.is-clear { overflow: hidden; animation: all-clear-out 400ms ease-in 2500ms forwards; }
+.malware-banner.is-clear .malware-icon { background: var(--accent); color: var(--surface); }
+.malware-banner.is-clear .malware-label { color: #8fdcd2; }
+@keyframes all-clear-out { to { opacity: 0; max-height: 0; padding-block: 0; } }
 .notice { margin: 0; padding: 12px 16px; border-radius: 10px; background: var(--info-bg); color: var(--info); }
 .notice-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .notice-row p { margin: 0; }
@@ -294,6 +316,8 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 @keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
 @keyframes toast-fade { from { opacity: 0; } }
 @keyframes stamp-fade { from { opacity: 0; } }
+@keyframes lurk-fade { to { opacity: 0; max-height: 0; min-height: 0; padding-block: 0; margin-block: 0; border-width: 0; } }
+@keyframes all-clear-fade { to { opacity: 0; } }
 @media (max-width: 800px) {
   .toast-region { left: 16px; right: 16px; bottom: calc(76px + env(safe-area-inset-bottom)); width: auto; max-width: none; }
 }
@@ -306,6 +330,8 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
   .stamp.is-slam { animation: stamp-fade 300ms ease-out both; }
   .week-group:has(.stamp.is-slam), .progress-card:has(.stamp.is-slam) { animation: none; }
   .toast { animation-name: toast-fade; }
+  .malware-list .task-row.is-done, .malware-week.is-done { animation-name: lurk-fade; }
+  .malware-banner.is-clear { animation-name: all-clear-fade; }
 }
 @media (forced-colors: active) {
   input[type='checkbox'] { appearance: auto; }
