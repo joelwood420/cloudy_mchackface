@@ -3,6 +3,8 @@ from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, StringConstraints
 
+from app.auth.passwords import MAX_PASSWORD_LENGTH, MIN_PASSWORD_LENGTH
+
 
 class _Out(BaseModel):
     model_config = ConfigDict(from_attributes=True)
@@ -91,7 +93,7 @@ Email = Annotated[
 
 class SignupIn(BaseModel):
     email: Email
-    password: Annotated[str, StringConstraints(min_length=10, max_length=256)]
+    password: Annotated[str, StringConstraints(min_length=MIN_PASSWORD_LENGTH, max_length=MAX_PASSWORD_LENGTH)]
     accepted_disclaimer_version: int
 
 

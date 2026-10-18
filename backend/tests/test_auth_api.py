@@ -40,8 +40,10 @@ def test_taken_email_gives_a_generic_409(client):
 
 
 def test_signup_rejects_bad_input(client):
-    assert signup(client, password="short").status_code == 422
-    assert signup(client, password="x" * 257).status_code == 422
+    assert signup(client, password="7 chars").status_code == 422
+    assert signup(client, password="8 chars!").status_code == 201
+    client.post("/api/auth/logout")
+    assert signup(client, email="new@example.com", password="x" * 257).status_code == 422
     assert signup(client, email="not-an-email").status_code == 422
     assert client.post("/api/auth/signup", json={"email": "a@b.co"}).status_code == 422
     assert client.post("/api/auth/signup", json={"email": "a@b.co", "password": PASSWORD}).status_code == 422

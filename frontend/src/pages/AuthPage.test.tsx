@@ -91,7 +91,7 @@ describe('sign-in flow', () => {
     await userEvent.type(await screen.findByLabelText('Email'), 'joel@example.com')
     await userEvent.type(screen.getByLabelText('Password'), 'short')
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
-    expect(screen.getByRole('alert')).toHaveTextContent('Use a password of at least 10 characters.')
+    expect(screen.getByRole('alert')).toHaveTextContent('Use a password of at least 8 characters.')
     expect(fetchMock).not.toHaveBeenCalledWith('/api/auth/signup', expect.anything())
 
     await userEvent.type(screen.getByLabelText('Password'), ' and more')

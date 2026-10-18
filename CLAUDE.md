@@ -44,6 +44,7 @@ uv run pytest tests/test_seed_apply.py::test_rerun_is_idempotent -v   # single t
 uv run alembic upgrade head                # apply migrations to DATABASE_URL
 uv run alembic check                       # confirm models match migrations
 uv run python -m app.seed                  # validate + load seed/*.yaml
+uv run python -m app.reset_password EMAIL # set a new password (prompts; ends that account's sessions)
 ```
 
 - On a fresh database run `uv run alembic upgrade head` before the seed loader.
@@ -52,6 +53,7 @@ uv run python -m app.seed                  # validate + load seed/*.yaml
 - The seed loader requires `schedule.yaml` and refuses to drop an intake that users are on. Migration 0008 moves existing users onto `2607-online-ccc-ft`.
 - On Fly, `fly.toml` sets COOKIE_SECURE and TRUST_FLY_CLIENT_IP (rate limit by the real client IP). Leave both off locally.
 - Prod runs on one machine (`--ha=false`) because the login rate limiter is in memory.
+- There's no email reset yet. To reset a prod password: `fly ssh console --pty -C "sh -c 'cd /app/backend && /opt/venv/bin/python -m app.reset_password EMAIL'"`.
 
 Frontend (run in `frontend/`):
 
