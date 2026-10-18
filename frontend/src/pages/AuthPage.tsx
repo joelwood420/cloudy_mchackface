@@ -23,8 +23,8 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
-    if (mode === 'signup' && password.length < 10) {
-      setError('Use a password of at least 10 characters.')
+    if (mode === 'signup' && password.length < 8) {
+      setError('Use a password of at least 8 characters.')
       return
     }
     setBusy(true)
@@ -69,7 +69,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
           </label>
           {mode === 'signup' && (
             <p id="password-hint" className="muted small">
-              At least 10 characters.
+              At least 8 characters.
             </p>
           )}
           {error && (
