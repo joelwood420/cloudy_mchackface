@@ -196,6 +196,13 @@ function SubmoduleHead({ submodule }: { submodule: Submodule }) {
   )
 }
 
+type WeekChoice = { key: string | null } | null
+
+const isWeekChoice = (v: unknown): v is WeekChoice =>
+  v === null || (typeof v === 'object' && (typeof (v as { key?: unknown }).key === 'string' || (v as { key?: unknown }).key === null))
+
+const isStringList = (v: unknown): v is string[] => Array.isArray(v) && v.every((k) => typeof k === 'string')
+
 /** Every week in the track has tasks and all of them are ticked. */
 function trackComplete(weeks: Week[]): boolean {
   return weeks.length > 0 && weeks.every((w) => w.tasks.length > 0 && weekDone(w) === w.tasks.length)
@@ -237,8 +244,8 @@ export function WeekTimeline({
 }) {
   // Until the user opens or closes a week, the current week is open. It may only be known after this-week loads.
   // Both choices are kept for the tab, so a reload (e.g. after a lab) opens the module the way you left it.
-  const [choice, setChoice] = useSessionState<{ key: string | null } | null>(`open-week:${moduleKey}`, null)
-  const [expandedTracks, setExpandedTracks] = useSessionState<string[]>(`open-tracks:${moduleKey}`, [])
+  const [choice, setChoice] = useSessionState(`open-week:${moduleKey}`, null, isWeekChoice)
+  const [expandedTracks, setExpandedTracks] = useSessionState(`open-tracks:${moduleKey}`, [], isStringList)
   // Only tracks already finished when the page opened start folded; one you finish now stays open so you see it land.
   const [foldable] = useState(() => new Set(groupWeeks(weeks, submodules).filter((g) => trackComplete(g.weeks)).map((g) => g.submodule?.key ?? 'other')))
   const currentKey = weeks.find((w) => w.week_number === currentWeek)?.key ?? null

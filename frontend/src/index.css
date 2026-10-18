@@ -50,8 +50,10 @@ h2 { font-weight: 600; font-size: 20px; }
 .muted { color: var(--muted); }
 .small { font-size: 13px; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+/* Headings only take focus from code, to keep your place after a change; they aren't controls, so no ring. */
+h1[tabindex='-1']:focus, h2[tabindex='-1']:focus { outline: none; }
 /* Shell */
-.shell { min-height: 100vh; display: flex; flex-wrap: wrap; align-items: stretch; }
+.shell { min-height: 100vh; display: flex; align-items: stretch; }
 /* Desktop: the sidebar stays put while long module pages scroll, and scrolls on its own if it's taller than the window. */
 .sidebar { flex: 1 1 240px; max-width: 100%; position: sticky; top: 0; align-self: flex-start; height: 100vh; height: 100dvh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--dot-border) transparent; padding: 28px 20px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 32px; }
 .skip-link { position: absolute; left: 8px; top: -60px; z-index: 10; padding: 10px 14px; border-radius: 8px; background: var(--accent); color: var(--surface); font-weight: 600; text-decoration: none; }
@@ -188,7 +190,7 @@ button.button-secondary { cursor: pointer; }
 .prereq-box { padding: 14px 18px; border-radius: 12px; background: var(--accent-tint); border: 1px solid var(--accent-line); }
 .prereq-box h4 { margin: 0 0 4px; font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-strong); }
 .prereq-list { list-style: none; margin: 0; padding: 0; }
-.prereq-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 6px 0; }
+.prereq-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; min-height: 44px; padding: 6px 0; }
 .prereq-item + .prereq-item { border-top: 1px solid var(--accent-line); }
 .prereq-title { font-weight: 500; }
 
@@ -334,7 +336,8 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 .next-due { margin: 0; display: flex; flex-direction: column; align-items: flex-start; font-size: 14px; }
 .next-due-meta { display: flex; align-items: center; gap: 10px; }
 .next-due-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
-.next-due-title { display: inline-flex; align-items: center; min-height: 44px; font-weight: 600; line-height: 1.35; }
+.next-due-title { display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; color: var(--accent-strong); font-weight: 600; line-height: 1.35; text-align: left; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.next-due-title:hover { color: var(--accent-hover); }
 .timeline-item, .rail { scroll-margin-top: 24px; }
 @media (max-width: 800px) {
   .timeline-item, .rail { scroll-margin-top: 72px; }

@@ -22,6 +22,15 @@ function nextDue(assessments: Assessment[]): Assessment | null {
   return open.sort((a, b) => a.days_until! - b.days_until!)[0] ?? null
 }
 
+/** Scroll to the assessments rail and put focus on its heading, without adding a history entry. */
+function showRail() {
+  const rail = document.getElementById('module-assessments')
+  const heading = rail?.querySelector<HTMLElement>('h2')
+  rail?.scrollIntoView({ block: 'start' })
+  heading?.setAttribute('tabindex', '-1')
+  heading?.focus({ preventScroll: true })
+}
+
 /** Shown only when the assessments rail has wrapped below the timeline (see .next-due in index.css). */
 function NextDue({ assessment }: { assessment: Assessment }) {
   const chip = statusChip(assessment)
@@ -31,7 +40,9 @@ function NextDue({ assessment }: { assessment: Assessment }) {
         <span className="next-due-label">Next due</span>
         {chip && <span className={`status-chip ${chip.tone}`.trim()}>{chip.label}</span>}
       </span>
-      <a href="#module-assessments" className="next-due-title">{assessment.title}</a>
+      <button type="button" className="next-due-title" onClick={showRail}>
+        {assessment.title}
+      </button>
     </p>
   )
 }
@@ -46,7 +57,8 @@ export function ModulePage() {
   const [jumpRequest, setJumpRequest] = useState(0)
   // Module keys are the lower-case code, so the tab says which module is loading before the title arrives.
   usePageTitle(query.data ? `${query.data.code} ${query.data.title}` : key.toUpperCase())
-  useRestoreScroll(`/modules/${key}`, query.isSuccess)
+  // Wait for this week too: it opens the current week, which changes the page height.
+  useRestoreScroll(`/modules/${key}`, query.isSuccess && !thisWeek.isPending)
 
   if (query.isPending) return <ModuleSkeleton />
   if (query.isError) {

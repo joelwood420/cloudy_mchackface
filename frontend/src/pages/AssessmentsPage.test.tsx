@@ -48,6 +48,9 @@ describe('AssessmentsPage', () => {
     await userEvent.click(within(row('Assessment 3')).getByRole('checkbox', { name: 'Mark submitted' }))
     expect(screen.getByRole('region', { name: 'Submitted (2)' })).toBeInTheDocument()
     expect(within(screen.getByRole('region', { name: 'Next due' })).getByText('Assessment 4')).toBeInTheDocument()
+    // Focus leaves the list rather than landing on Assessment 4's box, and the change is announced.
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Show' })).toHaveFocus())
+    expect(screen.getByText('Assessment 3 marked submitted.')).toBeInTheDocument()
     await waitFor(() => expect(calls).toEqual(['put']))
   })
 

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { type AssessmentWithModule, fetchAssessments } from '../api'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { ExternalLink } from '../components/ExternalLink'
@@ -15,7 +15,7 @@ function byDue(a: AssessmentWithModule, b: AssessmentWithModule): number {
   return a.days_until - b.days_until
 }
 
-type Toggle = (key: string, submitted: boolean) => void
+type Toggle = (a: AssessmentWithModule, submitted: boolean) => void
 
 function AssessmentRow({ a, lead = false, onToggle }: { a: AssessmentWithModule; lead?: boolean; onToggle: Toggle }) {
   const chip = statusChip(a)
@@ -32,7 +32,7 @@ function AssessmentRow({ a, lead = false, onToggle }: { a: AssessmentWithModule;
       {chip && <span className={`status-chip ${chip.tone}`.trim()}>{chip.label}</span>}
       <div className="assessment-row-actions">
         <label className="submitted-toggle">
-          <input type="checkbox" checked={a.submitted} onChange={() => onToggle(a.key, !a.submitted)} aria-describedby={titleId} />
+          <input type="checkbox" checked={a.submitted} onChange={() => onToggle(a, !a.submitted)} aria-describedby={titleId} />
           Mark submitted
         </label>
         {a.uplearn_url && (
@@ -52,11 +52,20 @@ export function AssessmentsPage() {
   const query = useQuery({ queryKey: ['assessments'], queryFn: fetchAssessments })
   const submit = useSubmitAssessment()
   const [showSubmitted, setShowSubmitted] = useState(false)
+  const [note, setNote] = useState('')
+  const submittedToggle = useRef<HTMLButtonElement>(null)
+  const heading = useRef<HTMLHeadingElement>(null)
 
   if (query.isPending) return <ListSkeleton label="Loading assessments…" />
   if (query.isError) return <main className="page"><ErrorMessage error={query.error} onRetry={() => query.refetch()} /></main>
 
-  const onToggle: Toggle = (key, submitted) => submit.mutate({ key, submitted })
+  // A ticked row moves to another list, so its box disappears. Say what happened and park focus on the Submitted
+  // toggle (or the page heading if that section has gone), rather than leaving it on whatever row slid into place.
+  const onToggle: Toggle = (a, submitted) => {
+    submit.mutate({ key: a.key, submitted })
+    setNote(`${a.title} marked ${submitted ? 'submitted' : 'not submitted'}.`)
+    requestAnimationFrame(() => (submittedToggle.current ?? heading.current)?.focus())
+  }
   const open = query.data.filter((a) => !a.submitted).sort(byDue)
   const submitted = query.data.filter((a) => a.submitted)
   // The lead is the next real deadline; overdue ones still count, since they need doing first.
@@ -66,9 +75,14 @@ export function AssessmentsPage() {
   return (
     <main className="page assessments-page">
       <header className="page-header">
-        <h1>Assessments</h1>
+        <h1 ref={heading} tabIndex={-1}>
+          Assessments
+        </h1>
         <p className="muted">Every assessment in the programme, soonest first. Tick one off once you've submitted it on UPLearn.</p>
       </header>
+      <p role="status" className="sr-only">
+        {note}
+      </p>
       {submit.isError && <p role="alert" className="error">Couldn't save that tick. Try again.</p>}
       {query.data.length === 0 && <p className="muted">No assessments listed yet.</p>}
 
@@ -76,7 +90,7 @@ export function AssessmentsPage() {
         <section aria-labelledby="next-due-heading" className="assessments-section">
           <h2 id="next-due-heading">Next due</h2>
           <ul className="assessment-list">
-            <AssessmentRow a={lead} lead onToggle={onToggle} />
+            <AssessmentRow key={lead.key} a={lead} lead onToggle={onToggle} />
           </ul>
         </section>
       )}
@@ -98,7 +112,7 @@ export function AssessmentsPage() {
         <section aria-labelledby="submitted-heading" className="assessments-section">
           <div className="section-head">
             <h2 id="submitted-heading">{`Submitted (${submitted.length})`}</h2>
-            <button type="button" className="link-button" aria-expanded={showSubmitted} aria-controls="submitted-list" onClick={() => setShowSubmitted(!showSubmitted)}>
+            <button ref={submittedToggle} type="button" className="link-button" aria-expanded={showSubmitted} aria-controls="submitted-list" onClick={() => setShowSubmitted(!showSubmitted)}>
               {showSubmitted ? 'Hide' : 'Show'}
             </button>
           </div>

@@ -578,7 +578,8 @@ describe('ModulePage wayfinding', () => {
 
   it('names the next deadline under the title', async () => {
     const main = await open()
-    expect(within(main).getByRole('link', { name: 'Assessment 3' })).toHaveAttribute('href', '#module-assessments')
+    await userEvent.click(within(main).getByRole('button', { name: 'Assessment 3' }))
+    expect(within(main).getByRole('heading', { level: 2, name: 'Assessments' })).toHaveFocus()
   })
 
   it('remembers which week you opened for the rest of the session', async () => {

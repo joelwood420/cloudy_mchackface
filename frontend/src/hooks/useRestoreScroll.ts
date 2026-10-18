@@ -7,12 +7,13 @@ import { useNavigationType } from 'react-router-dom'
  */
 export function useRestoreScroll(key: string, ready: boolean) {
   const navigationType = useNavigationType()
-  const restored = useRef(false)
+  // The page component stays mounted when you move between modules, so remember which key was restored, not just whether.
+  const restoredFor = useRef<string | null>(null)
   const storageKey = `scroll:${key}`
 
   useEffect(() => {
-    if (!ready || restored.current) return
-    restored.current = true
+    if (!ready || restoredFor.current === storageKey) return
+    restoredFor.current = storageKey
     if (navigationType !== 'POP') return
     let y = 0
     try {
