@@ -38,16 +38,20 @@ describe('ThisWeekPage', () => {
     expect(screen.getByRole('link', { name: 'Open UPLearn (opens in new tab)' })).toHaveAttribute('href', 'https://yoobee.uplearn.education/')
   })
 
-  it("shows next week when you're ahead", async () => {
+  it("offers next week when you're ahead, and shows it on request", async () => {
     show({ ...teaching, ahead: { week_number: 12, groups: [group(12, [task('t12')])] } })
-    expect(await screen.findByRole('heading', { name: "You're ahead of schedule 🎉" })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Next up · Week 12' })).toBeInTheDocument()
+    expect(await screen.findByText("Week 11 done. You're ahead of schedule.")).toBeInTheDocument()
+    expect(screen.queryByRole('checkbox', { name: 'Task t12' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Get a head start on Week 12' }))
     expect(screen.getByRole('checkbox', { name: 'Task t12' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Hide Week 12' }))
+    expect(screen.queryByRole('checkbox', { name: 'Task t12' })).not.toBeInTheDocument()
   })
 
   it("says when next week isn't in the app", async () => {
     show({ ...teaching, ahead: { week_number: 12, groups: [] } })
-    expect(await screen.findByText("Week 12 isn't in the app yet.")).toBeInTheDocument()
+    await userEvent.click(await screen.findByRole('button', { name: 'Get a head start on Week 12' }))
+    expect(screen.getByText("Week 12 isn't in the app yet.")).toBeInTheDocument()
   })
 
   it('shows the break screen', async () => {
@@ -137,6 +141,7 @@ describe('ThisWeekPage', () => {
       '/api/this-week': () => jsonResponse(build()),
       'PUT /api/prerequisites/azure/complete': () => { saved = true; return new Response(null, { status: 204 }) },
     })
+    await userEvent.click(await screen.findByRole('button', { name: 'Get a head start on Week 12' }))
     const boxes = await screen.findAllByRole('checkbox', { name: 'Create an Azure account' })
     expect(boxes).toHaveLength(2)
     expect(boxes[0].id).not.toBe(boxes[1].id)

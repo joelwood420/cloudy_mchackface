@@ -309,6 +309,14 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 @keyframes lurk-fade { to { opacity: 0; max-height: 0; min-height: 0; padding-block: 0; margin-block: 0; border-width: 0; } }
 @keyframes all-clear-fade { to { opacity: 0; } }
 
+.ahead { display: flex; flex-direction: column; gap: 16px; }
+.ahead-prompt { padding: 12px 12px 12px 18px; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; background: var(--accent-tint); border-color: var(--accent-line); }
+.ahead-text { margin: 0; font-weight: 600; color: var(--accent-strong); }
+.ahead.is-arriving { animation: ahead-in 480ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.ahead-panel { display: flex; flex-direction: column; gap: 16px; animation: ahead-open 360ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+@keyframes ahead-in { from { opacity: 0; transform: translateY(12px); } }
+@keyframes ahead-open { from { opacity: 0; transform: translateY(-6px); } }
+
 @media (prefers-reduced-motion: reduce) {
   input[type='checkbox'] { transition: background-color 120ms ease-out, border-color 120ms ease-out; }
   input[type='checkbox']:active { transform: none; }
@@ -318,6 +326,7 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
   .week-group:has(.stamp.is-slam), .progress-card:has(.stamp.is-slam) { animation: none; }
   .malware-list .task-row.is-done, .malware-week.is-done { animation-name: lurk-fade; }
   .malware-banner.is-clear { animation-name: all-clear-fade; }
+  .ahead.is-arriving, .ahead-panel { animation-name: stamp-fade; }
 }
 @media (forced-colors: active) {
   input[type='checkbox'] { appearance: auto; }
