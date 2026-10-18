@@ -145,7 +145,7 @@ The guide is a study tool, not a dashboard of vanity numbers. Every bar and coun
 A cool, low-chroma neutral world with one teal accent and a small set of semantic state colours.
 
 ### Primary
-- **Terminal Teal** (#0e7c72): progress fills, the current-week dot, the active timeline card border, primary buttons, focus rings, the brand mark.
+- **Terminal Teal** (#0e7c72): progress fills, the current-week dot, the active timeline card border, primary buttons, focus rings.
 - **Terminal Teal Deep** (#0b5f57): link text, active nav text, prerequisite headings, hover on primary buttons.
 - **Terminal Teal Ink** (#084f48): link hover.
 - **Teal Wash** (#e4f2f0): active nav background, "Current week" badge.
@@ -164,6 +164,11 @@ A cool, low-chroma neutral world with one teal accent and a small set of semanti
 - **Overdue Red** (#b42318 on #fde7e7): overdue chips; **Error Wash** (#fdecec) behind error messages.
 - **Notice Blue** (#164f80 on #e3eef9): submitted chips and informational notices (breaks, holidays).
 - **Night Console** (#0f1e33), **Alarm Amber** (#f2a33a), **Alarm Amber Light** (#f7c47e): the malware banner only.
+
+### Brand mark
+- **Cloud mark:** a white cloud with a Brand Navy (#121e33) outline, pixel sunglasses and a pixel smirk, beside the "Cloudy McHackface" name in the sidebar and phone top bar.
+- **Favicon and home-screen icon:** the same white cloud on a Brand Navy tile. The favicon drops the smirk, which is lost at 16px.
+- Brand Navy sits close to Night Console but only ever draws the logo. It is not a UI colour.
 
 ### Named Rules
 **The You-Are-Here Rule.** Terminal Teal marks where you are and how far you've come. Don't spend it on decoration.
@@ -240,7 +245,7 @@ Gently rounded throughout: 12px for cards, panels and the malware banner; 10px f
 Numbered 32px dots on a grey spine, each beside an expandable week card (Week N in mono, title, x/y done, slim progress bar, chevron). The current week fills its dot with Terminal Teal and carries a "Current week" badge. Open cards lift and show their schedule post link, then task rows.
 
 ### Malware Banner (signature)
-A Night Console panel with an amber bug tile, "MALWARE DETECTED" in mono Alarm Amber Light, the lurking-task count, and an amber "Quarantine them" button that opens the overdue list. It stays put until the backlog is cleared.
+A Night Console panel with an amber bug tile, "MALWARE DETECTED" in mono Alarm Amber Light, the lurking-task count, and an amber "Quarantine them" button. The button opens the overdue tasks inside the banner itself (light titles, Alarm Amber Light links, amber tick boxes) and flips to "Back to this week". Ticked tasks slide out at once. It stays put until the backlog is cleared, then shows "SYSTEM CLEAN · Threat neutralised. You're back on track." with a teal shield tile for about 2.5s and fades away.
 
 ## Do's and Don'ts
 

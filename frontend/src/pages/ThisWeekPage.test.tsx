@@ -38,16 +38,20 @@ describe('ThisWeekPage', () => {
     expect(screen.getByRole('link', { name: 'Open UPLearn (opens in new tab)' })).toHaveAttribute('href', 'https://yoobee.uplearn.education/')
   })
 
-  it("shows next week when you're ahead", async () => {
+  it("offers next week when you're ahead, and shows it on request", async () => {
     show({ ...teaching, ahead: { week_number: 12, groups: [group(12, [task('t12')])] } })
-    expect(await screen.findByRole('heading', { name: "You're ahead of schedule 🎉" })).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: 'Next up · Week 12' })).toBeInTheDocument()
+    expect(await screen.findByText("Week 11 done. You're ahead of schedule.")).toBeInTheDocument()
+    expect(screen.queryByRole('checkbox', { name: 'Task t12' })).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Get a head start on Week 12' }))
     expect(screen.getByRole('checkbox', { name: 'Task t12' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Hide Week 12' }))
+    expect(screen.queryByRole('checkbox', { name: 'Task t12' })).not.toBeInTheDocument()
   })
 
   it("says when next week isn't in the app", async () => {
     show({ ...teaching, ahead: { week_number: 12, groups: [] } })
-    expect(await screen.findByText("Week 12 isn't in the app yet.")).toBeInTheDocument()
+    await userEvent.click(await screen.findByRole('button', { name: 'Get a head start on Week 12' }))
+    expect(screen.getByText("Week 12 isn't in the app yet.")).toBeInTheDocument()
   })
 
   it('shows the break screen', async () => {
@@ -137,6 +141,7 @@ describe('ThisWeekPage', () => {
       '/api/this-week': () => jsonResponse(build()),
       'PUT /api/prerequisites/azure/complete': () => { saved = true; return new Response(null, { status: 204 }) },
     })
+    await userEvent.click(await screen.findByRole('button', { name: 'Get a head start on Week 12' }))
     const boxes = await screen.findAllByRole('checkbox', { name: 'Create an Azure account' })
     expect(boxes).toHaveLength(2)
     expect(boxes[0].id).not.toBe(boxes[1].id)
@@ -158,14 +163,47 @@ describe('ThisWeekPage', () => {
       { week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] },
       { week_number: 10, tasks: [{ ...task('old2'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] },
     ] })
-    const banner = await screen.findByRole('status')
-    expect(within(banner).getByText('MALWARE DETECTED')).toBeInTheDocument()
+    const banner = (await screen.findByText('MALWARE DETECTED')).closest('[role="status"]') as HTMLElement
     expect(within(banner).getByText('2 unfinished tasks are lurking in Week 9, 10.')).toBeInTheDocument()
     expect(screen.queryByRole('checkbox', { name: 'Task old1' })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Quarantine them' }))
-    expect(screen.getByRole('button', { name: 'Quarantine them' })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: 'Back to this week' })).toHaveAttribute('aria-expanded', 'true')
+    expect(banner.closest('.malware-banner')).toContainElement(screen.getByRole('region', { name: 'Unfinished tasks from earlier weeks' }))
     expect(screen.getByRole('heading', { name: 'Week 9' })).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: 'Task old1' })).toBeInTheDocument()
+  })
+
+  it('stamps the week complete when its last task is ticked', async () => {
+    let saved = false
+    const done = { ...teaching, groups: [group(11, [task('t1', true), task('t2', true)])] }
+    show(teaching, {
+      '/api/this-week': () => jsonResponse(saved ? done : teaching),
+      'PUT /api/tasks/t2/complete': () => { saved = true; return new Response(null, { status: 204 }) },
+    })
+    await screen.findByRole('checkbox', { name: 'Task t2' })
+    expect(screen.queryByText('Week complete')).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Task t2' }))
+    expect(await screen.findByText('Week complete')).toHaveClass('stamp', 'is-slam')
+    expect(screen.getByText('Week 11 complete.')).toBeInTheDocument()
+  })
+
+  it('shows a complete week stamped on load, without the slam', async () => {
+    show({ ...teaching, groups: [group(11, [task('t1', true), task('t2', true)])] })
+    const stamp = await screen.findByText('Week complete')
+    expect(stamp).not.toHaveClass('is-slam')
+    expect(screen.queryByText('Week 11 complete.')).not.toBeInTheDocument()
+  })
+
+  it('moves the sidebar module count with the tick', async () => {
+    const mod = (completed: number) => [{ key: 'ccc602', code: 'CCC602', title: 'Data Engineering', submodule_count: 1, week_count: 1, task_count: 4, completed_count: completed, week_numbers: [11], uplearn_url: null }]
+    show(teaching, {
+      '/api/modules': mod(1),
+      'PUT /api/tasks/t2/complete': () => new Promise<Response>(() => {}), // still saving, so only the optimistic count shows
+    })
+    const side = await screen.findByRole('navigation', { name: 'Main' })
+    expect(await within(side).findByText('25%')).toBeInTheDocument()
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Task t2' }))
+    expect(await within(side).findByText('50%')).toBeInTheDocument()
   })
 
   it('counts only unticked lurking tasks, straight after a tick', async () => {
@@ -188,27 +226,40 @@ describe('ThisWeekPage', () => {
     expect(screen.getByRole('checkbox', { name: 'Task old1' })).toBeChecked()
   })
 
-  it('closes the quarantine list with Back to this week once it is cleared', async () => {
+  it('animates a ticked lurking task out straight away', async () => {
+    show({ ...teaching, lurking: [{ week_number: 9, tasks: [
+      { ...task('old1'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null },
+      { ...task('old2'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null },
+    ] }] }, { 'PUT /api/tasks/old1/complete': () => new Promise<Response>(() => {}) }) // still saving, so no refetch yet
+    await userEvent.click(await screen.findByRole('button', { name: 'Quarantine them' }))
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Task old1' }))
+    expect(screen.getByRole('checkbox', { name: 'Task old1' }).closest('li')).toHaveClass('is-done')
+    expect(screen.getByText('1 unfinished task is lurking in Week 9.')).toBeInTheDocument()
+  })
+
+  it('shows the all-clear when the last lurking task is ticked, then fades away', async () => {
     let saved = false
     const before = { ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] }] }
-    const after = { ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1', true), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] }] }
     show(before, {
-      '/api/this-week': () => jsonResponse(saved ? after : before),
+      '/api/this-week': () => jsonResponse(saved ? teaching : before),
       'PUT /api/tasks/old1/complete': () => { saved = true; return new Response(null, { status: 204 }) },
     })
     await userEvent.click(await screen.findByRole('button', { name: 'Quarantine them' }))
     await userEvent.click(screen.getByRole('checkbox', { name: 'Task old1' }))
-    expect(await screen.findByText('Threat neutralised. System clean.')).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Back to this week' }))
+    expect(await screen.findByText('SYSTEM CLEAN')).toBeInTheDocument()
+    expect(screen.getByText("Threat neutralised. You're back on track.")).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Back to this week' })).not.toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Unfinished tasks from earlier weeks' })).not.toBeInTheDocument()
-  })
+    await waitFor(() => expect(screen.queryByText('SYSTEM CLEAN')).not.toBeInTheDocument(), { timeout: 5000 })
+  }, 10000)
 
   it('can leave the quarantine list before it is cleared', async () => {
     show({ ...teaching, lurking: [{ week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] }] })
     await userEvent.click(await screen.findByRole('button', { name: 'Quarantine them' }))
-    expect(screen.queryByText('Threat neutralised. System clean.')).not.toBeInTheDocument()
+    expect(screen.queryByText('SYSTEM CLEAN')).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Back to this week' }))
     expect(screen.queryByRole('checkbox', { name: 'Task old1' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Quarantine them' })).toHaveAttribute('aria-expanded', 'false')
     expect(screen.getByText('MALWARE DETECTED')).toBeInTheDocument()
   })
 

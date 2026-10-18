@@ -4,6 +4,7 @@ import { AssessmentsRail } from '../components/AssessmentsRail'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { ExternalLink } from '../components/ExternalLink'
 import { ProgressBar } from '../components/ProgressBar'
+import { AheadPrompt } from '../components/thisweek/AheadPrompt'
 import { MalwareBanner } from '../components/thisweek/MalwareBanner'
 import { CatchUpNote, HolidayNotes, UpcomingBreakBanner } from '../components/thisweek/Notices'
 import { WeekGroups } from '../components/thisweek/WeekGroups'
@@ -164,17 +165,12 @@ export function ThisWeekPage() {
             ) : (
               <WeekGroups groups={tw.groups} onToggleTask={onToggleTask} onTogglePrerequisite={onTogglePrerequisite} />
             ))}
-          {tw.ahead && (
-            <section aria-labelledby="ahead-heading" className="ahead">
-              <h2 id="ahead-heading">You're ahead of schedule 🎉</h2>
-              <h3>Next up · Week {tw.ahead.week_number}</h3>
-              {tw.ahead.groups.length === 0 ? (
-                <p className="muted">Week {tw.ahead.week_number} isn't in the app yet.</p>
-              ) : (
-                <WeekGroups groups={tw.ahead.groups} onToggleTask={onToggleTask} onTogglePrerequisite={onTogglePrerequisite} />
-              )}
-            </section>
-          )}
+          <AheadPrompt
+            weekNumber={tw.week?.week_number ?? null}
+            ahead={tw.ahead}
+            onToggleTask={onToggleTask}
+            onTogglePrerequisite={onTogglePrerequisite}
+          />
         </div>
         <AssessmentsRail
           assessments={tw.assessments}
