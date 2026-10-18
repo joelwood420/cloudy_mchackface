@@ -1,6 +1,6 @@
 """Set a new password for an account, for when someone has forgotten theirs. There's no email reset yet.
 
-On Fly:  fly ssh console --pty -C "sh -c 'cd /app/backend && /opt/venv/bin/python -m app.reset_password you@example.com'"
+On Fly:  fly ssh console -a cloudy-mchackface --pty -C "sh -c 'cd /app/backend && /opt/venv/bin/python -m app.reset_password you@example.com'"
 Locally: uv run python -m app.reset_password you@example.com
 
 The new password is typed at a prompt (twice), never passed as an argument, so it stays out of shell history and
