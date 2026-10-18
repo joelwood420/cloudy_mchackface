@@ -29,7 +29,7 @@ Constraints from Yoobee policy (see CLAUDE.md): store structure, metadata and pu
 |---|---|
 | Structure | Module → Week → Task; one tick per task |
 | Current week | Chosen manually by each student |
-| Content source | Seed files in the repo, written by Claude from the portal |
+| Content source | Seed files in the repo, written from the owner's own portal notes |
 | Auth | Email + password built into FastAPI |
 | Database | Neon (dev branch locally, separate test branch for tests) |
 | Delivery | Thin slice first: one module end to end, then widen |

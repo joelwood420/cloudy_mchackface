@@ -1,6 +1,6 @@
 # Source: UPLearn course 02 (id=548), FT schedule forum (mod/forum id=74592),
 # tiles DP_900 (section 9656), Azure Data Engineer Associates (9657),
-# DEA_C01 (9658), Assessments (9649). Collected 2026-10-15.
+# DEA_C01 (9658), Assessments (9649). Recorded by the owner from UPLearn, 2026-10-15.
 # Structure: module > submodules (certification tracks) > weeks > tasks.
 # Submodule prerequisite keys refer to seed/prerequisites.yaml.
 module:
@@ -315,7 +315,7 @@ assessments:
     due_date: 2026-11-22
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
 
-# FT schedule posts: one forum discussion per teaching week (links only). Collected 2026-10-18.
+# FT schedule posts: one forum discussion per teaching week (links only). Recorded by the owner from UPLearn, 2026-10-18.
 schedule_posts:
   - {week_number: 9, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48958"}
   - {week_number: 10, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48960"}

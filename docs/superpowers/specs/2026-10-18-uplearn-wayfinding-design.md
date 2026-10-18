@@ -12,7 +12,7 @@ The student is mid-study, flipping back from Microsoft Learn, AWS or a lab. From
 | Topic | Decision |
 |---|---|
 | Schedule post data | Each module gets `schedule_posts:` in seed: `week_number`, `study_mode` (FT now; PT later), `url`. Stored in the DB, returned with weeks by the API. One post per module per week, not per track. |
-| Collecting URLs | Claude collects them with the owner in a one-off browser session while the owner is logged in. Only post URLs (titles in seed comments). No post text, lab keys or tutor links. No automated scraping. |
+| Recording URLs | The owner records them from their own portal notes. Only post URLs (titles in seed comments). No post text, lab keys or tutor links. No automated scraping. |
 | This week header | One "Week N schedule post ↗" link per module that week, under the dates. |
 | Module page | Inside each expanded week card, at the top of the panel. |
 | Lab rows | Short note "Lab access details are in the Week N schedule post", linked, beside the existing AWS Academy / Skillable note. |

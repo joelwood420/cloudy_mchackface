@@ -105,7 +105,7 @@ UPLearn is mostly a wrapper around external learning. Using course 02 (CCC602) a
 - Store **structure, metadata and public links**: course, week and module names, topic bullets, due dates, completion state, links to Microsoft Learn/AWS, and links back to the UPLearn page. This mirrors what the portal itself does.
 - Don't copy Yoobee-owned files or text (assessment handouts and briefs, rubrics, tutor posts in full) into the app. Link to them on UPLearn instead.
 - Never store or display lab training keys, Teams/Calendly links from tutors, the owner's portal login, or other students' data.
-- How portal data gets into the app is still open: Claude collecting it in browser sessions and importing it, or an automated sync through Moodle. Don't build automated scraping or portal login handling without checking with the owner first.
+- How portal data gets into the app is still open: the owner recording it from their own portal notes, or an automated sync through Moodle. Don't build automated scraping or portal login handling without checking with the owner first.
 
 ## Yoobee policy constraints
 

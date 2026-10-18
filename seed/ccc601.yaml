@@ -1,9 +1,9 @@
 # Source: UPLearn course 01 (id=552), FT schedule forum (mod/forum id=74590),
 # tiles AWS Cloud Practitioner (section 9686), AWS Cloud Architect (9687),
 # Microsoft Azure Fundamentals (9688), Microsoft Azure Administrator (9681),
-# Assessments (9689). Collected 2026-10-16.
+# Assessments (9689). Recorded by the owner from UPLearn, 2026-10-16.
 # AWS tasks link to AWS Academy (Canvas) courses 178917 (Cloud Foundations) and
-# 178918 (Cloud Architecting), collected 2026-10-17.
+# 178918 (Cloud Architecting), recorded by the owner 2026-10-17.
 # Structure: module > submodules (certification tracks) > weeks > tasks.
 # Submodule prerequisite keys refer to seed/prerequisites.yaml.
 module:
@@ -601,7 +601,7 @@ assessments:
     due_date: 2026-09-13
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
 
-# FT schedule posts: one forum discussion per teaching week (links only). Collected 2026-10-18.
+# FT schedule posts: one forum discussion per teaching week (links only). Recorded by the owner from UPLearn, 2026-10-18.
 schedule_posts:
   - {week_number: 1, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48871"}
   - {week_number: 2, study_mode: FT, url: "https://yoobee.uplearn.education/mod/forum/discuss.php?d=48875"}
