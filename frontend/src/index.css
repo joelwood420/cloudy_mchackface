@@ -46,6 +46,7 @@ h1, h2, h3 { margin: 0; font-family: var(--font-display); }
 h1 { font-weight: 700; font-size: clamp(28px, 3vw, 38px); line-height: 1.1; letter-spacing: -0.015em; }
 h2 { font-weight: 600; font-size: 20px; }
 .mono { font-family: var(--font-mono); }
+.sr-only { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
 .muted { color: var(--muted); }
 .small { font-size: 13px; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
@@ -117,7 +118,7 @@ button.button-secondary { cursor: pointer; }
 .progress-sm { height: 6px; }
 .progress-md { height: 8px; }
 .progress-lg { height: 10px; }
-.progress-fill { height: 100%; background: var(--accent); border-radius: inherit; }
+.progress-fill { position: relative; height: 100%; background: var(--accent); border-radius: inherit; transition: width 420ms cubic-bezier(0.16, 1, 0.3, 1); }
 
 /* Modules page */
 .card-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
@@ -159,7 +160,6 @@ button.button-secondary { cursor: pointer; }
 .week-panel > p { margin: 14px 0 0; }
 .task-list { list-style: none; margin: 0; padding: 0; }
 .task-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; min-height: 52px; padding: 8px 0; border-bottom: 1px solid var(--border-soft); }
-.task-row input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
 .task-main { flex: 1 1 220px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .task-note { display: flex; align-items: flex-start; gap: 6px; font-size: 13px; line-height: 1.4; color: var(--muted); }
 .task-note svg { flex: 0 0 auto; margin-top: 2px; }
@@ -205,7 +205,6 @@ button.button-secondary { cursor: pointer; }
 .sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 .sidebar-foot p { margin: 0; }
 .sidebar-email { overflow-wrap: anywhere; }
-.prereq-item input { width: 20px; height: 20px; margin: 0; accent-color: var(--accent); }
 .prereq-list.is-done .prereq-title { color: var(--muted); text-decoration: line-through; }
 .prereq-ready { margin: 0; font-weight: 600; color: var(--accent-strong); }
 .link-button { align-self: flex-start; min-height: 44px; padding: 0; border: 0; background: none; color: var(--accent-strong); font-size: 13px; font-weight: 500; text-decoration: underline; cursor: pointer; }
@@ -252,3 +251,54 @@ button.button-secondary { cursor: pointer; }
 .notice { margin: 0; padding: 12px 16px; border-radius: 10px; background: var(--info-bg); color: var(--info); }
 .notice-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .notice-row p { margin: 0; }
+
+/* Rewards. Transitions rather than keyframes on state, so things that load ticked or full stay still. */
+input[type='checkbox'] { appearance: none; flex: 0 0 auto; width: 20px; height: 20px; margin: 0; display: inline-grid; place-content: center; border: 2px solid var(--dot-border); border-radius: 5px; background: var(--surface); cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out, transform 240ms cubic-bezier(0.16, 1, 0.3, 1); }
+input[type='checkbox']::before { content: ''; width: 12px; height: 12px; background: var(--surface); mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 12.5l5 5L20 6.5'/%3E%3C/svg%3E") center / contain no-repeat; clip-path: inset(0 100% 0 0); transition: clip-path 180ms cubic-bezier(0.16, 1, 0.3, 1) 40ms; }
+input[type='checkbox']:hover { border-color: var(--accent); }
+input[type='checkbox']:active { transform: scale(0.86); }
+input[type='checkbox']:checked { background: var(--accent); border-color: var(--accent); }
+input[type='checkbox']:checked::before { clip-path: inset(0); }
+.task-title { transition: color 200ms ease-out; }
+.task-row.is-done .task-title { color: var(--muted); }
+
+.progress-fill.is-sweeping::after { content: ''; position: absolute; inset: 0; background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.65), transparent); transform: translateX(-100%); animation: progress-sweep 900ms cubic-bezier(0.16, 1, 0.3, 1) 300ms both; }
+@keyframes progress-sweep { to { transform: translateX(100%); } }
+
+.readout { margin: 0; font-family: var(--font-mono); font-size: 13px; line-height: 20px; color: var(--accent-strong); }
+.week-group > .readout { margin: -4px 0 6px; }
+.week-group > .readout:empty { margin: -12px 0 0; }
+.week-panel > .readout { margin: 10px 0 0; }
+.week-panel > .readout:empty { margin: 0; }
+.readout-line { display: inline-block; max-width: 100%; overflow: hidden; white-space: nowrap; vertical-align: bottom; animation: readout-type 640ms steps(var(--chars), end) both; }
+.readout:not(:empty)::after { content: '_'; animation: readout-blink 1s steps(1) infinite; }
+@keyframes readout-type { from { width: 0; } to { width: calc(var(--chars) * 1ch); } }
+@keyframes readout-blink { 50% { opacity: 0; } }
+
+.toast-region { position: fixed; right: 24px; bottom: 24px; z-index: 30; width: max-content; max-width: min(400px, calc(100vw - 32px)); }
+.toast { display: flex; align-items: center; gap: 12px; padding: 6px 6px 6px 12px; border-radius: 12px; border: 1px solid var(--accent-line); background: var(--surface); box-shadow: var(--shadow-open); animation: toast-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.toast.is-owned { border-color: var(--accent); }
+.toast-icon { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 8px; background: var(--accent); color: var(--surface); display: flex; align-items: center; justify-content: center; }
+.toast-text { flex: 1 1 auto; margin: 0; font-family: var(--font-mono); font-size: 13px; line-height: 1.4; color: var(--text); overflow-wrap: anywhere; }
+.toast.is-owned .toast-text { font-weight: 600; color: var(--accent-strong); }
+.toast-close { flex: 0 0 44px; width: 44px; height: 44px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.toast-close:hover { background: var(--tag-bg); color: var(--text); }
+@keyframes toast-in { from { opacity: 0; transform: translateY(12px); } }
+@keyframes toast-fade { from { opacity: 0; } }
+@media (max-width: 800px) {
+  .toast-region { left: 16px; right: 16px; bottom: calc(76px + env(safe-area-inset-bottom)); width: auto; max-width: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  input[type='checkbox'] { transition: background-color 120ms ease-out, border-color 120ms ease-out; }
+  input[type='checkbox']:active { transform: none; }
+  input[type='checkbox']::before, .progress-fill { transition: none; }
+  .progress-fill.is-sweeping::after { content: none; }
+  .readout-line { animation: none; }
+  .readout:not(:empty)::after { content: none; }
+  .toast { animation-name: toast-fade; }
+}
+@media (forced-colors: active) {
+  input[type='checkbox'] { appearance: auto; }
+  input[type='checkbox']::before { content: none; }
+}

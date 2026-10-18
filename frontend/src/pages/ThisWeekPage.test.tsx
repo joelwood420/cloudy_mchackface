@@ -158,14 +158,64 @@ describe('ThisWeekPage', () => {
       { week_number: 9, tasks: [{ ...task('old1'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] },
       { week_number: 10, tasks: [{ ...task('old2'), module_code: 'CCC602', submodule_code: 'DP-900', submodule_uplearn_url: null, schedule_post_url: null }] },
     ] })
-    const banner = await screen.findByRole('status')
-    expect(within(banner).getByText('MALWARE DETECTED')).toBeInTheDocument()
+    const banner = (await screen.findByText('MALWARE DETECTED')).closest('[role="status"]') as HTMLElement
     expect(within(banner).getByText('2 unfinished tasks are lurking in Week 9, 10.')).toBeInTheDocument()
     expect(screen.queryByRole('checkbox', { name: 'Task old1' })).not.toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Quarantine them' }))
     expect(screen.getByRole('button', { name: 'Quarantine them' })).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByRole('heading', { name: 'Week 9' })).toBeInTheDocument()
     expect(screen.getByRole('checkbox', { name: 'Task old1' })).toBeInTheDocument()
+  })
+
+  it('patches the week when its last task is ticked, then settles into a chip', async () => {
+    let saved = false
+    const done = { ...teaching, groups: [group(11, [task('t1', true), task('t2', true)])] }
+    show(teaching, {
+      '/api/this-week': () => jsonResponse(saved ? done : teaching),
+      'PUT /api/tasks/t2/complete': () => { saved = true; return new Response(null, { status: 204 }) },
+    })
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Task t2' }))
+    expect(await screen.findByText('> week_11 :: all tasks patched')).toBeInTheDocument()
+    expect(screen.getByText('Week 11 cleared.')).toBeInTheDocument()
+    expect(await screen.findByText('Week cleared', {}, { timeout: 6000 })).toBeInTheDocument()
+    expect(screen.queryByText('> week_11 :: all tasks patched')).not.toBeInTheDocument()
+  }, 10000)
+
+  it('shows a cleared week as a chip on load, without the readout', async () => {
+    show({ ...teaching, groups: [group(11, [task('t1', true), task('t2', true)])] })
+    expect(await screen.findByText('Week cleared')).toBeInTheDocument()
+    expect(screen.queryByText('> week_11 :: all tasks patched')).not.toBeInTheDocument()
+  })
+
+  it('pops a milestone toast when a tick takes a module past a milestone', async () => {
+    const mod = (completed: number) => [{ key: 'ccc602', code: 'CCC602', title: 'Data Engineering', submodule_count: 1, week_count: 1, task_count: 4, completed_count: completed, week_numbers: [11], uplearn_url: null }]
+    let saved = false
+    show(teaching, {
+      '/api/modules': () => jsonResponse(mod(saved ? 2 : 1)),
+      'PUT /api/tasks/t2/complete': () => { saved = true; return new Response(null, { status: 204 }) },
+    })
+    await screen.findByRole('checkbox', { name: 'Task t2' })
+    await waitFor(() => expect(screen.getAllByText('CCC602').length).toBeGreaterThan(0))
+    expect(screen.queryByText(/privilege escalated/)).not.toBeInTheDocument()
+    await userEvent.click(screen.getByRole('checkbox', { name: 'Task t2' }))
+    expect(await screen.findByText('CCC602 · privilege escalated: admin')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))
+    expect(screen.queryByText('CCC602 · privilege escalated: admin')).not.toBeInTheDocument()
+  })
+
+  it('stays quiet when unticking back below a milestone', async () => {
+    const mod = (completed: number) => [{ key: 'ccc602', code: 'CCC602', title: 'Data Engineering', submodule_count: 1, week_count: 1, task_count: 2, completed_count: completed, week_numbers: [11], uplearn_url: null }]
+    let saved = false
+    const unticked = { ...teaching, groups: [group(11, [task('t1'), task('t2')])] }
+    show(teaching, {
+      '/api/this-week': () => jsonResponse(saved ? unticked : teaching),
+      '/api/modules': () => jsonResponse(mod(saved ? 0 : 1)),
+      'DELETE /api/tasks/t1/complete': () => { saved = true; return new Response(null, { status: 204 }) },
+    })
+    await waitFor(() => expect(screen.getAllByText('CCC602').length).toBeGreaterThan(0))
+    await userEvent.click(await screen.findByRole('checkbox', { name: 'Task t1' }))
+    expect(await screen.findByRole('checkbox', { name: 'Task t1', checked: false })).toBeInTheDocument()
+    expect(screen.queryByText(/CCC602 ·/)).not.toBeInTheDocument()
   })
 
   it('counts only unticked lurking tasks, straight after a tick', async () => {

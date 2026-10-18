@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import type { Submodule, Task, TaskType, Week } from '../../api'
 import { weekRange } from '../../format'
+import { useJustReached } from '../../hooks/useJustReached'
 import { percent, weekDone } from '../../progress'
 import { uplearnLabel, uplearnName, uplearnTrackName } from '../../uplearn'
 import { ExternalLink } from '../ExternalLink'
 import { ProgressBar } from '../ProgressBar'
+import { READOUT_MS, WeekClearedReadout } from '../WeekClearedReadout'
 import { PrerequisiteBox } from './PrerequisiteBox'
 
 const TYPE_LABELS: Record<TaskType, string> = {
@@ -40,7 +42,7 @@ export function TaskRow({
   const uplearn = task.uplearn_url && task.uplearn_url !== track?.uplearn_url ? task.uplearn_url : null
   const uplearnText = uplearn ? uplearnLabel(uplearn, track?.code) : ''
   return (
-    <li className="task-row">
+    <li className={`task-row${task.done ? ' is-done' : ''}`}>
       <input
         type="checkbox"
         id={id}
@@ -102,6 +104,7 @@ export function WeekCard({
 }) {
   const panelId = `week-panel-${week.key}`
   const post = week.schedule_post_url ? { weekNumber: week.week_number, url: week.schedule_post_url } : null
+  const justCleared = useJustReached(week.tasks.length > 0 && weekDone(week) === week.tasks.length, READOUT_MS)
   return (
     <li className="timeline-item">
       <div className="timeline-rail" aria-hidden="true">
@@ -143,6 +146,7 @@ export function WeekCard({
                 ))}
               </ul>
             )}
+            <WeekClearedReadout weekNumber={week.week_number} show={justCleared} />
           </div>
         )}
       </div>

@@ -1,3 +1,8 @@
+import { useJustReached } from '../hooks/useJustReached'
+
+/** How long the one-off light sweep runs when a bar fills up. */
+const SWEEP_MS = 1200
+
 export function ProgressBar({
   value,
   label,
@@ -13,10 +18,13 @@ export function ProgressBar({
   decorative?: boolean
 }) {
   const pct = Math.max(0, Math.min(100, Math.round(value)))
+  // A bar that fills while you watch gets a light sweep; one that loads full doesn't.
+  const sweeping = useJustReached(pct === 100, SWEEP_MS)
+  const fill = <div className={`progress-fill${sweeping ? ' is-sweeping' : ''}`} style={{ width: `${pct}%` }} />
   if (decorative) {
     return (
       <div className={`progress progress-${size}`} aria-hidden="true">
-        <div className="progress-fill" style={{ width: `${pct}%` }} />
+        {fill}
       </div>
     )
   }
@@ -30,7 +38,7 @@ export function ProgressBar({
       aria-valuenow={pct}
       aria-valuetext={valueText ? `${pct}%, ${valueText}` : undefined}
     >
-      <div className="progress-fill" style={{ width: `${pct}%` }} />
+      {fill}
     </div>
   )
 }

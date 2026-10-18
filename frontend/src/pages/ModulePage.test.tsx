@@ -154,6 +154,25 @@ describe('ModulePage', () => {
     expect(fetchMock).toHaveBeenCalledWith('/api/tasks/t2/complete', expect.objectContaining({ method: 'PUT' }))
   })
 
+  it('rewards the tick that clears a week and passes a module milestone', async () => {
+    let t2Done = false
+    mockApi({
+      '/api/modules': () => jsonResponse([{ ...summary[0], completed_count: t2Done ? 2 : 1 }]),
+      '/api/modules/ccc602': () => jsonResponse(withTaskDone(detail as ModuleDetail, 't2', t2Done)),
+      'PUT /api/tasks/t2/complete': () => {
+        t2Done = true
+        return new Response(null, { status: 204 })
+      },
+    })
+    renderAt('/modules/ccc602')
+    await screen.findByRole('heading', { level: 1, name: 'Data Engineering in the Public Cloud' })
+    const main = screen.getByRole('main')
+    await userEvent.click(within(main).getByRole('button', { name: /Week 9/ }))
+    await userEvent.click(within(main).getByRole('checkbox', { name: 'Read the A3 brief' }))
+    expect(await within(main).findByText('> week_9 :: all tasks patched')).toBeInTheDocument()
+    expect(await screen.findByText('CCC602 · system owned. 100% complete.')).toBeInTheDocument()
+  })
+
   it('unticks a task and rolls back when saving fails', async () => {
     let release!: () => void
     const held = new Promise<void>((resolve) => (release = resolve))
