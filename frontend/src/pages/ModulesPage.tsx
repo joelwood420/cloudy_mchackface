@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { type ModuleSummary, fetchModules } from '../api'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { ProgressBar } from '../components/ProgressBar'
+import { ListSkeleton } from '../components/Skeleton'
 import { plural } from '../format'
 import { percent, programmeProgress } from '../progress'
 import { usePageTitle } from '../usePageTitle'
@@ -29,13 +30,7 @@ export function ModulesPage() {
   usePageTitle('Modules')
   const query = useQuery({ queryKey: ['modules'], queryFn: fetchModules })
 
-  if (query.isPending) {
-    return (
-      <main className="page">
-        <p className="muted">Loading modules…</p>
-      </main>
-    )
-  }
+  if (query.isPending) return <ListSkeleton label="Loading modules…" />
   if (query.isError) {
     return (
       <main className="page">

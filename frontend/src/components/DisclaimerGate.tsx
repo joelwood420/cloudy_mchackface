@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { hasAcceptedDisclaimer, recordDisclaimerAcceptance } from '../disclaimer'
+import { BrandLockup } from './BrandMark'
 import { DisclaimerText } from './DisclaimerText'
 
 /** Blocks the whole app until the disclaimer is accepted. */
@@ -16,6 +17,7 @@ export function DisclaimerGate({ children }: { children: ReactNode }) {
   return (
     <main className="gate">
       <div className="gate-card card">
+        <BrandLockup />
         <h1>Before you start</h1>
         <DisclaimerText />
         <div className="gate-actions">

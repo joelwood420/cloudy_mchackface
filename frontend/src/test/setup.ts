@@ -8,8 +8,12 @@ beforeEach(() => {
   recordDisclaimerAcceptance()
 })
 
+// jsdom doesn't lay pages out, so it has no scrollIntoView.
+Element.prototype.scrollIntoView = () => {}
+
 afterEach(() => {
   cleanup()
   localStorage.clear()
+  sessionStorage.clear()
   vi.unstubAllGlobals()
 })

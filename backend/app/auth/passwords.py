@@ -1,6 +1,9 @@
 from argon2 import PasswordHasher
 from argon2.exceptions import InvalidHashError, VerificationError
 
+MIN_PASSWORD_LENGTH = 8
+MAX_PASSWORD_LENGTH = 256
+
 _hasher = PasswordHasher()
 # Verified against when the email is unknown, so a miss takes as long as a wrong password.
 _DUMMY_HASH = _hasher.hash("dummy password for timing")

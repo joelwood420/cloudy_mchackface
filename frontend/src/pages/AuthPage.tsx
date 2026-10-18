@@ -2,6 +2,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { type SignupResult, login, signup } from '../api'
+import { BrandLockup } from '../components/BrandMark'
 import { usePageTitle } from '../usePageTitle'
 
 const COPY = {
@@ -22,8 +23,8 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
-    if (mode === 'signup' && password.length < 10) {
-      setError('Use a password of at least 10 characters.')
+    if (mode === 'signup' && password.length < 8) {
+      setError('Use a password of at least 8 characters.')
       return
     }
     setBusy(true)
@@ -48,7 +49,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   return (
     <main className="auth-page">
       <div className="card auth-card">
-        <p className="brand-name">Cloudy McHackface</p>
+        <BrandLockup />
         <h1>{copy.title}</h1>
         <form className="form" onSubmit={onSubmit} noValidate>
           <label className="field">
@@ -68,7 +69,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
           </label>
           {mode === 'signup' && (
             <p id="password-hint" className="muted small">
-              At least 10 characters.
+              At least 8 characters.
             </p>
           )}
           {error && (

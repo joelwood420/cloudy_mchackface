@@ -9,17 +9,20 @@ function PrerequisiteRow({ submoduleKey, prerequisite: p, onToggle }: { submodul
   const id = `prereq-${submoduleKey}-${p.key}`
   return (
     <li className="prereq-item">
-      <input
-        type="checkbox"
-        id={id}
-        checked={p.completed}
-        onChange={() => onToggle(p.key, !p.completed)}
-        aria-describedby={p.note ? `${id}-note` : undefined}
-      />
+      <label className="tick">
+        <input
+          type="checkbox"
+          id={id}
+          checked={p.completed}
+          onChange={() => onToggle(p.key, !p.completed)}
+          aria-labelledby={`${id}-title`}
+          aria-describedby={p.note ? `${id}-note` : undefined}
+        />
+      </label>
       <span className="task-main">
-        <label htmlFor={id} className="prereq-title">
+        <span id={`${id}-title`} className="prereq-title">
           {p.title}
-        </label>
+        </span>
         {p.note && (
           <span id={`${id}-note`} className="task-note">
             {p.note}
@@ -42,23 +45,43 @@ function PrerequisiteRow({ submoduleKey, prerequisite: p, onToggle }: { submodul
   )
 }
 
-/** One-off setup steps for a submodule. Done ones are hidden (tickable again via "Show done"); never part of progress. */
-/** `idScope` keeps ids unique when the same submodule is shown more than once on a page (e.g. this week and next). */
+/**
+ * One-off setup steps for a submodule, never part of progress. Done ones are hidden (tickable again via "Show done");
+ * once all are done the box shrinks to a one-line "Setup done" so it stops taking room from the weeks.
+ * `idScope` keeps ids unique when the same submodule is shown more than once on a page (e.g. this week and next).
+ */
 export function PrerequisiteBox({ submodule, onToggle, idScope }: { submodule: Submodule; onToggle: Toggle; idScope?: string }) {
   const [showDone, setShowDone] = useState(false)
   if (submodule.prerequisites.length === 0) return null
   const todo = submodule.prerequisites.filter((p) => !p.completed)
   const done = submodule.prerequisites.filter((p) => p.completed)
   const row = (p: Prerequisite) => <PrerequisiteRow key={p.key} submoduleKey={idScope ? `${idScope}-${submodule.key}` : submodule.key} prerequisite={p} onToggle={onToggle} />
+  const toggleDone = (
+    <button type="button" className="link-button" aria-expanded={showDone} onClick={() => setShowDone(!showDone)}>
+      {showDone ? 'Hide done' : `Show done (${done.length})`}
+    </button>
+  )
+  if (todo.length === 0) {
+    return (
+      <div className="prereq-done">
+        <p className="prereq-ready">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M4 12.5l5 5L20 6.5" />
+          </svg>
+          Setup done
+        </p>
+        {toggleDone}
+        {showDone && <ul className="prereq-list is-done">{done.map(row)}</ul>}
+      </div>
+    )
+  }
   return (
-    <div className={`prereq-box${todo.length === 0 ? ' is-ready' : ''}`}>
+    <div className="prereq-box">
       <h4>Before you start</h4>
-      {todo.length === 0 ? <p className="prereq-ready">You're ready to start learning.</p> : <ul className="prereq-list">{todo.map(row)}</ul>}
+      <ul className="prereq-list">{todo.map(row)}</ul>
       {done.length > 0 && (
         <>
-          <button type="button" className="link-button" aria-expanded={showDone} onClick={() => setShowDone(!showDone)}>
-            {showDone ? 'Hide done' : `Show done (${done.length})`}
-          </button>
+          {toggleDone}
           {showDone && <ul className="prereq-list is-done">{done.map(row)}</ul>}
         </>
       )}
