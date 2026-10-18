@@ -1,6 +1,6 @@
 # UPLearn portal extras
 
-Collected 2026-10-15/16 by browsing UPLearn (https://yoobee.uplearn.education/) for the owner's intake. A final full sweep on 2026-10-16 covered every course (00A, 00, 601, 602, 603; 604 is still locked), every tile, the FT and PT schedule forums, Pānui, Assessment Q&A, the calendar, the Programme Guide PDF and the owner's local copies of the briefs. **This is meant to be the last extraction**: future features should be built from this file and `seed/*.yaml` without going back to the portal. Everything here is structure, dates, public links and short summaries in our own words.
+Recorded 2026-10-15/16 by the owner from UPLearn (https://yoobee.uplearn.education/) for their own intake. The notes cover every course (00A, 00, 601, 602, 603; 604 is still locked), every tile, the FT and PT schedule forums, Pānui, Assessment Q&A, the calendar, the Programme Guide PDF and the owner's local copies of the briefs. Future features should be built from this file and `seed/*.yaml`. Everything here is structure, dates, public links and short summaries in our own words.
 
 Not recorded on purpose (CLAUDE.md "Portal data rules"): lab training keys, Teams/Calendly/Zoom join links, tutors' personal emails, the owner's login, other students' data, full tutor posts, assessment handouts/briefs/rubrics. The course Copyright tiles (e.g. CCC602 section 9659) say UPLearn content and downloadable files can't be reproduced without permission, which is why we link instead of copying.
 
@@ -253,7 +253,7 @@ The tile notes that DP-203 assumes SQL plus Python or Scala.
 
 ## Part-time schedules (PT forums 74591, 74593, 74595)
 
-Collected so PT students can be added without another portal trip. PT weeks run 1–48 across CCC601–603 (CCC604 PT not visible). Each FT week ≈ two PT weeks, but the split isn't always even. CF = AWS Academy Cloud Foundations, CA = Cloud Architecting.
+Recorded so PT students can be added later. PT weeks run 1–48 across CCC601–603 (CCC604 PT not visible). Each FT week ≈ two PT weeks, but the split isn't always even. CF = AWS Academy Cloud Foundations, CA = Cloud Architecting.
 
 | PT wk | Content |
 |---|---|

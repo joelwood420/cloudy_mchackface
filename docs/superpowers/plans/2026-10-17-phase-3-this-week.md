@@ -974,7 +974,7 @@ def apply_schedule(session: Session, intakes: Sequence[SeedIntake]) -> None:
 `seed/schedule.yaml` (dates from `docs/portal-extras.md`; holidays are the weekday ones inside the programme):
 
 ```yaml
-# Source: Programme Guide FT 2607 (docs/portal-extras.md, "Week dates" and "Public holidays"). Collected 2026-10-16.
+# Source: Programme Guide FT 2607 (docs/portal-extras.md, "Week dates" and "Public holidays"). Recorded by the owner from UPLearn, 2026-10-16.
 # Each week starts on a Monday and runs to Sunday. Breaks are the gaps between weeks.
 intakes:
   - key: 2607-online-ccc-ft

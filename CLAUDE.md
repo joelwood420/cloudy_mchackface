@@ -53,7 +53,7 @@ uv run python -m app.reset_password EMAIL # set a new password (prompts; ends th
 - The seed loader requires `schedule.yaml` and refuses to drop an intake that users are on. Migration 0008 moves existing users onto `2607-online-ccc-ft`.
 - On Fly, `fly.toml` sets COOKIE_SECURE and TRUST_FLY_CLIENT_IP (rate limit by the real client IP). Leave both off locally.
 - Prod runs on one machine (`--ha=false`) because the login rate limiter is in memory.
-- There's no email reset yet. To reset a prod password: `fly ssh console --pty -C "sh -c 'cd /app/backend && /opt/venv/bin/python -m app.reset_password EMAIL'"`.
+- There's no email reset yet. To reset a prod password: `fly ssh console -a cloudy-mchackface --pty -C "sh -c 'cd /app/backend && /opt/venv/bin/python -m app.reset_password EMAIL'"`.
 
 Frontend (run in `frontend/`):
 
@@ -105,7 +105,7 @@ UPLearn is mostly a wrapper around external learning. Using course 02 (CCC602) a
 - Store **structure, metadata and public links**: course, week and module names, topic bullets, due dates, completion state, links to Microsoft Learn/AWS, and links back to the UPLearn page. This mirrors what the portal itself does.
 - Don't copy Yoobee-owned files or text (assessment handouts and briefs, rubrics, tutor posts in full) into the app. Link to them on UPLearn instead.
 - Never store or display lab training keys, Teams/Calendly links from tutors, the owner's portal login, or other students' data.
-- How portal data gets into the app is still open: Claude collecting it in browser sessions and importing it, or an automated sync through Moodle. Don't build automated scraping or portal login handling without checking with the owner first.
+- How portal data gets into the app is still open: the owner recording it from their own portal notes, or an automated sync through Moodle. Don't build automated scraping or portal login handling without checking with the owner first.
 
 ## Yoobee policy constraints
 

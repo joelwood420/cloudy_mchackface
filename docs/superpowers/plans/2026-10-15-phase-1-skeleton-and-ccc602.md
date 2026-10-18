@@ -1159,9 +1159,9 @@ assessments:
     uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
 ```
 
-- [ ] **Step 4: Collect weeks 10–16 from the portal**
+- [ ] **Step 4: Add weeks 10–16 from the owner's notes**
 
-With the owner logged in to UPLearn in Chrome, open the full-time schedule forum https://yoobee.uplearn.education/mod/forum/view.php?id=74592 and read posts `02_FT_Week_10` through `08_FT_Week_16`. For each post, add a week entry following the week 9 pattern:
+Using the owner's notes on the full-time schedule forum https://yoobee.uplearn.education/mod/forum/view.php?id=74592, covering posts `02_FT_Week_10` through `08_FT_Week_16`. For each post, add a week entry following the week 9 pattern:
 
 - `key: ccc602-wNN`, `week_number: NN`, a short `title` naming the week's focus.
 - One `learning_path` task per learning path or module the post lists, with the Microsoft Learn or AWS link from the matching certification tile in course 02 (tiles: DP-900, Azure Data Engineer Associates, DEA-C01 AWS). Keys follow `ccc602-wNN-<cert>-<lpN>`.
