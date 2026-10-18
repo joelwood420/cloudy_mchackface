@@ -4,6 +4,7 @@ import { AssessmentsRail } from '../components/AssessmentsRail'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { ExternalLink } from '../components/ExternalLink'
 import { ProgressBar } from '../components/ProgressBar'
+import { ThisWeekSkeleton } from '../components/Skeleton'
 import { AheadPrompt } from '../components/thisweek/AheadPrompt'
 import { MalwareBanner } from '../components/thisweek/MalwareBanner'
 import { CatchUpNote, HolidayNotes, UpcomingBreakBanner } from '../components/thisweek/Notices'
@@ -125,13 +126,7 @@ export function ThisWeekPage() {
   const navigate = useNavigate()
   const catchUp = (location.state as { prefilledThroughWeek?: number } | null)?.prefilledThroughWeek ?? null
 
-  if (query.isPending) {
-    return (
-      <main className="page">
-        <p className="muted">Loading this week…</p>
-      </main>
-    )
-  }
+  if (query.isPending) return <ThisWeekSkeleton />
   if (query.isError) {
     return (
       <main className="page">

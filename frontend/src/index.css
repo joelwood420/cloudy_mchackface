@@ -50,9 +50,12 @@ h2 { font-weight: 600; font-size: 20px; }
 .muted { color: var(--muted); }
 .small { font-size: 13px; }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+/* Headings only take focus from code, to keep your place after a change; they aren't controls, so no ring. */
+h1[tabindex='-1']:focus, h2[tabindex='-1']:focus { outline: none; }
 /* Shell */
-.shell { min-height: 100vh; display: flex; flex-wrap: wrap; align-items: stretch; }
-.sidebar { flex: 1 1 240px; max-width: 100%; padding: 28px 20px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 32px; }
+.shell { min-height: 100vh; display: flex; align-items: stretch; }
+/* Desktop: the sidebar stays put while long module pages scroll, and scrolls on its own if it's taller than the window. */
+.sidebar { flex: 1 1 240px; max-width: 100%; position: sticky; top: 0; align-self: flex-start; height: 100vh; height: 100dvh; overflow-y: auto; scrollbar-width: thin; scrollbar-color: var(--dot-border) transparent; padding: 28px 20px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; gap: 32px; }
 .skip-link { position: absolute; left: 8px; top: -60px; z-index: 10; padding: 10px 14px; border-radius: 8px; background: var(--accent); color: var(--surface); font-weight: 600; text-decoration: none; }
 .skip-link:focus { top: 8px; color: var(--surface); }
 .content { flex: 999 1 560px; min-width: 0; }
@@ -64,13 +67,14 @@ h2 { font-weight: 600; font-size: 20px; }
 /* Phone: slim sticky top bar with a Menu for the extras; main nav becomes a bottom tab bar. */
 @media (max-width: 800px) {
   .shell { display: block; }
-  .sidebar { position: sticky; top: 0; z-index: 20; max-width: none; padding: 6px 16px; gap: 0; border-right: 0; border-bottom: 1px solid var(--border); }
+  .sidebar { position: sticky; top: 0; z-index: 20; max-width: none; height: auto; overflow: visible; padding: 6px 16px; gap: 0; border-right: 0; border-bottom: 1px solid var(--border); }
   .brand-sub { display: none; }
   .sidebar .brand-mark { width: 38px; height: 28px; }
   .menu-button { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; min-width: 64px; padding: 0 14px; border-radius: 8px; border: 1px solid var(--dot-border); background: var(--surface); color: var(--text); font-weight: 600; cursor: pointer; }
   .is-menu-open .menu-button { border-color: var(--accent); color: var(--accent-strong); }
   .sidebar-more { display: none; }
-  .is-menu-open .sidebar-more { display: flex; flex-direction: column; gap: 20px; max-height: calc(100dvh - 57px - 64px - env(safe-area-inset-bottom)); overflow-y: auto; padding: 16px 0 20px; }
+  /* The menu drops over the page instead of pushing it down, so you don't lose your place. */
+  .is-menu-open .sidebar-more { position: absolute; top: 100%; left: 0; right: 0; display: flex; flex-direction: column; gap: 20px; max-height: calc(100dvh - 57px - 64px - env(safe-area-inset-bottom)); overflow-y: auto; padding: 16px 16px 20px; background: var(--surface); border-bottom: 1px solid var(--border); box-shadow: 0 16px 32px rgba(18, 22, 28, 0.14); }
   .sidebar .nav-list { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; flex-direction: row; gap: 0; padding: 4px 8px max(4px, env(safe-area-inset-bottom)); background: var(--surface); border-top: 1px solid var(--border); }
   .sidebar .nav-list li { flex: 1 1 0; }
   .sidebar .nav-item { flex-direction: column; justify-content: center; gap: 2px; min-height: 56px; padding: 0 4px; font-size: 12px; }
@@ -186,13 +190,14 @@ button.button-secondary { cursor: pointer; }
 .prereq-box { padding: 14px 18px; border-radius: 12px; background: var(--accent-tint); border: 1px solid var(--accent-line); }
 .prereq-box h4 { margin: 0 0 4px; font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-strong); }
 .prereq-list { list-style: none; margin: 0; padding: 0; }
-.prereq-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; padding: 6px 0; }
+.prereq-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; min-height: 44px; padding: 6px 0; }
 .prereq-item + .prereq-item { border-top: 1px solid var(--accent-line); }
 .prereq-title { font-weight: 500; }
 
 /* Forms and auth */
 .button-primary { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--surface); font-weight: 600; cursor: pointer; }
-.button-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+a.button-primary { text-decoration: none; }
+.button-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); color: var(--surface); }
 .button-primary:disabled, .button-secondary:disabled { opacity: 0.6; cursor: default; }
 .form { display: flex; flex-direction: column; gap: 14px; }
 .form p { margin: 0; }
@@ -317,7 +322,86 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 @keyframes ahead-in { from { opacity: 0; transform: translateY(12px); } }
 @keyframes ahead-open { from { opacity: 0; transform: translateY(-6px); } }
 
+/* Tick boxes get a 44px tap target of their own; the negative margin keeps the row's spacing as if it were 20px. */
+.tick { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -12px; cursor: pointer; }
+
+/* Module page wayfinding: jump to this week, and the next deadline when the rail has wrapped below the timeline. */
+.module-page { container-type: inline-size; }
+.module-wayfinding { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+.jump-chip { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 16px 0 14px; border-radius: 999px; border: 1px solid var(--accent-line); background: var(--accent-soft); color: var(--accent-strong); font-weight: 600; cursor: pointer; transition: background-color 120ms ease-out, border-color 120ms ease-out; }
+.jump-chip:hover { border-color: var(--accent); background: var(--accent-tint); }
+.jump-chip svg { transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1); }
+.jump-chip:hover svg { transform: translateY(2px); }
+.jump-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.next-due { margin: 0; display: flex; flex-direction: column; align-items: flex-start; font-size: 14px; }
+.next-due-meta { display: flex; align-items: center; gap: 10px; }
+.next-due-label { font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.next-due-title { display: inline-flex; align-items: center; min-height: 44px; padding: 0; border: 0; background: none; color: var(--accent-strong); font-weight: 600; line-height: 1.35; text-align: left; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+.next-due-title:hover { color: var(--accent-hover); }
+.timeline-item, .rail { scroll-margin-top: 24px; }
+@media (max-width: 800px) {
+  .timeline-item, .rail { scroll-margin-top: 72px; }
+}
+@container (min-width: 852px) {
+  .module-page .next-due { display: none; }
+}
+@media (min-height: 720px) {
+  @container (min-width: 852px) {
+    .module-page .rail { position: sticky; top: 24px; }
+  }
+}
+.track-done { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; }
+.submodule.is-finished { gap: 0; }
+.submodule.is-finished .submodule-head h3 { color: var(--text-2); }
+.prereq-done { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; }
+.prereq-done .prereq-ready { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; }
+.prereq-done .prereq-list { flex-basis: 100%; }
+
+/* Loading placeholders. They fade in after a beat, so a fast load never flashes them. */
+.skeleton { display: flex; flex-direction: column; gap: 24px; animation: sk-in 240ms ease-out 160ms both; }
+.sk-header { display: flex; flex-direction: column; gap: 12px; }
+.sk-bar { display: block; max-width: 100%; border-radius: 6px; background: linear-gradient(90deg, var(--track) 0%, var(--border-soft) 50%, var(--track) 100%) 0 0 / 200% 100%; animation: sk-shimmer 1.6s ease-in-out infinite; }
+.sk-card { padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.sk-row { display: flex; align-items: center; gap: 14px; }
+.sk-box { flex: 0 0 auto; width: 20px; height: 20px; border-radius: 5px; border: 2px solid var(--track); }
+.sk-week { display: flex; align-items: flex-start; gap: 16px; }
+.sk-dot { flex: 0 0 auto; width: 32px; height: 32px; margin-top: 14px; border-radius: 50%; border: 2px solid var(--track); }
+.sk-week-card { flex: 1 1 auto; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.sk-sidebar { color: #121e33; }
+@keyframes sk-in { from { opacity: 0; } }
+@keyframes sk-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+
+/* Before-the-app screens carry the logo and the one-line pitch. */
+.brand-lockup { display: flex; align-items: center; gap: 12px; }
+.brand-lockup .brand-sub { font-size: 13px; line-height: 1.35; }
+
+/* Assessments page: one date-ordered list, the next deadline first. */
+.assessments-section { display: flex; flex-direction: column; gap: 12px; }
+.assessment-list { list-style: none; margin: 0; padding: 0; }
+.assessment-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; padding: 10px 20px; border-bottom: 1px solid var(--border-soft); }
+.assessment-list > .assessment-row:last-child { border-bottom: 0; }
+.assessment-code { flex: 0 0 4.5rem; color: var(--muted); }
+.assessment-row-main { flex: 1 1 240px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+/* A fixed-width actions column keeps the chips and boxes lined up whether or not a row has a UPLearn link. */
+.assessment-row-actions { flex: 0 0 15rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0 20px; }
+@media (max-width: 800px) { .assessment-row-actions { flex-basis: auto; } }
+.assessments-section > .section-head { align-items: center; }
+.assessment-row.is-lead { padding: 18px 24px; border: 1px solid var(--accent); box-shadow: var(--shadow-open); }
+.assessment-row.is-lead .assessment-title { font-family: var(--font-display); font-size: 20px; line-height: 1.25; }
+.assessment-row.is-submitted .assessment-title { color: var(--muted); }
+
+/* Lurking weeks link each track's tile once, beside the week heading. */
+.malware-week-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 14px; }
+.malware-week-head a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 500; }
+.malware-week-head .malware-week-title { margin-bottom: 0; }
+
+.not-found { max-width: 720px; gap: 16px; }
+.not-found > p { margin: 0; }
+.not-found-ref { padding: 1px 6px; border-radius: 4px; background: var(--tag-bg); color: var(--text-2); font-size: 0.9em; overflow-wrap: anywhere; }
+
 @media (prefers-reduced-motion: reduce) {
+  .sk-bar { animation: none; }
+  .jump-chip svg { transition: none; }
   input[type='checkbox'] { transition: background-color 120ms ease-out, border-color 120ms ease-out; }
   input[type='checkbox']:active { transform: none; }
   input[type='checkbox']::before, .progress-fill { transition: none; }

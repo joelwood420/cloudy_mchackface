@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { isUnauthorized } from '../api'
 import { useMe } from '../hooks/useMe'
 import { ErrorMessage } from './ErrorMessage'
+import { ShellSkeleton } from './Skeleton'
 
 export function RequireAuth() {
   const me = useMe()
@@ -15,11 +16,7 @@ export function RequireAuth() {
     )
   }
   if (me.isPending) {
-    return (
-      <main className="page">
-        <p className="muted">Checking you're logged in…</p>
-      </main>
-    )
+    return <ShellSkeleton />
   }
   return <Outlet />
 }
