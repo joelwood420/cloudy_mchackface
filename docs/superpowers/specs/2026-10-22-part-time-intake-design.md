@@ -1,23 +1,23 @@
 # Part-time study and intake choice
 
-Date: 2026-10-22. Status: approved design, not yet planned.
+Date: 2026-10-22. Status: approved by the owner 2026-10-22, not yet planned.
 
 ## Why
 
-The app only works for the owner's own cohort (July 2026, full-time). The aim is to open it to other students, and the first step is part-time students on the same intake. A student picks their intake at sign-up and can change it later in Settings.
+The app only works for the owner's own cohort (July 2026, full-time). The aim is to open it to other students, and the first step is part-time students plus one more intake (September 2026), using the dates we actually have. A student picks their intake at sign-up and can change it later in Settings.
 
 The app is a **guide, not a source of truth**. Getting a PT student to roughly the right week with roughly the right tasks is good enough. Exact matching with the portal is not a goal.
 
 ## Goals
 
-1. Add a **July 2026 part-time** intake next to the existing July 2026 full-time one.
+1. Offer four intakes: **July 2026 FT** (exists), **July 2026 PT**, **September 2026 FT** and **September 2026 PT**.
 2. **Sign-up** asks which intake the student is on (a dropdown of intakes from `schedule.yaml`).
 3. A new **Settings** page lets the student change intake later.
 4. Everything that depends on the calendar works for PT: This week, lurking tasks, breaks, holidays, catch-up ticks, assessment due dates, and the module page's "Jump to week".
 
 ## Non-goals
 
-- Other intakes (Feb 2027 and so on). Their break dates aren't public (only in each intake's Programme Guide), and the Feb 2027 intake starts in the middle of the owner's Feb break, so breaks are not shared across all intakes. They get added later as data in `schedule.yaml`, with no code changes.
+- Other intakes (Feb 2027 and so on). Their break dates aren't public (only in each intake's Programme Guide), and breaks differ a little between intakes (2609's Christmas break is a week longer than 2607's). They get added later as data in `schedule.yaml`, with no code changes.
 - A manual "current week" override. That's still out, as in CLAUDE.md.
 - Scraping UPLearn for dates.
 - PT-specific task content. PT reuses the FT tasks (see below).
@@ -25,7 +25,7 @@ The app is a **guide, not a source of truth**. Getting a PT student to roughly t
 ## Anti-goals
 
 - Never remove a student's ticks when they change intake.
-- Never store or show tutor text, Programme Guide content or other students' data (CLAUDE.md portal rules).
+- Never store or show tutor text, Programme Guide content or other students' data (CLAUDE.md portal rules). The 2609 PT Programme Guide the owner supplied is used for dates only: no tutor names or emails and no copy of the PDF in the repo.
 
 ## Facts this is built on
 
@@ -34,21 +34,27 @@ From `docs/portal-extras.md` and the owner:
 - FT is 32 teaching weeks at 37.5 h/week. PT is 64 teaching weeks at 19 h/week. PT covers the same content at half the pace.
 - FT and PT on the same intake **share one calendar of breaks**. Check: the owner's A2 (end of FT week 8) and a same-intake PT student's A1 (end of PT week 8) were both due Sun 13 Sep 2026.
 - July 2026 intake: FT runs 20 Jul 2026 – 25 Apr 2027, PT runs 20 Jul 2026 – 30 Jan 2028.
+- September 2026 intake (2609): FT runs 28 Sep 2026 – 4 Jul 2027, PT runs 28 Sep 2026 – 9 Apr 2028 (intake table in `portal-extras.md`).
+- The 2609 PT Programme Guide (supplied by the owner 2026-10-22) gives all 64 PT week start dates, every assessment due date and NZ public holidays through Apr 2028. All eight due dates land at the end of PT week 2N (A8 on the Friday of week 64, 7 Apr 2028; the guide's "Friday 9 April" is a typo, as 9 Apr is a Sunday). This confirms the PT mapping and due-date rule below.
+- 2609 breaks (weeks starting on these Mondays are breaks): 21 Dec 2026 – 17 Jan 2027 (4 wks), 15–28 Feb 2027 (2), 26 Apr – 9 May 2027 (2), 5–18 Jul 2027 (2), 13–26 Sep 2027 (2), 20 Dec 2027 – 16 Jan 2028 (4).
 
 ## Design
 
-### 1. The PT intake (data)
+### 1. Intakes (data)
 
-Add `2607-online-ccc-pt` to `seed/schedule.yaml` (title "July 2026 intake, part-time (NZ4129)", `study_mode: PT`) with 64 weeks:
+Add three intakes to `seed/schedule.yaml`, giving four in all. Every one must start on a Monday, and each week list must have the right length (32 FT, 64 PT).
 
-- **PT weeks 1–32** use the same start dates as FT weeks 1–32 (20 Jul 2026 – 19 Apr 2027), so they share the breaks from the owner's Programme Guide.
-- **PT weeks 33–64** start 26 Apr 2027. There are no published break dates for this stretch, so assume three breaks that repeat the 2026–27 pattern. Weeks starting on these Mondays are breaks:
-  - mid-year: 5, 12 and 19 Jul 2027
-  - September: 13 and 20 Sep 2027
-  - Christmas: 20 Dec 2027, 27 Dec 2027 and 3 Jan 2028
+**`2607-online-ccc-pt`**, "July 2026 intake, part-time (NZ4129)", PT:
+- Weeks 1–32 use the same start dates as `2607-online-ccc-ft` weeks 1–32 (20 Jul 2026 – 19 Apr 2027).
+- Weeks 33–64 start 26 Apr 2027. Breaks are 5–18 Jul 2027, 13–26 Sep 2027 and 20 Dec 2027 – 16 Jan 2028, taken from the 2609 guide. Unlike 2609, there's no late-April break. That makes week 64 start 24 Jan 2028 and end Sun 30 Jan 2028, which is the official end date. Add a YAML comment: weeks 33–64 are inferred from the 2609 guide plus the official end date. *(Claude's call; the owner accepted approximate dates.)*
 
-  Under this assumption week 64 starts 24 Jan 2028 and ends Sun 30 Jan 2028, which matches the official PT end date. *(Owner's call to approximate; placement is Claude's call.)* Add a YAML comment saying these are assumed.
-- **Holidays**: the FT list plus the NZ public holidays that fall in weeks 33–64. For 2027–28 these are ANZAC Day (observed) 26 Apr 2027, King's Birthday 7 Jun, Matariki 25 Jun, Labour Day 25 Oct, Christmas (observed) 27 Dec, Boxing Day (observed) 28 Dec, and New Year's (observed) 3–4 Jan 2028. Check each date against an official NZ source before seeding.
+**`2609-online-ccc-pt`**, "September 2026 intake, part-time (NZ4129)", PT: the 64 week start dates exactly as listed in the 2609 PT Programme Guide (week 1 is 28 Sep 2026, week 64 is 3 Apr 2028). The guide prints week 11 as "7th December'27", which is a typo for 7 Dec 2026.
+
+**`2609-online-ccc-ft`**, "September 2026 intake, full-time (NZ4129)", FT: 32 weeks from 28 Sep 2026, skipping the 2609 breaks. That gives weeks 1–12 from 28 Sep to 14 Dec 2026, 13–16 from 18 Jan to 8 Feb 2027, 17–24 from 1 Mar to 19 Apr, and 25–32 from 10 May to 28 Jun. It ends Sun 4 Jul 2027, which is the official FT end date. Add a YAML comment that it's derived from the PT guide.
+
+**Holidays:** each intake gets the NZ public holidays from the 2609 guide (2026–Apr 2028) that fall inside its span. Use observed dates when a holiday falls on a weekend. Keep the existing 2607 FT list as it is, unless it disagrees with the guide.
+
+**Seed loader:** keep the existing rule that it refuses to drop an intake users are on. No other change is needed.
 
 ### 2. Mapping PT weeks to content
 
