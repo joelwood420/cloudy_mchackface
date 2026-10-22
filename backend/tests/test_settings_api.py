@@ -64,9 +64,16 @@ def test_moving_to_full_time_ticks_what_is_now_past(user_client, db, intakes, to
 
 def test_moving_to_part_time_keeps_every_tick(user_client, db, intakes, today_is):
     today_is(date(2026, 9, 2))  # FT week 7: content week 6 is past for FT, not for PT
+    user_client.put("/api/me/settings", json={"intake_key": "2609-online-ccc-pt"})
     user_client.put("/api/me/settings", json={"intake_key": "2607-online-ccc-ft"})
     assert ticked(db) == ["t2", "t6"]
     response = user_client.put("/api/me/settings", json={"intake_key": "2607-online-ccc-pt"})
     assert response.json()["study_mode"] == "PT"
     assert user_client.get("/api/me").json()["intake"]["key"] == "2607-online-ccc-pt"
     assert ticked(db) == ["t2", "t6"]
+
+
+def test_saving_the_same_intake_ticks_nothing(user_client, db, intakes, today_is):
+    today_is(date(2026, 9, 2))
+    assert user_client.put("/api/me/settings", json={"intake_key": "2607-online-ccc-ft"}).status_code == 200
+    assert ticked(db) == []

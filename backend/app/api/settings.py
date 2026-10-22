@@ -36,6 +36,8 @@ def update_settings(
     body: SettingsIn, user: User = Depends(current_user), db: Session = Depends(get_db), today_: date = Depends(today)
 ) -> MeOut:
     intake = find_intake(db, body.intake_key)
+    if intake.id == user.settings.intake_id:  # nothing changed, so no catch-up ticks either
+        return MeOut(email=user.email, study_mode=intake.study_mode, intake=IntakeOut.model_validate(intake))
     user.settings.intake = intake
     db.flush()
     prefill_past_work(db, user, intake, today_)

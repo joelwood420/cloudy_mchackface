@@ -16,7 +16,7 @@ from app.auth.deps import current_user
 from app.clock import today
 from app.db import get_db
 from app.models import Module, Submodule, SubmodulePrerequisite, Task, User, Week
-from app.pacing import week_slots
+from app.pacing import StudyMode, week_slots
 from app.schedule import TeachingWeek, locate, upcoming_break
 
 router = APIRouter(tags=["this-week"])
@@ -25,12 +25,17 @@ ASSESSMENT_WINDOW = timedelta(days=28)
 
 
 def _group(
-    number: int, week: Week, tasks: list[Task], done: set[int], done_prereqs: set[int],
+    mode: StudyMode, number: int, week: Week, tasks: list[Task], done: set[int], done_prereqs: set[int],
     posts: dict[tuple[int, int], str],
 ) -> ThisWeekGroup:
     """One module's slice of intake week `number`: the content week, cut down to the tasks that land in it."""
     week_out = WeekOut.model_validate(week).model_copy(
-        update={"week_number": number, "tasks": [TaskOut.model_validate(t) for t in tasks]}
+        update={
+            # A PT content week shows up as two intake weeks; key them apart, like the module page does.
+            "key": week.key if mode == "FT" else f"{week.key}-{number}",
+            "week_number": number,
+            "tasks": [TaskOut.model_validate(t) for t in tasks],
+        }
     )
     for task, task_out in zip(tasks, week_out.tasks):
         task_out.done = task.id in done
@@ -73,7 +78,7 @@ def this_week(
     slots = week_slots(intake.study_mode, content)
 
     def groups_for(number: int) -> list[ThisWeekGroup]:
-        return [_group(n, w, tasks, done, done_prereqs, posts) for n, w, tasks in slots if n == number]
+        return [_group(intake.study_mode, n, w, tasks, done, done_prereqs, posts) for n, w, tasks in slots if n == number]
 
     groups = groups_for(pos.week.week_number) if pos.week else []
     tasks_now = [t for g in groups for t in g.week.tasks]

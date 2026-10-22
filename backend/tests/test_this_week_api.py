@@ -196,7 +196,7 @@ def part_time(db, intake):
 def test_part_time_week_shows_its_half_of_the_content_week(user_client, part_time, today_is):
     today_is(date(2026, 8, 19))  # PT week 5: first half of content week 3
     [group] = get(user_client)["groups"]
-    assert group["week"]["week_number"] == 5
+    assert (group["week"]["week_number"], group["week"]["key"]) == (5, "w3-5")
     assert [t["key"] for t in group["week"]["tasks"]] == ["a", "b"]
     today_is(date(2026, 8, 26))  # PT week 6: the rest
     [group] = get(user_client)["groups"]
