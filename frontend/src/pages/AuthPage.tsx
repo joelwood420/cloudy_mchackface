@@ -45,7 +45,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
       if (prefilled) {
         navigate('/', { replace: true, state: { prefilledThroughWeek: prefilled } })
       } else {
-        navigate(from && from !== '/login' && from !== '/signup' ? from : '/', { replace: true })
+        navigate(from && !['/login', '/signup', '/welcome'].includes(from) ? from : '/', { replace: true })
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Something went wrong. Try again.')
