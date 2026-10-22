@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A study tracker for the Yoobee Colleges **Diploma in Cloud Computing and Cyber Security (Level 6)**. The Yoobee UPLearn portal (https://yoobee.uplearn.education/, a Moodle site) is hard to navigate, so this app shows week by week what to work on, upcoming assessments, and progress bars per course and for the whole programme. It's built for the owner first, with the aim of opening it to other students later.
 
-Status: Phase 3 done: This week home screen (week worked out from the intake's dates), lurking-task banner, break and holiday notices, assessments with a submitted tick, catch-up ticks at sign-up; CCC601–603 seeded, CCC604 a shell.
+Status: Phase 3 done: This week home screen (week worked out from the intake's dates), lurking-task banner, break and holiday notices, assessments with a submitted tick, catch-up ticks at sign-up; CCC601–603 seeded, CCC604 a shell. Part-time and intake choice done: four intakes (July and Sept 2026, FT and PT), picked at sign-up and changed in Settings.
 
 ## Stack and layout
 
@@ -51,6 +51,8 @@ uv run python -m app.reset_password EMAIL # set a new password (prompts; ends th
 - `uv run python -m app.seed [dir]` deletes any module not present in that folder.
 - Migration 0005 clears content tables; re-run the seed loader after upgrading an older database.
 - The seed loader requires `schedule.yaml` and refuses to drop an intake that users are on. Migration 0008 moves existing users onto `2607-online-ccc-ft`.
+- Migration 0010 replaces assessments' `due_date` with `due_week` + `due_weekday`; re-run the seed loader after upgrading.
+- Tests can run against a local Postgres in Docker instead of Neon (much faster): set `TEST_DATABASE_URL` to its URL on the command line.
 - On Fly, `fly.toml` sets COOKIE_SECURE and TRUST_FLY_CLIENT_IP (rate limit by the real client IP). Leave both off locally.
 - Prod runs on one machine (`--ha=false`) because the login rate limiter is in memory.
 - There's no email reset yet. To reset a prod password: `fly ssh console -a cloudy-mchackface --pty -C "sh -c 'cd /app/backend && /opt/venv/bin/python -m app.reset_password EMAIL'"`.
@@ -72,8 +74,8 @@ npm run lint                               # oxlint
 2. **Progress bars:** per course and for the whole programme, driven by items the user ticks off.
 3. **Deadlines:** upcoming assessments and due dates.
 
-- The owner studies **full-time**, so seed data comes from the FT schedule posts. Keep study mode (FT/PT) as a per-user setting in the model so part-time students can be added later.
-- The **current week is worked out** from the user's intake (`seed/schedule.yaml`) and today's date in NZ time. There is no manual override. Breaks are the gaps between week start dates. New accounts get past weeks pre-ticked.
+- Seed content is numbered in **full-time** weeks (from the FT schedule posts). A part-time intake takes two weeks per content week, with each week's tasks split in half (`backend/app/pacing.py`). Assessments are due by content week, and dates are worked out per intake. Spec: `docs/superpowers/specs/2026-10-22-part-time-intake-design.md`.
+- The **current week is worked out** from the user's intake (`seed/schedule.yaml`) and today's date in NZ time. There is no manual override. Students pick their intake at sign-up and can change it in Settings; changing it only ever adds catch-up ticks, never removes any. Breaks are the gaps between week start dates. New accounts get past weeks pre-ticked.
 - **User accounts from day one**: email + password built into FastAPI (argon2, DB-backed sessions, HTTP-only cookie). Course structure is shared reference data; completion state and settings are per user.
 - Out of scope for now: certification tracking, AI study helper, automated portal sync.
 - UI follows the "Module timeline" design (docs/superpowers/specs/2026-10-15-ui-redesign-design.md); module pages need a login; progress comes from each user's ticks.

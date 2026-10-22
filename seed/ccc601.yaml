@@ -594,11 +594,11 @@ submodules:
 assessments:
   - key: ccc601-a1
     title: "Assessment 1: AWS Theoretical and Practical Scenario Evaluation"
-    due_date: 2026-08-16
+    due_week: 4
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
   - key: ccc601-a2
     title: "Assessment 2: Azure Theoretical and Practical Concepts Evaluation"
-    due_date: 2026-09-13
+    due_week: 8
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
 
 # FT schedule posts: one forum discussion per teaching week (links only). Recorded by the owner from UPLearn, 2026-10-18.

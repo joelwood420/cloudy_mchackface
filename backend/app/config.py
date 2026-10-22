@@ -21,8 +21,6 @@ class Settings(BaseSettings):
     trust_fly_client_ip: bool = False
     # Built frontend (frontend/dist) to serve alongside the API. Unset in dev, where Vite serves it.
     frontend_dist: Path | None = None
-    # Intake new accounts are put on (seed/schedule.yaml).
-    default_intake_key: str = "2607-online-ccc-ft"
 
 
 @lru_cache

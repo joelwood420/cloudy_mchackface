@@ -47,3 +47,232 @@ intakes:
       - { day: 2027-02-08, name: "Waitangi Day (observed)" }
       - { day: 2027-03-26, name: "Good Friday" }
       - { day: 2027-03-29, name: "Easter Monday" }
+
+  # Source: weeks 1-32 match the 2607 FT intake. Weeks 33-64 are inferred from the 2609 PT Programme Guide's breaks plus the official end date (Sun 30 Jan 2028); approximate.
+  - key: 2607-online-ccc-pt
+    title: "July 2026 intake, part-time (NZ4129)"
+    study_mode: PT
+    weeks:
+      - { week_number: 1, starts_on: 2026-07-20 }
+      - { week_number: 2, starts_on: 2026-07-27 }
+      - { week_number: 3, starts_on: 2026-08-03 }
+      - { week_number: 4, starts_on: 2026-08-10 }
+      - { week_number: 5, starts_on: 2026-08-17 }
+      - { week_number: 6, starts_on: 2026-08-24 }
+      - { week_number: 7, starts_on: 2026-08-31 }
+      - { week_number: 8, starts_on: 2026-09-07 }
+      - { week_number: 9, starts_on: 2026-09-28 }
+      - { week_number: 10, starts_on: 2026-10-05 }
+      - { week_number: 11, starts_on: 2026-10-12 }
+      - { week_number: 12, starts_on: 2026-10-19 }
+      - { week_number: 13, starts_on: 2026-10-26 }
+      - { week_number: 14, starts_on: 2026-11-02 }
+      - { week_number: 15, starts_on: 2026-11-09 }
+      - { week_number: 16, starts_on: 2026-11-16 }
+      - { week_number: 17, starts_on: 2026-11-23 }
+      - { week_number: 18, starts_on: 2026-11-30 }
+      - { week_number: 19, starts_on: 2026-12-07 }
+      - { week_number: 20, starts_on: 2026-12-14 }
+      - { week_number: 21, starts_on: 2027-01-11 }
+      - { week_number: 22, starts_on: 2027-01-18 }
+      - { week_number: 23, starts_on: 2027-01-25 }
+      - { week_number: 24, starts_on: 2027-02-01 }
+      - { week_number: 25, starts_on: 2027-03-01 }
+      - { week_number: 26, starts_on: 2027-03-08 }
+      - { week_number: 27, starts_on: 2027-03-15 }
+      - { week_number: 28, starts_on: 2027-03-22 }
+      - { week_number: 29, starts_on: 2027-03-29 }
+      - { week_number: 30, starts_on: 2027-04-05 }
+      - { week_number: 31, starts_on: 2027-04-12 }
+      - { week_number: 32, starts_on: 2027-04-19 }
+      - { week_number: 33, starts_on: 2027-04-26 }
+      - { week_number: 34, starts_on: 2027-05-03 }
+      - { week_number: 35, starts_on: 2027-05-10 }
+      - { week_number: 36, starts_on: 2027-05-17 }
+      - { week_number: 37, starts_on: 2027-05-24 }
+      - { week_number: 38, starts_on: 2027-05-31 }
+      - { week_number: 39, starts_on: 2027-06-07 }
+      - { week_number: 40, starts_on: 2027-06-14 }
+      - { week_number: 41, starts_on: 2027-06-21 }
+      - { week_number: 42, starts_on: 2027-06-28 }
+      - { week_number: 43, starts_on: 2027-07-19 }
+      - { week_number: 44, starts_on: 2027-07-26 }
+      - { week_number: 45, starts_on: 2027-08-02 }
+      - { week_number: 46, starts_on: 2027-08-09 }
+      - { week_number: 47, starts_on: 2027-08-16 }
+      - { week_number: 48, starts_on: 2027-08-23 }
+      - { week_number: 49, starts_on: 2027-08-30 }
+      - { week_number: 50, starts_on: 2027-09-06 }
+      - { week_number: 51, starts_on: 2027-09-27 }
+      - { week_number: 52, starts_on: 2027-10-04 }
+      - { week_number: 53, starts_on: 2027-10-11 }
+      - { week_number: 54, starts_on: 2027-10-18 }
+      - { week_number: 55, starts_on: 2027-10-25 }
+      - { week_number: 56, starts_on: 2027-11-01 }
+      - { week_number: 57, starts_on: 2027-11-08 }
+      - { week_number: 58, starts_on: 2027-11-15 }
+      - { week_number: 59, starts_on: 2027-11-22 }
+      - { week_number: 60, starts_on: 2027-11-29 }
+      - { week_number: 61, starts_on: 2027-12-06 }
+      - { week_number: 62, starts_on: 2027-12-13 }
+      - { week_number: 63, starts_on: 2028-01-17 }
+      - { week_number: 64, starts_on: 2028-01-24 }
+    holidays:
+      - { day: 2026-10-26, name: "Labour Day" }
+      - { day: 2026-12-25, name: "Christmas Day" }
+      - { day: 2026-12-28, name: "Boxing Day (observed)" }
+      - { day: 2027-01-01, name: "New Year's Day" }
+      - { day: 2027-01-04, name: "Day after New Year's Day (observed)" }
+      - { day: 2027-02-01, name: "Auckland Anniversary Day (observed)" }
+      - { day: 2027-02-08, name: "Waitangi Day (observed)" }
+      - { day: 2027-03-26, name: "Good Friday" }
+      - { day: 2027-03-29, name: "Easter Monday" }
+      - { day: 2027-04-26, name: "ANZAC Day (observed)" }
+      - { day: 2027-06-07, name: "King's Birthday" }
+      - { day: 2027-06-25, name: "Matariki" }
+      - { day: 2027-10-25, name: "Labour Day" }
+      - { day: 2027-12-27, name: "Christmas Day (observed)" }
+      - { day: 2027-12-28, name: "Boxing Day (observed)" }
+      - { day: 2028-01-03, name: "New Year's Day (observed)" }
+      - { day: 2028-01-04, name: "Day after New Year's Day (observed)" }
+
+  # Source: 2609 PT Programme Guide, supplied by the owner 2026-10-22 (dates only). The guide prints week 11 as 7 Dec 2027, a typo for 7 Dec 2026.
+  - key: 2609-online-ccc-pt
+    title: "September 2026 intake, part-time (NZ4129)"
+    study_mode: PT
+    weeks:
+      - { week_number: 1, starts_on: 2026-09-28 }
+      - { week_number: 2, starts_on: 2026-10-05 }
+      - { week_number: 3, starts_on: 2026-10-12 }
+      - { week_number: 4, starts_on: 2026-10-19 }
+      - { week_number: 5, starts_on: 2026-10-26 }
+      - { week_number: 6, starts_on: 2026-11-02 }
+      - { week_number: 7, starts_on: 2026-11-09 }
+      - { week_number: 8, starts_on: 2026-11-16 }
+      - { week_number: 9, starts_on: 2026-11-23 }
+      - { week_number: 10, starts_on: 2026-11-30 }
+      - { week_number: 11, starts_on: 2026-12-07 }
+      - { week_number: 12, starts_on: 2026-12-14 }
+      - { week_number: 13, starts_on: 2027-01-18 }
+      - { week_number: 14, starts_on: 2027-01-25 }
+      - { week_number: 15, starts_on: 2027-02-01 }
+      - { week_number: 16, starts_on: 2027-02-08 }
+      - { week_number: 17, starts_on: 2027-03-01 }
+      - { week_number: 18, starts_on: 2027-03-08 }
+      - { week_number: 19, starts_on: 2027-03-15 }
+      - { week_number: 20, starts_on: 2027-03-22 }
+      - { week_number: 21, starts_on: 2027-03-29 }
+      - { week_number: 22, starts_on: 2027-04-05 }
+      - { week_number: 23, starts_on: 2027-04-12 }
+      - { week_number: 24, starts_on: 2027-04-19 }
+      - { week_number: 25, starts_on: 2027-05-10 }
+      - { week_number: 26, starts_on: 2027-05-17 }
+      - { week_number: 27, starts_on: 2027-05-24 }
+      - { week_number: 28, starts_on: 2027-05-31 }
+      - { week_number: 29, starts_on: 2027-06-07 }
+      - { week_number: 30, starts_on: 2027-06-14 }
+      - { week_number: 31, starts_on: 2027-06-21 }
+      - { week_number: 32, starts_on: 2027-06-28 }
+      - { week_number: 33, starts_on: 2027-07-19 }
+      - { week_number: 34, starts_on: 2027-07-26 }
+      - { week_number: 35, starts_on: 2027-08-02 }
+      - { week_number: 36, starts_on: 2027-08-09 }
+      - { week_number: 37, starts_on: 2027-08-16 }
+      - { week_number: 38, starts_on: 2027-08-23 }
+      - { week_number: 39, starts_on: 2027-08-30 }
+      - { week_number: 40, starts_on: 2027-09-06 }
+      - { week_number: 41, starts_on: 2027-09-27 }
+      - { week_number: 42, starts_on: 2027-10-04 }
+      - { week_number: 43, starts_on: 2027-10-11 }
+      - { week_number: 44, starts_on: 2027-10-18 }
+      - { week_number: 45, starts_on: 2027-10-25 }
+      - { week_number: 46, starts_on: 2027-11-01 }
+      - { week_number: 47, starts_on: 2027-11-08 }
+      - { week_number: 48, starts_on: 2027-11-15 }
+      - { week_number: 49, starts_on: 2027-11-22 }
+      - { week_number: 50, starts_on: 2027-11-29 }
+      - { week_number: 51, starts_on: 2027-12-06 }
+      - { week_number: 52, starts_on: 2027-12-13 }
+      - { week_number: 53, starts_on: 2028-01-17 }
+      - { week_number: 54, starts_on: 2028-01-24 }
+      - { week_number: 55, starts_on: 2028-01-31 }
+      - { week_number: 56, starts_on: 2028-02-07 }
+      - { week_number: 57, starts_on: 2028-02-14 }
+      - { week_number: 58, starts_on: 2028-02-21 }
+      - { week_number: 59, starts_on: 2028-02-28 }
+      - { week_number: 60, starts_on: 2028-03-06 }
+      - { week_number: 61, starts_on: 2028-03-13 }
+      - { week_number: 62, starts_on: 2028-03-20 }
+      - { week_number: 63, starts_on: 2028-03-27 }
+      - { week_number: 64, starts_on: 2028-04-03 }
+    holidays:
+      - { day: 2026-10-26, name: "Labour Day" }
+      - { day: 2026-12-25, name: "Christmas Day" }
+      - { day: 2026-12-28, name: "Boxing Day (observed)" }
+      - { day: 2027-01-01, name: "New Year's Day" }
+      - { day: 2027-01-04, name: "Day after New Year's Day (observed)" }
+      - { day: 2027-02-01, name: "Auckland Anniversary Day (observed)" }
+      - { day: 2027-02-08, name: "Waitangi Day (observed)" }
+      - { day: 2027-03-26, name: "Good Friday" }
+      - { day: 2027-03-29, name: "Easter Monday" }
+      - { day: 2027-04-26, name: "ANZAC Day (observed)" }
+      - { day: 2027-06-07, name: "King's Birthday" }
+      - { day: 2027-06-25, name: "Matariki" }
+      - { day: 2027-10-25, name: "Labour Day" }
+      - { day: 2027-12-27, name: "Christmas Day (observed)" }
+      - { day: 2027-12-28, name: "Boxing Day (observed)" }
+      - { day: 2028-01-03, name: "New Year's Day (observed)" }
+      - { day: 2028-01-04, name: "Day after New Year's Day (observed)" }
+      - { day: 2028-01-31, name: "Auckland Anniversary Day (observed)" }
+      - { day: 2028-02-07, name: "Waitangi Day (observed)" }
+
+  # Source: derived from the 2609 PT Programme Guide's break calendar (FT and PT share breaks); ends Sun 4 Jul 2027, the official FT end date.
+  - key: 2609-online-ccc-ft
+    title: "September 2026 intake, full-time (NZ4129)"
+    study_mode: FT
+    weeks:
+      - { week_number: 1, starts_on: 2026-09-28 }
+      - { week_number: 2, starts_on: 2026-10-05 }
+      - { week_number: 3, starts_on: 2026-10-12 }
+      - { week_number: 4, starts_on: 2026-10-19 }
+      - { week_number: 5, starts_on: 2026-10-26 }
+      - { week_number: 6, starts_on: 2026-11-02 }
+      - { week_number: 7, starts_on: 2026-11-09 }
+      - { week_number: 8, starts_on: 2026-11-16 }
+      - { week_number: 9, starts_on: 2026-11-23 }
+      - { week_number: 10, starts_on: 2026-11-30 }
+      - { week_number: 11, starts_on: 2026-12-07 }
+      - { week_number: 12, starts_on: 2026-12-14 }
+      - { week_number: 13, starts_on: 2027-01-18 }
+      - { week_number: 14, starts_on: 2027-01-25 }
+      - { week_number: 15, starts_on: 2027-02-01 }
+      - { week_number: 16, starts_on: 2027-02-08 }
+      - { week_number: 17, starts_on: 2027-03-01 }
+      - { week_number: 18, starts_on: 2027-03-08 }
+      - { week_number: 19, starts_on: 2027-03-15 }
+      - { week_number: 20, starts_on: 2027-03-22 }
+      - { week_number: 21, starts_on: 2027-03-29 }
+      - { week_number: 22, starts_on: 2027-04-05 }
+      - { week_number: 23, starts_on: 2027-04-12 }
+      - { week_number: 24, starts_on: 2027-04-19 }
+      - { week_number: 25, starts_on: 2027-05-10 }
+      - { week_number: 26, starts_on: 2027-05-17 }
+      - { week_number: 27, starts_on: 2027-05-24 }
+      - { week_number: 28, starts_on: 2027-05-31 }
+      - { week_number: 29, starts_on: 2027-06-07 }
+      - { week_number: 30, starts_on: 2027-06-14 }
+      - { week_number: 31, starts_on: 2027-06-21 }
+      - { week_number: 32, starts_on: 2027-06-28 }
+    holidays:
+      - { day: 2026-10-26, name: "Labour Day" }
+      - { day: 2026-12-25, name: "Christmas Day" }
+      - { day: 2026-12-28, name: "Boxing Day (observed)" }
+      - { day: 2027-01-01, name: "New Year's Day" }
+      - { day: 2027-01-04, name: "Day after New Year's Day (observed)" }
+      - { day: 2027-02-01, name: "Auckland Anniversary Day (observed)" }
+      - { day: 2027-02-08, name: "Waitangi Day (observed)" }
+      - { day: 2027-03-26, name: "Good Friday" }
+      - { day: 2027-03-29, name: "Easter Monday" }
+      - { day: 2027-04-26, name: "ANZAC Day (observed)" }
+      - { day: 2027-06-07, name: "King's Birthday" }
+      - { day: 2027-06-25, name: "Matariki" }

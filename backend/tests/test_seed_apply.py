@@ -1,5 +1,3 @@
-from datetime import date
-
 from sqlalchemy import func, select
 
 from app.models import Assessment, Intake, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
@@ -53,12 +51,12 @@ def links(db):
 def test_inserts_everything_with_positions(db):
     apply_seed(db, [seed(
         [week("w9", 9, [task("t1"), task("t2")])],
-        [{"key": "a3", "title": "A3", "due_date": "2026-10-25"}],
+        [{"key": "a3", "title": "A3", "due_week": 12}],
     )])
     module = db.scalars(select(Module)).one()
     assert module.position == 2
     assert [(t.key, t.position) for t in module.weeks[0].tasks] == [("t1", 0), ("t2", 1)]
-    assert module.assessments[0].due_date == date(2026, 10, 25)
+    assert (module.assessments[0].due_week, module.assessments[0].due_weekday) == (12, 6)
     assert module.weeks[0].tasks[0].external_url == "https://x.test/t1"
 
 

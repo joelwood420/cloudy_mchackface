@@ -2,10 +2,15 @@ import { QueryClientProvider } from '@tanstack/react-query'
 import { render } from '@testing-library/react'
 import { vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import type { Me, ThisWeek } from '../api'
+import type { IntakeOption, Me, ThisWeek } from '../api'
 import { AppRoutes, makeQueryClient } from '../App'
 
-export const ME: Me = { email: 'joel@example.com', study_mode: 'FT', intake: { key: '2607-online-ccc-ft', title: 'July 2026 intake, full-time (NZ4129)' } }
+export const ME: Me = { email: 'joel@example.com', study_mode: 'FT', intake: { key: '2607-online-ccc-ft', title: 'July 2026 intake, full-time (NZ4129)', study_mode: 'FT' } }
+
+export const INTAKES: IntakeOption[] = [
+  ME.intake,
+  { key: '2607-online-ccc-pt', title: 'July 2026 intake, part-time (NZ4129)', study_mode: 'PT' },
+]
 
 export const THIS_WEEK: ThisWeek = {
   today: '2026-10-14',

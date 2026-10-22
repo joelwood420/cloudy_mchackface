@@ -10,6 +10,7 @@ import { DisclaimerPage } from './pages/DisclaimerPage'
 import { ModulePage } from './pages/ModulePage'
 import { ModulesPage } from './pages/ModulesPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { SettingsPage } from './pages/SettingsPage'
 import { ThisWeekPage } from './pages/ThisWeekPage'
 
 /** Never retry client errors (4xx); retry everything else (5xx, network) once. */
@@ -50,6 +51,7 @@ export function AppRoutes() {
             <Route path="/modules" element={<ModulesPage />} />
             <Route path="/modules/:key" element={<ModulePage />} />
             <Route path="/assessments" element={<AssessmentsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
             <Route path="/disclaimer" element={<DisclaimerPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>

@@ -21,6 +21,7 @@ from app.models import (
     UserSettings,
     Week,
 )
+from app.pacing import intake_weeks
 from app.seed.schema import SeedFile, SeedIntake, SeedPrerequisite, SeedPrerequisiteFile, SeedScheduleFile
 
 PREREQUISITES_FILE = "prerequisites.yaml"
@@ -104,10 +105,20 @@ def load_seed_dir(path: Path) -> SeedBundle:
         for name, seed in modules:
             for week in seed.all_weeks():
                 for si in schedule.intakes:
-                    if week.week_number not in {w.week_number for w in si.weeks}:
+                    have = {w.week_number for w in si.weeks}
+                    if not set(intake_weeks(si.study_mode, week.week_number)) <= have:
                         problems.append(
                             f"{name}: week {week.week_number} ({week.key}) has no dates in intake {si.key} ({SCHEDULE_FILE})"
                         )
+        # Content weeks the shortest intake covers: a PT intake takes two of its weeks per content week.
+        last = min(len(si.weeks) // (1 if si.study_mode == "FT" else 2) for si in schedule.intakes)
+        for name, seed in modules:
+            for a in seed.assessments:
+                if a.due_week is not None and a.due_week > last:
+                    problems.append(
+                        f"{name}: assessment {a.key}: due_week {a.due_week} is past week {last}, "
+                        f"the last week of the shortest intake ({SCHEDULE_FILE})"
+                    )
 
     if problems:
         raise SeedError(problems)
@@ -214,7 +225,7 @@ def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[
         for sa in seed.assessments:
             assessment = upsert(Assessment, sa.key)
             assessment.module = module
-            assessment.title, assessment.due_date = sa.title, sa.due_date
+            assessment.title, assessment.due_week, assessment.due_weekday = sa.title, sa.due_week, sa.due_weekday
             assessment.uplearn_url = _url(sa.uplearn_url)
 
     session.flush()

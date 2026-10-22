@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
 import type { ThisWeek, ThisWeekGroup } from '../api'
-import { ME, THIS_WEEK, jsonResponse, mockApi, renderAt } from '../test/utils'
+import { INTAKES, ME, THIS_WEEK, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const task = (key: string, done = false) => ({ key, title: `Task ${key}`, type: 'lab' as const, external_url: 'https://x.test/' + key, uplearn_url: null as string | null, note: null, done })
 const group = (weekNumber: number, tasks: ReturnType<typeof task>[], post: string | null = null) => ({
@@ -295,6 +295,7 @@ describe('ThisWeekPage', () => {
       '/api/me': () => (loggedIn ? jsonResponse(ME) : jsonResponse({ detail: 'Not logged in' }, 401)),
       '/api/this-week': teaching,
       '/api/modules': [],
+      '/api/intakes': INTAKES,
       'POST /api/auth/signup': () => {
         loggedIn = true
         return jsonResponse({ ...ME, prefilled_through_week: 10 }, 201)
@@ -303,6 +304,7 @@ describe('ThisWeekPage', () => {
     renderAt('/signup')
     await userEvent.type(await screen.findByLabelText('Email'), 'new@example.com')
     await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
+    await userEvent.selectOptions(screen.getByLabelText('Intake'), await screen.findByRole('option', { name: /full-time/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
     expect(await screen.findByText("We've marked weeks 1–10 as done. Untick anything you haven't finished.")).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Dismiss' }))

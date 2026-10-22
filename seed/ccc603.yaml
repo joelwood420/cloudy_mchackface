@@ -260,11 +260,11 @@ submodules:
 assessments:
   - key: ccc603-a5
     title: "Assessment 5: Practical Demonstration (AWS Certified Security SCS-C02)"
-    due_date: 2026-12-20
+    due_week: 20
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
   - key: ccc603-a6
     title: "Assessment 6: Report and Proof of Concepts (Network Security Expert using Fortinet)"
-    due_date: 2027-02-07
+    due_week: 24
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
 
 # FT schedule posts: one forum discussion per teaching week (links only). Recorded by the owner from UPLearn, 2026-10-18.

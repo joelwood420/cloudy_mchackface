@@ -24,7 +24,7 @@ describe('Sidebar', () => {
     expect(within(nav()).queryByRole('progressbar')).toBeNull()
   })
 
-  it('links This week, Modules and Assessments, with no Settings', async () => {
+  it('links This week, Modules, Assessments and Settings', async () => {
     mockApi({ '/api/modules': modules })
     renderAt('/modules')
     await screen.findByRole('navigation', { name: 'Main' })
@@ -32,7 +32,7 @@ describe('Sidebar', () => {
     expect(within(nav()).getByRole('link', { name: 'This week' })).toHaveAttribute('href', '/')
     expect(within(nav()).getByRole('link', { name: 'Modules' })).toHaveAttribute('aria-current', 'page')
     expect(within(nav()).getByRole('link', { name: 'Assessments' })).toHaveAttribute('href', '/assessments')
-    expect(within(nav()).queryByRole('link', { name: 'Settings' })).not.toBeInTheDocument()
+    expect(within(nav()).getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings')
   })
 
   it('shows where you are in the programme in the footer', async () => {

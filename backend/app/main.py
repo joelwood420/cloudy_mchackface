@@ -1,6 +1,6 @@
 from fastapi import APIRouter, FastAPI
 
-from app.api import assessments, auth, modules, tasks, this_week
+from app.api import assessments, auth, modules, settings, tasks, this_week
 from app.config import get_settings
 from app.frontend import mount_frontend
 
@@ -19,6 +19,7 @@ api.include_router(modules.router)
 api.include_router(tasks.router)
 api.include_router(assessments.router)
 api.include_router(this_week.router)
+api.include_router(settings.router)
 app.include_router(api)
 
 if (dist := get_settings().frontend_dist) is not None:
