@@ -5,7 +5,7 @@ import pytest
 from sqlalchemy import select
 
 from app.models import Assessment, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
-from tests.conftest import add_schedule
+from tests.conftest import PT_WEEKS, add_schedule
 
 
 def t(key, pos=0):
@@ -178,3 +178,40 @@ def test_groups_and_lurking_tasks_link_their_weeks_schedule_post(user_client, db
     assert body["groups"][0]["week"]["schedule_post_url"] == "https://up.test/602-w11"
     by_key = {t["key"]: t["schedule_post_url"] for w in body["lurking"] for t in w["tasks"]}
     assert by_key == {"t8": "https://up.test/601-w8", "t10": None}
+
+
+@pytest.fixture
+def part_time(db, intake):
+    """A PT intake: content week 1 has one task, content week 3 has three."""
+    intake.study_mode = "PT"
+    add_schedule(db, intake, weeks=PT_WEEKS)
+    sub = Submodule(key="clf", code="CLF", title="Cloud Foundations", position=0)
+    db.add(Module(key="ccc601", code="CCC601", title="Admin", position=1, submodules=[sub], weeks=[
+        Week(key="w1", week_number=1, title="W1", position=0, submodule=sub, tasks=[t("solo")]),
+        Week(key="w3", week_number=3, title="W3", position=1, submodule=sub, tasks=[t("a", 0), t("b", 1), t("c", 2)]),
+    ]))
+    db.flush()
+
+
+def test_part_time_week_shows_its_half_of_the_content_week(user_client, part_time, today_is):
+    today_is(date(2026, 8, 19))  # PT week 5: first half of content week 3
+    [group] = get(user_client)["groups"]
+    assert group["week"]["week_number"] == 5
+    assert [t["key"] for t in group["week"]["tasks"]] == ["a", "b"]
+    today_is(date(2026, 8, 26))  # PT week 6: the rest
+    [group] = get(user_client)["groups"]
+    assert (group["week"]["week_number"], [t["key"] for t in group["week"]["tasks"]]) == (6, ["c"])
+
+
+def test_part_time_week_left_empty_by_the_split_has_no_group(user_client, part_time, today_is):
+    today_is(date(2026, 7, 29))  # PT week 2: content week 1's only task went to week 1
+    body = get(user_client)
+    assert body["week"]["week_number"] == 2
+    assert body["groups"] == []
+
+
+def test_part_time_lurking_uses_part_time_week_numbers(user_client, part_time, today_is):
+    today_is(date(2026, 8, 26))  # PT week 6
+    assert [(w["week_number"], [t["key"] for t in w["tasks"]]) for w in get(user_client)["lurking"]] == [
+        (1, ["solo"]), (5, ["a", "b"]),
+    ]

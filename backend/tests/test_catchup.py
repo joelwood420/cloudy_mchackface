@@ -7,7 +7,8 @@ from app.models import (
     Assessment, AssessmentSubmission, Module, Prerequisite, PrerequisiteCompletion, Submodule, SubmodulePrerequisite,
     Task, TaskCompletion, User, Week,
 )
-from tests.conftest import add_schedule, signup_body
+from app.catchup import prefill_past_work
+from tests.conftest import PT_WEEKS, add_schedule, signup_body
 
 
 def t(key):
@@ -90,3 +91,33 @@ def test_login_does_not_catch_up(client, db, content, today_is):
     today_is(date(2026, 10, 14))
     client.post("/api/auth/login", json={"email": "new@example.com", "password": "correct horse"})
     assert keys(db, TaskCompletion, Task, TaskCompletion.task_id) == []
+
+
+@pytest.fixture
+def part_time(db, intake):
+    intake.study_mode = "PT"
+    add_schedule(db, intake, weeks=PT_WEEKS)
+    sub = Submodule(key="clf", code="CLF", title="CLF", position=0)
+    db.add(Module(key="m", code="M", title="M", position=1, submodules=[sub], weeks=[
+        Week(key="w4", week_number=4, title="W4", position=0, submodule=sub, tasks=[t("t4")]),
+        Week(key="w5", week_number=5, title="W5", position=1, submodule=sub, tasks=[t("t5")]),
+    ]))
+    db.flush()
+
+
+def test_part_time_catch_up_counts_part_time_weeks(client, db, part_time, today_is):
+    today_is(date(2026, 10, 2))  # PT week 9: PT weeks 1-8 are content weeks 1-4
+    assert signup(client)["prefilled_through_week"] == 8
+    assert keys(db, TaskCompletion, Task, TaskCompletion.task_id) == ["t4"]
+
+
+def test_catch_up_again_keeps_existing_ticks(client, db, content, today_is):
+    today_is(date(2026, 8, 1))  # week 2: nothing of the content is past yet
+    signup(client)
+    user = db.scalars(select(User)).one()
+    t21 = db.scalars(select(Task).where(Task.key == "t21")).one()
+    db.add(TaskCompletion(user_id=user.id, task_id=t21.id))
+    db.flush()
+    prefill_past_work(db, user, user.settings.intake, date(2026, 10, 18))
+    prefill_past_work(db, user, user.settings.intake, date(2026, 10, 18))
+    assert keys(db, TaskCompletion, Task, TaskCompletion.task_id) == ["t21", "t9"]

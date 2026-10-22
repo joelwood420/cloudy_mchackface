@@ -7,12 +7,20 @@ with the week's tasks split between them (the first half gets the extra task whe
 from collections.abc import Sequence
 from datetime import date, timedelta
 from math import ceil
-from typing import Literal, TypeVar
+from typing import Literal, Protocol, TypeVar
 
 from app.schedule import TeachingWeek
 
 StudyMode = Literal["FT", "PT"]
 T = TypeVar("T")
+
+
+class _ContentWeek(Protocol):
+    week_number: int
+    tasks: Sequence
+
+
+W = TypeVar("W", bound=_ContentWeek)
 
 
 def intake_weeks(mode: StudyMode, week_number: int) -> list[int]:
@@ -35,3 +43,15 @@ def due_date(weeks: Sequence[TeachingWeek], mode: StudyMode, due_week: int | Non
     target = due_week if mode == "FT" else 2 * due_week
     week = next((w for w in weeks if w.week_number == target), None)
     return week.starts_on + timedelta(days=due_weekday) if week else None
+
+
+def week_slots(mode: StudyMode, weeks: Sequence[W]) -> list[tuple[int, W, list]]:
+    """(intake week, content week, the tasks that land in that intake week) for every content week, in order.
+
+    A PT half that the split left empty is dropped; a content week with no tasks at all keeps every slot."""
+    return [
+        (number, week, tasks)
+        for week in weeks
+        for number, tasks in split_week(mode, week.week_number, week.tasks)
+        if tasks or not week.tasks
+    ]

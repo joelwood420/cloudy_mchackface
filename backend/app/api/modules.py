@@ -5,7 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.api.assessments import _sort_key, assessment_due, assessment_out, submitted_ids
-from app.api.schemas import ModuleDetail, ModuleSummary, PrerequisiteOut, SubmoduleOut, WeekOut
+from app.api.schemas import ModuleDetail, ModuleSummary, PrerequisiteOut, SubmoduleOut, TaskOut, WeekOut
 from app.auth.deps import current_user
 from app.clock import today
 from app.db import get_db
@@ -19,6 +19,7 @@ from app.models import (
     User,
     Week,
 )
+from app.pacing import StudyMode, intake_weeks, week_slots
 
 router = APIRouter(prefix="/modules", tags=["modules"])
 
@@ -47,24 +48,28 @@ def list_modules(user: User = Depends(current_user), db: Session = Depends(get_d
         .options(selectinload(Module.weeks).selectinload(Week.tasks), selectinload(Module.submodules))
         .order_by(Module.position)
     ).all()
-    return [
-        ModuleSummary(
-            key=m.key,
-            code=m.code,
-            title=m.title,
-            submodule_count=len(m.submodules),
-            week_count=len(m.weeks),
-            task_count=sum(len(w.tasks) for w in m.weeks),
-            completed_count=sum(1 for w in m.weeks for t in w.tasks if t.id in done),
-            week_numbers=list(dict.fromkeys(w.week_number for w in m.weeks)),
-            uplearn_url=m.uplearn_url,
+    mode = user.settings.intake.study_mode
+    out = []
+    for m in modules:
+        slots = week_slots(mode, m.weeks)
+        out.append(
+            ModuleSummary(
+                key=m.key,
+                code=m.code,
+                title=m.title,
+                submodule_count=len(m.submodules),
+                week_count=len(slots),
+                task_count=sum(len(w.tasks) for w in m.weeks),
+                completed_count=sum(1 for w in m.weeks for t in w.tasks if t.id in done),
+                week_numbers=list(dict.fromkeys(n for n, _, _ in slots)),
+                uplearn_url=m.uplearn_url,
+            )
         )
-        for m in modules
-    ]
+    return out
 
 
-def _submodule_out(sub: Submodule, done_prereqs: set[int]) -> SubmoduleOut:
-    numbers = [w.week_number for w in sub.weeks]
+def _submodule_out(sub: Submodule, mode: StudyMode, done_prereqs: set[int]) -> SubmoduleOut:
+    numbers = [n for w in sub.weeks for n in intake_weeks(mode, w.week_number)]
     return SubmoduleOut(
         key=sub.key,
         code=sub.code,
@@ -102,12 +107,18 @@ def get_module(
     done_tasks = _done_task_ids(db, user)
     done_prereqs = _done_prerequisite_ids(db, user)
     posts = schedule_post_urls(db, user)
+    mode = user.settings.intake.study_mode
     weeks = []
-    for week in module.weeks:
-        week_out = WeekOut.model_validate(week)
-        for task, task_out in zip(week.tasks, week_out.tasks):
+    # A PT intake sees each content week as its two halves, keyed apart so the page can tell them apart.
+    for number, week, tasks in week_slots(mode, module.weeks):
+        week_out = WeekOut.model_validate(week).model_copy(update={
+            "key": week.key if mode == "FT" else f"{week.key}-{number}",
+            "week_number": number,
+            "tasks": [TaskOut.model_validate(t) for t in tasks],
+        })
+        for task, task_out in zip(tasks, week_out.tasks):
             task_out.done = task.id in done_tasks
-        week_out.schedule_post_url = posts.get((module.id, week.week_number))
+        week_out.schedule_post_url = posts.get((module.id, number))
         weeks.append(week_out)
     done_assessments = submitted_ids(db, user)
     dated = sorted(((a, assessment_due(a, user.settings.intake)) for a in module.assessments), key=lambda p: _sort_key(*p))
@@ -117,7 +128,7 @@ def get_module(
         code=module.code,
         title=module.title,
         uplearn_url=module.uplearn_url,
-        submodules=[_submodule_out(s, done_prereqs) for s in module.submodules],
+        submodules=[_submodule_out(s, mode, done_prereqs) for s in module.submodules],
         weeks=weeks,
         assessments=assessments,
     )

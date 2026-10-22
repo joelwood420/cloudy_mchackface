@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy import select
 
 from app.models import Assessment, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
-from tests.conftest import add_schedule
+from tests.conftest import PT_WEEKS, add_schedule
 
 
 def add_content(db):
@@ -112,3 +112,22 @@ def test_weeks_carry_the_schedule_post_for_the_users_study_mode(user_client, db)
     db.flush()
     weeks = user_client.get("/api/modules/ccc602").json()["weeks"]
     assert [(w["week_number"], w["schedule_post_url"]) for w in weeks] == [(9, "https://up.test/w9-ft"), (10, None)]
+
+
+def test_part_time_sees_each_content_week_as_two_weeks(user_client, db, intake, today_is):
+    intake.study_mode = "PT"
+    add_schedule(db, intake, weeks=PT_WEEKS)
+    sub = Submodule(key="clf", code="CLF", title="Cloud Foundations", position=0)
+    tasks = [Task(key=k, title=k, type="lab", external_url="https://x.test", position=i) for i, k in enumerate("abc")]
+    db.add(Module(key="ccc601", code="CCC601", title="Admin", position=1, submodules=[sub], weeks=[
+        Week(key="w3", week_number=3, title="W3", position=0, submodule=sub, tasks=tasks),
+    ]))
+    db.flush()
+    today_is(date(2026, 8, 19))
+    body = user_client.get("/api/modules/ccc601").json()
+    assert [(w["key"], w["week_number"], [t["key"] for t in w["tasks"]]) for w in body["weeks"]] == [
+        ("w3-5", 5, ["a", "b"]), ("w3-6", 6, ["c"]),
+    ]
+    assert (body["submodules"][0]["first_week"], body["submodules"][0]["last_week"]) == (5, 6)
+    [summary] = user_client.get("/api/modules").json()
+    assert (summary["week_count"], summary["week_numbers"]) == (2, [5, 6])

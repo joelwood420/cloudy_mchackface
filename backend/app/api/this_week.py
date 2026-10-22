@@ -15,7 +15,8 @@ from app.api.schemas import (
 from app.auth.deps import current_user
 from app.clock import today
 from app.db import get_db
-from app.models import Module, Submodule, SubmodulePrerequisite, User, Week
+from app.models import Module, Submodule, SubmodulePrerequisite, Task, User, Week
+from app.pacing import week_slots
 from app.schedule import TeachingWeek, locate, upcoming_break
 
 router = APIRouter(tags=["this-week"])
@@ -23,11 +24,17 @@ router = APIRouter(tags=["this-week"])
 ASSESSMENT_WINDOW = timedelta(days=28)
 
 
-def _group(week: Week, done: set[int], done_prereqs: set[int], posts: dict[tuple[int, int], str]) -> ThisWeekGroup:
-    week_out = WeekOut.model_validate(week)
-    for task, task_out in zip(week.tasks, week_out.tasks):
+def _group(
+    number: int, week: Week, tasks: list[Task], done: set[int], done_prereqs: set[int],
+    posts: dict[tuple[int, int], str],
+) -> ThisWeekGroup:
+    """One module's slice of intake week `number`: the content week, cut down to the tasks that land in it."""
+    week_out = WeekOut.model_validate(week).model_copy(
+        update={"week_number": number, "tasks": [TaskOut.model_validate(t) for t in tasks]}
+    )
+    for task, task_out in zip(tasks, week_out.tasks):
         task_out.done = task.id in done
-    week_out.schedule_post_url = posts.get((week.module_id, week.week_number))
+    week_out.schedule_post_url = posts.get((week.module_id, number))
     m, s = week.module, week.submodule
     return ThisWeekGroup(
         module_key=m.key, module_code=m.code, module_title=m.title, module_uplearn_url=m.uplearn_url,
@@ -63,9 +70,10 @@ def this_week(
         )
         .order_by(Module.position, Week.position)
     ).all()
+    slots = week_slots(intake.study_mode, content)
 
     def groups_for(number: int) -> list[ThisWeekGroup]:
-        return [_group(w, done, done_prereqs, posts) for w in content if w.week_number == number]
+        return [_group(n, w, tasks, done, done_prereqs, posts) for n, w, tasks in slots if n == number]
 
     groups = groups_for(pos.week.week_number) if pos.week else []
     tasks_now = [t for g in groups for t in g.week.tasks]
@@ -79,15 +87,15 @@ def this_week(
 
     lurking: dict[int, list[LurkingTaskOut]] = {}
     if pos.cutoff_week is not None:
-        for w in content:
-            if w.week_number < pos.cutoff_week:
-                for task in w.tasks:
+        for n, w, tasks in slots:
+            if n < pos.cutoff_week:
+                for task in tasks:
                     if task.id not in done:
-                        lurking.setdefault(w.week_number, []).append(
+                        lurking.setdefault(n, []).append(
                             LurkingTaskOut(
                                 **TaskOut.model_validate(task).model_dump(), module_code=w.module.code,
                                 submodule_code=w.submodule.code, submodule_uplearn_url=w.submodule.uplearn_url,
-                                schedule_post_url=posts.get((w.module_id, w.week_number)),
+                                schedule_post_url=posts.get((w.module_id, n)),
                             )
                         )
 
