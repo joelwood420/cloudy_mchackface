@@ -58,7 +58,7 @@ Everyone shares the demo account, so expect other people's ticks. If you're on t
 | CCC603 Cyber Security in the Cloud | ✅ Full schedule |
 | CCC604 Multi-Cloud Security Integration and Project Management | 🔜 Added once the course opens |
 
-Only the full-time schedule (July 2026 intake) for now. Part-time will follow once the dates are confirmed.
+Four intakes so far: July 2026 and September 2026, each full-time or part-time. You pick yours when you sign up and can change it in Settings. Part-time takes two weeks for each full-time week, so its week-by-week split is approximate.
 
 ## Playing fair with Yoobee
 

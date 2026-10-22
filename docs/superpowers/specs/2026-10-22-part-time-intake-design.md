@@ -117,7 +117,7 @@ Update `seed/ccc60x.yaml`, the seed schema and loader, the assessments API, This
 
 ### 6. Module page for PT users
 
-The module page lists content weeks (FT numbering). For PT users, label each content week with its PT weeks ("Weeks 17–18"), and make "Jump to week" find the content week that holds the user's current PT week. FT users see exactly what they see now. *(Claude's call.)*
+As built: for PT users the module API returns each content week as its two PT weeks (keys `<week key>-<PT week>`, each with its half of the tasks), so the module page, its week labels and "Jump to week" all work in PT numbering with no frontend change. This replaced the earlier idea of labelling content weeks "Weeks 17–18". FT users see exactly what they saw before. *(Claude's call.)*
 
 ### 7. Weekly forum links
 
