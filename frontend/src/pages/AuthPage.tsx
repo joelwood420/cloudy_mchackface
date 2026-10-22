@@ -3,6 +3,7 @@ import { type FormEvent, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { type SignupResult, login, signup } from '../api'
 import { BrandLockup } from '../components/BrandMark'
+import { useIntakes } from '../hooks/useIntakes'
 import { usePageTitle } from '../usePageTitle'
 
 const COPY = {
@@ -18,6 +19,8 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   const queryClient = useQueryClient()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [intakeKey, setIntakeKey] = useState('')
+  const intakes = useIntakes()
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
@@ -27,10 +30,14 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
       setError('Use a password of at least 8 characters.')
       return
     }
+    if (mode === 'signup' && !intakeKey) {
+      setError('Choose your intake.')
+      return
+    }
     setBusy(true)
     setError(null)
     try {
-      const me = await (mode === 'login' ? login : signup)(email, password)
+      const me = await (mode === 'login' ? login(email, password) : signup(email, password, intakeKey))
       queryClient.clear()
       queryClient.setQueryData(['me'], me)
       const from = (location.state as { from?: string } | null)?.from
@@ -68,9 +75,27 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
             />
           </label>
           {mode === 'signup' && (
-            <p id="password-hint" className="muted small">
-              At least 8 characters.
-            </p>
+            <>
+              <p id="password-hint" className="muted small">
+                At least 8 characters.
+              </p>
+              <label className="field">
+                <span>Intake</span>
+                <select required value={intakeKey} onChange={(e) => setIntakeKey(e.target.value)} aria-describedby="intake-hint">
+                  <option value="" disabled>
+                    {intakes.isError ? "Couldn't load intakes. Reload to try again." : 'Choose your intake'}
+                  </option>
+                  {intakes.data?.map((i) => (
+                    <option key={i.key} value={i.key}>
+                      {i.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <p id="intake-hint" className="muted small">
+                When you started, and full-time or part-time. You can change it later in Settings.
+              </p>
+            </>
           )}
           {error && (
             <p role="alert" className="error">

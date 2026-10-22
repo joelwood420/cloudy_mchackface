@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { DISCLAIMER_VERSION } from '../disclaimer'
-import { ME, jsonResponse, mockApi, renderAt } from '../test/utils'
+import { INTAKES, ME, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const unauthorized = () => jsonResponse({ detail: 'Not logged in' }, 401)
 const modules = [
@@ -86,6 +86,7 @@ describe('sign-in flow', () => {
         return jsonResponse(ME, 201)
       },
       '/api/modules': modules,
+      '/api/intakes': INTAKES,
     })
     renderAt('/signup')
     await userEvent.type(await screen.findByLabelText('Email'), 'joel@example.com')
@@ -96,11 +97,19 @@ describe('sign-in flow', () => {
 
     await userEvent.type(screen.getByLabelText('Password'), ' and more')
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Choose your intake.')
+    expect(fetchMock).not.toHaveBeenCalledWith('/api/auth/signup', expect.anything())
+
+    await userEvent.selectOptions(screen.getByLabelText('Intake'), await screen.findByRole('option', { name: /part-time/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Week 11' })).toBeInTheDocument()
     const signupCall = fetchMock.mock.calls.find(([url]) => url === '/api/auth/signup')
     expect(signupCall).toBeDefined()
     const init = signupCall![1] as RequestInit
-    expect(JSON.parse(String(init.body))).toMatchObject({ accepted_disclaimer_version: DISCLAIMER_VERSION })
+    expect(JSON.parse(String(init.body))).toMatchObject({
+      accepted_disclaimer_version: DISCLAIMER_VERSION,
+      intake_key: '2607-online-ccc-pt',
+    })
   })
 
   it('shows no catch-up note when nothing was pre-ticked', async () => {
@@ -112,10 +121,12 @@ describe('sign-in flow', () => {
         return jsonResponse({ ...ME, prefilled_through_week: null }, 201)
       },
       '/api/modules': modules,
+      '/api/intakes': INTAKES,
     })
     renderAt('/signup')
     await userEvent.type(await screen.findByLabelText('Email'), 'joel@example.com')
     await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
+    await userEvent.selectOptions(screen.getByLabelText('Intake'), await screen.findByRole('option', { name: /full-time/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Week 11' })).toBeInTheDocument()
     expect(screen.queryByText(/We've marked/)).not.toBeInTheDocument()
@@ -130,10 +141,12 @@ describe('sign-in flow', () => {
         return jsonResponse({ ...ME, prefilled_through_week: 10 }, 201)
       },
       '/api/modules': modules,
+      '/api/intakes': INTAKES,
     })
     renderAt({ pathname: '/signup', state: { from: '/modules/ccc602' } })
     await userEvent.type(await screen.findByLabelText('Email'), 'joel@example.com')
     await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
+    await userEvent.selectOptions(screen.getByLabelText('Intake'), await screen.findByRole('option', { name: /full-time/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Week 11' })).toBeInTheDocument()
     expect(screen.getByText(/We've marked weeks 1–10 as done/)).toBeInTheDocument()

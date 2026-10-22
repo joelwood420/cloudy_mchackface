@@ -142,6 +142,9 @@ export function Sidebar() {
         )}
 
         <div className="sidebar-foot">
+          <Link to="/settings" className="side-footer-link" aria-current={pathname === '/settings' ? 'page' : undefined}>
+            Settings
+          </Link>
           <Link to="/disclaimer" className="side-footer-link" aria-current={pathname === '/disclaimer' ? 'page' : undefined}>
             Disclaimer
           </Link>
