@@ -28,6 +28,36 @@ FT_WEEKS = (
 )
 
 
+def _run_skipping(first: int, start: date, count: int, breaks: list[date]) -> list[tuple[int, date]]:
+    """Consecutive weeks from start, leaving out the break weeks (given by their Monday)."""
+    out, d = [], start
+    while len(out) < count:
+        if d not in breaks:
+            out.append((first + len(out), d))
+        d += timedelta(weeks=1)
+    return out
+
+
+# The 2607 part-time intake: FT dates for weeks 1-32, then breaks inferred from the 2609 guide.
+PT_WEEKS = FT_WEEKS + _run_skipping(
+    33,
+    date(2027, 4, 26),
+    32,
+    [date(2027, 7, 5), date(2027, 7, 12), date(2027, 9, 13), date(2027, 9, 20)]
+    + [date(2027, 12, 20), date(2027, 12, 27), date(2028, 1, 3), date(2028, 1, 10)],
+)
+
+# The 2609 part-time intake, from the 2609 PT Programme Guide.
+PT_2609_WEEKS = _run_skipping(
+    1,
+    date(2026, 9, 28),
+    64,
+    [date(2026, 12, 21), date(2026, 12, 28), date(2027, 1, 4), date(2027, 1, 11), date(2027, 2, 15), date(2027, 2, 22)]
+    + [date(2027, 4, 26), date(2027, 5, 3), date(2027, 7, 5), date(2027, 7, 12), date(2027, 9, 13), date(2027, 9, 20)]
+    + [date(2027, 12, 20), date(2027, 12, 27), date(2028, 1, 3), date(2028, 1, 10)],
+)
+
+
 @pytest.fixture(scope="session")
 def engine():
     settings = get_settings()
