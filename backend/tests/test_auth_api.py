@@ -18,7 +18,7 @@ def login(client, email="joel@example.com", password=PASSWORD):
 def test_signup_starts_a_session_with_a_safe_cookie(client):
     response = signup(client)
     assert response.status_code == 201
-    assert response.json() == {"email": "joel@example.com", "study_mode": "FT", "intake": {"key": "2607-online-ccc-ft", "title": "Test intake", "study_mode": "FT"}, "prefilled_through_week": None}
+    assert response.json() == {"email": "joel@example.com", "study_mode": "FT", "intake": {"key": "2607-online-ccc-ft", "title": "Test intake", "study_mode": "FT"}, "intake_confirmed": True, "prefilled_through_week": None}
     cookie = response.headers["set-cookie"].lower()
     assert "session=" in cookie and "httponly" in cookie and "samesite=lax" in cookie
     assert "max-age=2592000" in cookie

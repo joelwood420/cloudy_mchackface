@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import date, datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.api.schemas import IntakeOut, MeOut, SettingsIn
 from app.auth.deps import current_user
-from app.catchup import prefill_past_work
+from app.catchup import prefill_past_work, reset_ticks
 from app.clock import today
 from app.db import get_db
 from app.models import Intake, User
@@ -24,6 +24,14 @@ def find_intake(db: Session, key: str) -> Intake:
     return intake
 
 
+def me_out(user: User) -> MeOut:
+    intake = user.settings.intake
+    return MeOut(
+        email=user.email, study_mode=intake.study_mode, intake=IntakeOut.model_validate(intake),
+        intake_confirmed=user.intake_confirmed_at is not None,
+    )
+
+
 @router.get("/intakes", response_model=list[IntakeOut])
 def list_intakes(db: Session = Depends(get_db)) -> list[Intake]:
     """Every intake a student can pick, earliest start first, full-time before part-time."""
@@ -36,10 +44,17 @@ def update_settings(
     body: SettingsIn, user: User = Depends(current_user), db: Session = Depends(get_db), today_: date = Depends(today)
 ) -> MeOut:
     intake = find_intake(db, body.intake_key)
-    if intake.id == user.settings.intake_id:  # nothing changed, so no catch-up ticks either
-        return MeOut(email=user.email, study_mode=intake.study_mode, intake=IntakeOut.model_validate(intake))
-    user.settings.intake = intake
-    db.flush()
-    prefill_past_work(db, user, intake, today_)
+    if user.intake_confirmed_at is None:
+        # Accounts from before intake choice were caught up against July FT. Their first real choice starts
+        # the ticks over: clear them, then tick everything already behind them on the chosen intake.
+        reset_ticks(db, user)
+        user.settings.intake = intake
+        db.flush()
+        prefill_past_work(db, user, intake, today_)
+    elif intake.id != user.settings.intake_id:  # same intake: no catch-up ticks either
+        user.settings.intake = intake
+        db.flush()
+        prefill_past_work(db, user, intake, today_)
+    user.intake_confirmed_at = datetime.now(timezone.utc)
     db.commit()
-    return MeOut(email=user.email, study_mode=intake.study_mode, intake=IntakeOut.model_validate(intake))
+    return me_out(user)

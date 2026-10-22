@@ -205,6 +205,8 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     disclaimer_version: Mapped[int | None]
     disclaimer_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # NULL for accounts made before students picked their intake: they're asked to confirm it.
+    intake_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     settings: Mapped["UserSettings"] = relationship(
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True

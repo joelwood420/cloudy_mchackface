@@ -3,8 +3,8 @@ from datetime import date
 import pytest
 from sqlalchemy import select
 
-from app.models import Intake, Module, Submodule, Task, TaskCompletion, User, Week
-from tests.conftest import FT_WEEKS, PT_2609_WEEKS, PT_WEEKS, add_schedule
+from app.models import Intake, Module, Prerequisite, PrerequisiteCompletion, Submodule, Task, TaskCompletion, User, Week
+from tests.conftest import FT_WEEKS, PT_2609_WEEKS, PT_WEEKS, add_schedule, signup_body
 
 
 def t(key):
@@ -77,3 +77,51 @@ def test_saving_the_same_intake_ticks_nothing(user_client, db, intakes, today_is
     today_is(date(2026, 9, 2))
     assert user_client.put("/api/me/settings", json={"intake_key": "2607-online-ccc-ft"}).status_code == 200
     assert ticked(db) == []
+
+
+def unconfirm(db):
+    """Make the signed-up user look like an account from before intake choice."""
+    user = db.scalars(select(User)).one()
+    user.intake_confirmed_at = None
+    db.flush()
+    return user
+
+
+def test_signup_is_confirmed_and_older_accounts_are_not(user_client, db, intakes):
+    assert user_client.get("/api/me").json()["intake_confirmed"] is True
+    unconfirm(db)
+    assert user_client.get("/api/me").json()["intake_confirmed"] is False
+
+
+def test_first_choice_starts_the_ticks_over_for_the_chosen_intake(client, db, intakes, today_is):
+    today_is(date(2026, 9, 2))  # week 7: July FT has covered content weeks 1-6, July PT content weeks 1-3
+    client.post("/api/auth/signup", json=signup_body("old@example.com"))
+    assert ticked(db) == ["t2", "t6"]
+    user = unconfirm(db)
+    prereq = Prerequisite(key="aws", title="AWS account", external_url="https://aws.test")
+    db.add(prereq)
+    db.flush()
+    db.add(PrerequisiteCompletion(user_id=user.id, prerequisite_id=prereq.id))
+    db.flush()
+    response = client.put("/api/me/settings", json={"intake_key": "2607-online-ccc-pt"})
+    assert response.json()["intake_confirmed"] is True
+    assert ticked(db) == ["t2"]
+    assert db.scalars(select(PrerequisiteCompletion)).all() != []  # setup steps stay ticked
+
+
+def test_first_choice_of_the_same_intake_also_starts_over(client, db, intakes, today_is):
+    today_is(date(2026, 8, 5))  # FT week 3: only content week 2 is past
+    client.post("/api/auth/signup", json=signup_body("old@example.com"))
+    unconfirm(db)
+    t6 = db.scalars(select(Task).where(Task.key == "t6")).one()
+    db.add(TaskCompletion(user_id=db.scalars(select(User.id)).one(), task_id=t6.id))  # ticked ahead
+    db.flush()
+    assert client.put("/api/me/settings", json={"intake_key": "2607-online-ccc-ft"}).json()["intake_confirmed"] is True
+    assert ticked(db) == ["t2"]
+
+
+def test_later_changes_never_remove_sign_up_ticks(client, db, intakes, today_is):
+    today_is(date(2026, 9, 2))
+    client.post("/api/auth/signup", json=signup_body("new@example.com"))
+    client.put("/api/me/settings", json={"intake_key": "2609-online-ccc-pt"})
+    assert ticked(db) == ["t2", "t6"]

@@ -2,6 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom'
 import { isUnauthorized } from '../api'
 import { useMe } from '../hooks/useMe'
 import { ErrorMessage } from './ErrorMessage'
+import { IntakeGate } from './IntakeGate'
 import { ShellSkeleton } from './Skeleton'
 
 export function RequireAuth() {
@@ -18,5 +19,9 @@ export function RequireAuth() {
   if (me.isPending) {
     return <ShellSkeleton />
   }
-  return <Outlet />
+  return (
+    <IntakeGate me={me.data}>
+      <Outlet />
+    </IntakeGate>
+  )
 }

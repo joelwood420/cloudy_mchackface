@@ -5,8 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.schemas import IntakeOut, LoginIn, MeOut, SignupIn, SignupOut
-from app.api.settings import find_intake
+from app.api.schemas import LoginIn, MeOut, SignupIn, SignupOut
+from app.api.settings import find_intake, me_out
 from app.auth.deps import current_user
 from app.auth.passwords import hash_password, verify_password
 from app.auth.ratelimit import email_limiter, ip_limiter
@@ -45,11 +45,6 @@ def _set_cookie(response: Response, token: str) -> None:
     response.set_cookie(SESSION_COOKIE, token, max_age=int(SESSION_LIFETIME.total_seconds()), **_cookie_args())
 
 
-def _me(user: User) -> MeOut:
-    intake = user.settings.intake
-    return MeOut(email=user.email, study_mode=intake.study_mode, intake=IntakeOut.model_validate(intake))
-
-
 @router.post("/auth/signup", response_model=SignupOut, status_code=201)
 def signup(
     body: SignupIn, request: Request, response: Response, db: Session = Depends(get_db), today_: date = Depends(today)
@@ -65,6 +60,7 @@ def signup(
         password_hash=hash_password(body.password),
         disclaimer_version=DISCLAIMER_VERSION,
         disclaimer_accepted_at=datetime.now(timezone.utc),
+        intake_confirmed_at=datetime.now(timezone.utc),
         settings=UserSettings(intake=intake),
     )
     db.add(user)
@@ -77,7 +73,7 @@ def signup(
     token = start_session(db, user)
     db.commit()
     _set_cookie(response, token)
-    return SignupOut(**_me(user).model_dump(), prefilled_through_week=prefilled)
+    return SignupOut(**me_out(user).model_dump(), prefilled_through_week=prefilled)
 
 
 @router.post("/auth/login", response_model=MeOut)
@@ -89,7 +85,7 @@ def login(body: LoginIn, request: Request, response: Response, db: Session = Dep
     token = start_session(db, user)
     db.commit()
     _set_cookie(response, token)
-    return _me(user)
+    return me_out(user)
 
 
 @router.post("/auth/logout", status_code=204)
@@ -101,4 +97,4 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
 
 @router.get("/me", response_model=MeOut)
 def me(user: User = Depends(current_user)) -> MeOut:
-    return _me(user)
+    return me_out(user)
