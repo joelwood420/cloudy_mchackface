@@ -42,6 +42,6 @@ Before PR #13, every account was put on July 2026 FT automatically. A few part-t
 
 - [x] 1 backend confirmation field
 - [x] 2 start ticks over + no prerequisite pre-ticks
-- [ ] 3 frontend gate
-- [ ] 4 tests
+- [x] 3 frontend gate (`frontend/src/components/IntakeGate.tsx`, used in `RequireAuth`)
+- [x] 4 tests
 - [ ] 5 docs + merge into dev + push + PR description

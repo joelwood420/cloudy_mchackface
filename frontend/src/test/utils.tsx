@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom'
 import type { IntakeOption, Me, ThisWeek } from '../api'
 import { AppRoutes, makeQueryClient } from '../App'
 
-export const ME: Me = { email: 'joel@example.com', study_mode: 'FT', intake: { key: '2607-online-ccc-ft', title: 'July 2026 intake, full-time (NZ4129)', study_mode: 'FT' } }
+export const ME: Me = { email: 'joel@example.com', study_mode: 'FT', intake: { key: '2607-online-ccc-ft', title: 'July 2026 intake, full-time (NZ4129)', study_mode: 'FT' }, intake_confirmed: true }
 
 export const INTAKES: IntakeOption[] = [
   ME.intake,

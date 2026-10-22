@@ -89,6 +89,7 @@ export interface Me {
   email: string
   study_mode: 'FT' | 'PT'
   intake: IntakeOption
+  intake_confirmed: boolean
 }
 
 export interface SignupResult extends Me {

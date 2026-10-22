@@ -52,6 +52,7 @@ uv run python -m app.reset_password EMAIL # set a new password (prompts; ends th
 - Migration 0005 clears content tables; re-run the seed loader after upgrading an older database.
 - The seed loader requires `schedule.yaml` and refuses to drop an intake that users are on. Migration 0008 moves existing users onto `2607-online-ccc-ft`.
 - Migration 0010 replaces assessments' `due_date` with `due_week` + `due_weekday`; re-run the seed loader after upgrading.
+- Migration 0011 adds `users.intake_confirmed_at`. Accounts from before intake choice are NULL and get asked for their intake on their next visit; that first choice clears their task ticks and submissions and re-does catch-up for the chosen intake.
 - Tests can run against a local Postgres in Docker instead of Neon (much faster): set `TEST_DATABASE_URL` to its URL on the command line.
 - On Fly, `fly.toml` sets COOKIE_SECURE and TRUST_FLY_CLIENT_IP (rate limit by the real client IP). Leave both off locally.
 - Prod runs on one machine (`--ha=false`) because the login rate limiter is in memory.
@@ -75,7 +76,7 @@ npm run lint                               # oxlint
 3. **Deadlines:** upcoming assessments and due dates.
 
 - Seed content is numbered in **full-time** weeks (from the FT schedule posts). A part-time intake takes two weeks per content week, with each week's tasks split in half (`backend/app/pacing.py`). Assessments are due by content week, and dates are worked out per intake. Spec: `docs/superpowers/specs/2026-10-22-part-time-intake-design.md`.
-- The **current week is worked out** from the user's intake (`seed/schedule.yaml`) and today's date in NZ time. There is no manual override. Students pick their intake at sign-up and can change it in Settings; changing it only ever adds catch-up ticks, never removes any. Breaks are the gaps between week start dates. New accounts get past weeks pre-ticked.
+- The **current week is worked out** from the user's intake (`seed/schedule.yaml`) and today's date in NZ time. There is no manual override. Students pick their intake at sign-up and can change it in Settings; changing it only ever adds catch-up ticks, never removes any (except an older account's first confirmation, above). Breaks are the gaps between week start dates. New accounts get past weeks' tasks and past-due assessments pre-ticked; prerequisites are never pre-ticked.
 - **User accounts from day one**: email + password built into FastAPI (argon2, DB-backed sessions, HTTP-only cookie). Course structure is shared reference data; completion state and settings are per user.
 - Out of scope for now: certification tracking, AI study helper, automated portal sync.
 - UI follows the "Module timeline" design (docs/superpowers/specs/2026-10-15-ui-redesign-design.md); module pages need a login; progress comes from each user's ticks.
