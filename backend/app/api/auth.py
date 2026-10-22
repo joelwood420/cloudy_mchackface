@@ -6,6 +6,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.api.schemas import IntakeOut, LoginIn, MeOut, SignupIn, SignupOut
+from app.api.settings import find_intake
 from app.auth.deps import current_user
 from app.auth.passwords import hash_password, verify_password
 from app.auth.ratelimit import email_limiter, ip_limiter
@@ -15,13 +16,12 @@ from app.clock import today
 from app.config import get_settings
 from app.db import get_db
 from app.disclaimer import DISCLAIMER_VERSION
-from app.models import Intake, User, UserSettings
+from app.models import User, UserSettings
 
 router = APIRouter(tags=["auth"])
 
 EMAIL_TAKEN = "Couldn't create an account with that email. Try logging in instead."
 BAD_LOGIN = "Email or password is incorrect."
-NO_SCHEDULE = "The course schedule isn't loaded yet. Try again later."
 STALE_DISCLAIMER = "The disclaimer has changed. Reload the page and accept it to continue."
 
 
@@ -59,9 +59,7 @@ def signup(
         raise HTTPException(status_code=422, detail=STALE_DISCLAIMER)
     if db.scalar(select(User.id).where(User.email == body.email)) is not None:
         raise HTTPException(status_code=409, detail=EMAIL_TAKEN)
-    intake = db.scalars(select(Intake).where(Intake.key == get_settings().default_intake_key)).one_or_none()
-    if intake is None:
-        raise HTTPException(status_code=503, detail=NO_SCHEDULE)
+    intake = find_intake(db, body.intake_key)
     user = User(
         email=body.email,
         password_hash=hash_password(body.password),

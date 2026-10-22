@@ -87,7 +87,7 @@ def db(engine):
 @pytest.fixture
 def intake(db):
     """The intake sign-up puts new users on. No weeks unless a test adds them with add_schedule."""
-    row = Intake(key=get_settings().default_intake_key, title="Test intake", study_mode="FT")
+    row = Intake(key=INTAKE_KEY, title="Test intake", study_mode="FT")
     db.add(row)
     db.flush()
     return row
@@ -126,10 +126,14 @@ def today_is(client):
 
 
 PASSWORD = "correct horse"
+INTAKE_KEY = "2607-online-ccc-ft"
 
 
 def signup_body(email: str, password: str = PASSWORD, **extra) -> dict:
-    return {"email": email, "password": password, "accepted_disclaimer_version": DISCLAIMER_VERSION, **extra}
+    return {
+        "email": email, "password": password, "accepted_disclaimer_version": DISCLAIMER_VERSION,
+        "intake_key": INTAKE_KEY, **extra,
+    }
 
 
 @pytest.fixture(autouse=True)
