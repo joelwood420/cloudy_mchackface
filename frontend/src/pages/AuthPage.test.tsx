@@ -10,11 +10,21 @@ const modules = [
 ]
 
 describe('sign-in flow', () => {
-  it('sends a logged-out visitor to the login page', async () => {
+  it('sends a logged-out visitor to a welcome page with both choices', async () => {
     mockApi({ '/api/me': unauthorized })
     renderAt('/')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Log in' })).toBeInTheDocument()
-    await waitFor(() => expect(document.title).toBe('Log in · Cloudy McHackface'))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Your week-by-week study guide' })).toBeInTheDocument()
+    await waitFor(() => expect(document.title).toBe('Welcome · Cloudy McHackface'))
+    expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/signup')
+    await userEvent.click(screen.getByRole('link', { name: 'Already have an account? Log in' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Log in' })).toBeInTheDocument()
+  })
+
+  it('Get started opens sign-up', async () => {
+    mockApi({ '/api/me': unauthorized, '/api/intakes': INTAKES })
+    renderAt('/welcome')
+    await userEvent.click(await screen.findByRole('link', { name: 'Get started' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Create your account' })).toBeInTheDocument()
   })
 
   it('logs in and returns to the page they asked for', async () => {
@@ -30,7 +40,7 @@ describe('sign-in flow', () => {
       '/api/modules/ccc602': { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', uplearn_url: null, submodules: [], weeks: [], assessments: [] },
     })
     renderAt('/modules/ccc602')
-    await screen.findByRole('heading', { name: 'Log in' })
+    await userEvent.click(await screen.findByRole('link', { name: 'Already have an account? Log in' }))
     await userEvent.type(screen.getByLabelText('Email'), 'joel@example.com')
     await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
@@ -161,14 +171,14 @@ describe('sign-in flow', () => {
     expect(screen.getByRole('heading', { name: 'Log in' })).toBeInTheDocument()
   })
 
-  it('goes to the login page when the session runs out mid-visit', async () => {
+  it('goes to the welcome page when the session runs out mid-visit', async () => {
     let meCalls = 0
     mockApi({
       '/api/me': () => (++meCalls === 1 ? jsonResponse(ME) : unauthorized()),
       '/api/modules': unauthorized,
     })
     renderAt('/')
-    expect(await screen.findByRole('heading', { name: 'Log in' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Already have an account? Log in' })).toBeInTheDocument()
   })
 
   it('logs out from the sidebar', async () => {

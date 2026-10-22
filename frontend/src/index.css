@@ -207,6 +207,8 @@ a.button-primary { text-decoration: none; }
 .auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
 .auth-card { width: 100%; max-width: 400px; padding: 28px; display: flex; flex-direction: column; gap: 18px; }
 .auth-card > p { margin: 0; }
+.welcome-actions { display: flex; flex-direction: column; gap: 12px; }
+.welcome-actions > a { width: 100%; }
 .sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 .sidebar-foot p { margin: 0; }
 .sidebar-email { overflow-wrap: anywhere; }

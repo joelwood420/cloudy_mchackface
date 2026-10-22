@@ -9,7 +9,7 @@ export function RequireAuth() {
   const me = useMe()
   const location = useLocation()
   if (me.isError) {
-    if (isUnauthorized(me.error)) return <Navigate to="/login" replace state={{ from: location.pathname }} />
+    if (isUnauthorized(me.error)) return <Navigate to="/welcome" replace state={{ from: location.pathname }} />
     return (
       <main className="page">
         <ErrorMessage error={me.error} onRetry={() => me.refetch()} />
