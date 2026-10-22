@@ -66,6 +66,20 @@ def test_0008_moves_existing_users_onto_the_default_intake(engine):
             trans.rollback()
 
 
+def test_0011_leaves_existing_accounts_unconfirmed(engine):
+    with engine.connect() as conn:
+        trans = conn.begin()
+        try:
+            conn.execute(text(f"CREATE SCHEMA {SCHEMA}"))
+            conn.execute(text(f"SET LOCAL search_path TO {SCHEMA}"))
+            command.upgrade(alembic_config(conn), "0010")
+            conn.execute(text("INSERT INTO users (id, email, password_hash) VALUES (1, 'old@example.com', 'x')"))
+            command.upgrade(alembic_config(conn), "head")
+            assert conn.execute(text("SELECT intake_confirmed_at FROM users WHERE id = 1")).scalar_one() is None
+        finally:
+            trans.rollback()
+
+
 def test_foreign_keys_are_indexed():
     for table in Base.metadata.tables.values():
         indexed = {tuple(c.name for c in ix.columns) for ix in table.indexes}

@@ -56,7 +56,7 @@ def test_catch_up_in_a_teaching_week(client, db, content, today_is):
     assert signup(client)["prefilled_through_week"] == 10
     assert keys(db, TaskCompletion, Task, TaskCompletion.task_id) == ["t9"]
     assert keys(db, AssessmentSubmission, Assessment, AssessmentSubmission.assessment_id) == ["past"]
-    assert keys(db, PrerequisiteCompletion, Prerequisite, PrerequisiteCompletion.prerequisite_id) == ["aws-account"]
+    assert keys(db, PrerequisiteCompletion, Prerequisite, PrerequisiteCompletion.prerequisite_id) == []  # setup steps are never pre-ticked
 
 
 def test_catch_up_leaves_assessments_due_today_alone(client, db, content, today_is):
@@ -69,7 +69,7 @@ def test_catch_up_on_a_break_ticks_everything_before_the_next_week(client, db, c
     today_is(date(2026, 12, 25))  # Christmas break, week 21 next
     assert signup(client)["prefilled_through_week"] == 20
     assert keys(db, TaskCompletion, Task, TaskCompletion.task_id) == ["t11", "t9"]
-    assert keys(db, PrerequisiteCompletion, Prerequisite, PrerequisiteCompletion.prerequisite_id) == ["aws-account"]
+    assert keys(db, PrerequisiteCompletion, Prerequisite, PrerequisiteCompletion.prerequisite_id) == []  # setup steps are never pre-ticked
 
 
 def test_no_catch_up_before_the_programme_starts(client, db, content, today_is):
@@ -82,7 +82,7 @@ def test_catch_up_after_the_end_ticks_everything(client, db, content, today_is):
     today_is(date(2027, 5, 1))
     assert signup(client)["prefilled_through_week"] == 32
     assert keys(db, TaskCompletion, Task, TaskCompletion.task_id) == ["t11", "t21", "t9"]
-    assert keys(db, PrerequisiteCompletion, Prerequisite, PrerequisiteCompletion.prerequisite_id) == ["aws-account", "forti"]
+    assert keys(db, PrerequisiteCompletion, Prerequisite, PrerequisiteCompletion.prerequisite_id) == []  # setup steps are never pre-ticked
 
 
 def test_login_does_not_catch_up(client, db, content, today_is):

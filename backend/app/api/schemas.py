@@ -117,6 +117,7 @@ class MeOut(BaseModel):
     email: str
     study_mode: str
     intake: IntakeOut
+    intake_confirmed: bool
 
 
 class SignupOut(MeOut):
