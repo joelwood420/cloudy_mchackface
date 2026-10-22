@@ -95,6 +95,7 @@ class SignupIn(BaseModel):
     email: Email
     password: Annotated[str, StringConstraints(min_length=MIN_PASSWORD_LENGTH, max_length=MAX_PASSWORD_LENGTH)]
     accepted_disclaimer_version: int
+    intake_key: Annotated[str, StringConstraints(min_length=1, max_length=100)]
 
 
 class LoginIn(BaseModel):
@@ -105,12 +106,18 @@ class LoginIn(BaseModel):
 class IntakeOut(_Out):
     key: str
     title: str
+    study_mode: str
+
+
+class SettingsIn(BaseModel):
+    intake_key: Annotated[str, StringConstraints(min_length=1, max_length=100)]
 
 
 class MeOut(BaseModel):
     email: str
     study_mode: str
     intake: IntakeOut
+    intake_confirmed: bool
 
 
 class SignupOut(MeOut):

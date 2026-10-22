@@ -37,6 +37,7 @@ def test_migrations_build_the_model_schema_and_downgrade_cleanly(engine):
                 {"s": SCHEMA},
             ).scalars().all()
             assert "intakes_study_mode_check" in checks, checks
+            assert "assessments_due_weekday_check" in checks, checks
 
             command.downgrade(alembic_config(conn), "base")
             tables = conn.execute(
@@ -61,6 +62,20 @@ def test_0008_moves_existing_users_onto_the_default_intake(engine):
                 text("SELECT i.key FROM user_settings s JOIN intakes i ON i.id = s.intake_id WHERE s.user_id = 1")
             ).scalar_one()
             assert key == "2607-online-ccc-ft"
+        finally:
+            trans.rollback()
+
+
+def test_0011_leaves_existing_accounts_unconfirmed(engine):
+    with engine.connect() as conn:
+        trans = conn.begin()
+        try:
+            conn.execute(text(f"CREATE SCHEMA {SCHEMA}"))
+            conn.execute(text(f"SET LOCAL search_path TO {SCHEMA}"))
+            command.upgrade(alembic_config(conn), "0010")
+            conn.execute(text("INSERT INTO users (id, email, password_hash) VALUES (1, 'old@example.com', 'x')"))
+            command.upgrade(alembic_config(conn), "head")
+            assert conn.execute(text("SELECT intake_confirmed_at FROM users WHERE id = 1")).scalar_one() is None
         finally:
             trans.rollback()
 

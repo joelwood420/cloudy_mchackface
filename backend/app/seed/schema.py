@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Annotated, Literal
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl, StringConstraints, model_validator
+from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field, HttpUrl, StringConstraints, model_validator
 
 # Limits mirror the column sizes in app/models.py; a value that passes here always fits the database.
 Key = Annotated[str, StringConstraints(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$", max_length=100)]
@@ -19,6 +19,18 @@ def _fits_url_column(url: HttpUrl) -> HttpUrl:
 
 
 Url = Annotated[HttpUrl, AfterValidator(_fits_url_column)]
+
+WEEKDAYS = ("mon", "tue", "wed", "thu", "fri", "sat", "sun")
+
+
+def _weekday_number(value: object) -> int:
+    if value not in WEEKDAYS:
+        raise ValueError(f"must be one of {', '.join(WEEKDAYS)}")
+    return WEEKDAYS.index(value)
+
+
+# Written as a day name in the YAML, held as 0=Mon to 6=Sun (date.weekday()'s numbering).
+Weekday = Annotated[int, BeforeValidator(_weekday_number)]
 
 
 class _Strict(BaseModel):
@@ -81,7 +93,8 @@ class SeedModule(_Strict):
 class SeedAssessment(_Strict):
     key: Key
     title: Title
-    due_date: date | None = None
+    due_week: int | None = Field(default=None, ge=1)  # a content (FT) week; each intake dates it in its own weeks
+    due_weekday: Weekday = 6
     uplearn_url: Url | None = None
 
 

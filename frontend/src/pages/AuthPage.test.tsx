@@ -2,7 +2,7 @@ import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import { DISCLAIMER_VERSION } from '../disclaimer'
-import { ME, jsonResponse, mockApi, renderAt } from '../test/utils'
+import { INTAKES, ME, jsonResponse, mockApi, renderAt } from '../test/utils'
 
 const unauthorized = () => jsonResponse({ detail: 'Not logged in' }, 401)
 const modules = [
@@ -10,11 +10,21 @@ const modules = [
 ]
 
 describe('sign-in flow', () => {
-  it('sends a logged-out visitor to the login page', async () => {
+  it('sends a logged-out visitor to a welcome page with both choices', async () => {
     mockApi({ '/api/me': unauthorized })
     renderAt('/')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Log in' })).toBeInTheDocument()
-    await waitFor(() => expect(document.title).toBe('Log in · Cloudy McHackface'))
+    expect(await screen.findByRole('heading', { level: 1, name: 'Your week-by-week study guide' })).toBeInTheDocument()
+    await waitFor(() => expect(document.title).toBe('Welcome · Cloudy McHackface'))
+    expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/signup')
+    await userEvent.click(screen.getByRole('link', { name: 'Already have an account? Log in' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Log in' })).toBeInTheDocument()
+  })
+
+  it('Get started opens sign-up', async () => {
+    mockApi({ '/api/me': unauthorized, '/api/intakes': INTAKES })
+    renderAt('/welcome')
+    await userEvent.click(await screen.findByRole('link', { name: 'Get started' }))
+    expect(screen.getByRole('heading', { level: 1, name: 'Create your account' })).toBeInTheDocument()
   })
 
   it('logs in and returns to the page they asked for', async () => {
@@ -30,7 +40,7 @@ describe('sign-in flow', () => {
       '/api/modules/ccc602': { key: 'ccc602', code: 'CCC602', title: 'Data Engineering in the Public Cloud', uplearn_url: null, submodules: [], weeks: [], assessments: [] },
     })
     renderAt('/modules/ccc602')
-    await screen.findByRole('heading', { name: 'Log in' })
+    await userEvent.click(await screen.findByRole('link', { name: 'Already have an account? Log in' }))
     await userEvent.type(screen.getByLabelText('Email'), 'joel@example.com')
     await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
     await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
@@ -86,6 +96,7 @@ describe('sign-in flow', () => {
         return jsonResponse(ME, 201)
       },
       '/api/modules': modules,
+      '/api/intakes': INTAKES,
     })
     renderAt('/signup')
     await userEvent.type(await screen.findByLabelText('Email'), 'joel@example.com')
@@ -96,11 +107,19 @@ describe('sign-in flow', () => {
 
     await userEvent.type(screen.getByLabelText('Password'), ' and more')
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Choose your intake.')
+    expect(fetchMock).not.toHaveBeenCalledWith('/api/auth/signup', expect.anything())
+
+    await userEvent.selectOptions(screen.getByLabelText('Intake'), await screen.findByRole('option', { name: /part-time/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Week 11' })).toBeInTheDocument()
     const signupCall = fetchMock.mock.calls.find(([url]) => url === '/api/auth/signup')
     expect(signupCall).toBeDefined()
     const init = signupCall![1] as RequestInit
-    expect(JSON.parse(String(init.body))).toMatchObject({ accepted_disclaimer_version: DISCLAIMER_VERSION })
+    expect(JSON.parse(String(init.body))).toMatchObject({
+      accepted_disclaimer_version: DISCLAIMER_VERSION,
+      intake_key: '2607-online-ccc-pt',
+    })
   })
 
   it('shows no catch-up note when nothing was pre-ticked', async () => {
@@ -112,10 +131,12 @@ describe('sign-in flow', () => {
         return jsonResponse({ ...ME, prefilled_through_week: null }, 201)
       },
       '/api/modules': modules,
+      '/api/intakes': INTAKES,
     })
     renderAt('/signup')
     await userEvent.type(await screen.findByLabelText('Email'), 'joel@example.com')
     await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
+    await userEvent.selectOptions(screen.getByLabelText('Intake'), await screen.findByRole('option', { name: /full-time/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Week 11' })).toBeInTheDocument()
     expect(screen.queryByText(/We've marked/)).not.toBeInTheDocument()
@@ -130,10 +151,12 @@ describe('sign-in flow', () => {
         return jsonResponse({ ...ME, prefilled_through_week: 10 }, 201)
       },
       '/api/modules': modules,
+      '/api/intakes': INTAKES,
     })
     renderAt({ pathname: '/signup', state: { from: '/modules/ccc602' } })
     await userEvent.type(await screen.findByLabelText('Email'), 'joel@example.com')
     await userEvent.type(screen.getByLabelText('Password'), 'correct horse')
+    await userEvent.selectOptions(screen.getByLabelText('Intake'), await screen.findByRole('option', { name: /full-time/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
     expect(await screen.findByRole('heading', { level: 1, name: 'Week 11' })).toBeInTheDocument()
     expect(screen.getByText(/We've marked weeks 1–10 as done/)).toBeInTheDocument()
@@ -148,14 +171,14 @@ describe('sign-in flow', () => {
     expect(screen.getByRole('heading', { name: 'Log in' })).toBeInTheDocument()
   })
 
-  it('goes to the login page when the session runs out mid-visit', async () => {
+  it('goes to the welcome page when the session runs out mid-visit', async () => {
     let meCalls = 0
     mockApi({
       '/api/me': () => (++meCalls === 1 ? jsonResponse(ME) : unauthorized()),
       '/api/modules': unauthorized,
     })
     renderAt('/')
-    expect(await screen.findByRole('heading', { name: 'Log in' })).toBeInTheDocument()
+    expect(await screen.findByRole('link', { name: 'Already have an account? Log in' })).toBeInTheDocument()
   })
 
   it('logs out from the sidebar', async () => {

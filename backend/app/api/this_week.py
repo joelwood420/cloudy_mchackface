@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.assessments import assessment_out, submitted_ids
+from app.api.assessments import assessment_due, assessment_out, submitted_ids
 from app.api.modules import _done_prerequisite_ids, _done_task_ids, schedule_post_urls
 from app.api.schemas import (
     AheadOut, AssessmentStatusOut, CurrentBreakOut, HolidayOut, LurkingTaskOut, LurkingWeekOut, NextWeekOut,
@@ -15,7 +15,8 @@ from app.api.schemas import (
 from app.auth.deps import current_user
 from app.clock import today
 from app.db import get_db
-from app.models import Module, Submodule, SubmodulePrerequisite, User, Week
+from app.models import Module, Submodule, SubmodulePrerequisite, Task, User, Week
+from app.pacing import StudyMode, week_slots
 from app.schedule import TeachingWeek, locate, upcoming_break
 
 router = APIRouter(tags=["this-week"])
@@ -23,11 +24,22 @@ router = APIRouter(tags=["this-week"])
 ASSESSMENT_WINDOW = timedelta(days=28)
 
 
-def _group(week: Week, done: set[int], done_prereqs: set[int], posts: dict[tuple[int, int], str]) -> ThisWeekGroup:
-    week_out = WeekOut.model_validate(week)
-    for task, task_out in zip(week.tasks, week_out.tasks):
+def _group(
+    mode: StudyMode, number: int, week: Week, tasks: list[Task], done: set[int], done_prereqs: set[int],
+    posts: dict[tuple[int, int], str],
+) -> ThisWeekGroup:
+    """One module's slice of intake week `number`: the content week, cut down to the tasks that land in it."""
+    week_out = WeekOut.model_validate(week).model_copy(
+        update={
+            # A PT content week shows up as two intake weeks; key them apart, like the module page does.
+            "key": week.key if mode == "FT" else f"{week.key}-{number}",
+            "week_number": number,
+            "tasks": [TaskOut.model_validate(t) for t in tasks],
+        }
+    )
+    for task, task_out in zip(tasks, week_out.tasks):
         task_out.done = task.id in done
-    week_out.schedule_post_url = posts.get((week.module_id, week.week_number))
+    week_out.schedule_post_url = posts.get((week.module_id, number))
     m, s = week.module, week.submodule
     return ThisWeekGroup(
         module_key=m.key, module_code=m.code, module_title=m.title, module_uplearn_url=m.uplearn_url,
@@ -63,9 +75,10 @@ def this_week(
         )
         .order_by(Module.position, Week.position)
     ).all()
+    slots = week_slots(intake.study_mode, content)
 
     def groups_for(number: int) -> list[ThisWeekGroup]:
-        return [_group(w, done, done_prereqs, posts) for w in content if w.week_number == number]
+        return [_group(intake.study_mode, n, w, tasks, done, done_prereqs, posts) for n, w, tasks in slots if n == number]
 
     groups = groups_for(pos.week.week_number) if pos.week else []
     tasks_now = [t for g in groups for t in g.week.tasks]
@@ -79,34 +92,28 @@ def this_week(
 
     lurking: dict[int, list[LurkingTaskOut]] = {}
     if pos.cutoff_week is not None:
-        for w in content:
-            if w.week_number < pos.cutoff_week:
-                for task in w.tasks:
+        for n, w, tasks in slots:
+            if n < pos.cutoff_week:
+                for task in tasks:
                     if task.id not in done:
-                        lurking.setdefault(w.week_number, []).append(
+                        lurking.setdefault(n, []).append(
                             LurkingTaskOut(
                                 **TaskOut.model_validate(task).model_dump(), module_code=w.module.code,
                                 submodule_code=w.submodule.code, submodule_uplearn_url=w.submodule.uplearn_url,
-                                schedule_post_url=posts.get((w.module_id, w.week_number)),
+                                schedule_post_url=posts.get((w.module_id, n)),
                             )
                         )
 
     modules = db.scalars(select(Module).options(selectinload(Module.assessments)).order_by(Module.position)).all()
+    dated = [(m, a, due) for m in modules for a in m.assessments if (due := assessment_due(a, intake)) is not None]
     shown = [
-        AssessmentStatusOut(**assessment_out(a, submitted, today_).model_dump(), module_key=m.key, module_code=m.code)
-        for m in modules
-        for a in m.assessments
-        if a.due_date is not None
-        and (today_ <= a.due_date <= today_ + ASSESSMENT_WINDOW or (a.due_date < today_ and a.id not in submitted))
+        AssessmentStatusOut(**assessment_out(a, submitted, today_, due).model_dump(), module_key=m.key, module_code=m.code)
+        for m, a, due in dated
+        if today_ <= due <= today_ + ASSESSMENT_WINDOW or (due < today_ and a.id not in submitted)
     ]
     position = {m.key: m.position for m in modules}
     shown.sort(key=lambda a: (a.due_date, position[a.module_key], a.title))
-    upcoming = [
-        (a.due_date - today_).days
-        for m in modules
-        for a in m.assessments
-        if a.due_date is not None and a.due_date >= today_ and a.id not in submitted
-    ]
+    upcoming = [(due - today_).days for _, a, due in dated if due >= today_ and a.id not in submitted]
 
     brk = upcoming_break(weeks, today_)
     return ThisWeekOut(

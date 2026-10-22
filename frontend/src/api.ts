@@ -79,10 +79,17 @@ export interface ModuleDetail {
   assessments: Assessment[]
 }
 
+export interface IntakeOption {
+  key: string
+  title: string
+  study_mode: 'FT' | 'PT'
+}
+
 export interface Me {
   email: string
   study_mode: 'FT' | 'PT'
-  intake: { key: string; title: string }
+  intake: IntakeOption
+  intake_confirmed: boolean
 }
 
 export interface SignupResult extends Me {
@@ -168,8 +175,15 @@ export const fetchThisWeek = () => request<ThisWeek>('GET', '/this-week')
 export const fetchAssessments = () => request<AssessmentWithModule[]>('GET', '/assessments')
 export const setAssessmentSubmitted = (key: string, submitted: boolean) =>
   request<void>(submitted ? 'PUT' : 'DELETE', `/assessments/${encodeURIComponent(key)}/submitted`)
-export const signup = (email: string, password: string) =>
-  request<SignupResult>('POST', '/auth/signup', { email, password, accepted_disclaimer_version: DISCLAIMER_VERSION })
+export const fetchIntakes = () => request<IntakeOption[]>('GET', '/intakes')
+export const updateSettings = (intakeKey: string) => request<Me>('PUT', '/me/settings', { intake_key: intakeKey })
+export const signup = (email: string, password: string, intakeKey: string) =>
+  request<SignupResult>('POST', '/auth/signup', {
+    email,
+    password,
+    accepted_disclaimer_version: DISCLAIMER_VERSION,
+    intake_key: intakeKey,
+  })
 export const login = (email: string, password: string) => request<Me>('POST', '/auth/login', { email, password })
 export const logout = () => request<void>('POST', '/auth/logout')
 export const setTaskDone = (key: string, done: boolean) =>

@@ -308,11 +308,11 @@ submodules:
 assessments:
   - key: ccc602-a3
     title: "Assessment 3: Azure Practical Scenario Evaluation"
-    due_date: 2026-10-25
+    due_week: 12
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73319
   - key: ccc602-a4
     title: "Assessment 4: Scenario-Based Activity Design and Implementation (AWS)"
-    due_date: 2026-11-22
+    due_week: 16
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
 
 # FT schedule posts: one forum discussion per teaching week (links only). Recorded by the owner from UPLearn, 2026-10-18.

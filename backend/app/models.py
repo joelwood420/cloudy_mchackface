@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKey, String, func
+from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKey, SmallInteger, String, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -107,13 +107,17 @@ class Task(Base):
 
 
 class Assessment(Base):
+    """Due on a weekday (0=Mon to 6=Sun) of a content week; the date depends on the intake (see app.pacing)."""
+
     __tablename__ = "assessments"
+    __table_args__ = (CheckConstraint("due_weekday BETWEEN 0 AND 6", name="due_weekday"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     key: Mapped[str] = mapped_column(String(100), unique=True)
     module_id: Mapped[int] = mapped_column(ForeignKey("modules.id", ondelete="CASCADE"), index=True)
     title: Mapped[str] = mapped_column(String(300))
-    due_date: Mapped[date | None] = mapped_column(Date)
+    due_week: Mapped[int | None]
+    due_weekday: Mapped[int] = mapped_column(SmallInteger, default=6, server_default="6")
     uplearn_url: Mapped[str | None] = mapped_column(String(1000))
 
     module: Mapped[Module] = relationship(back_populates="assessments")
@@ -201,6 +205,8 @@ class User(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     disclaimer_version: Mapped[int | None]
     disclaimer_accepted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # NULL for accounts made before students picked their intake: they're asked to confirm it.
+    intake_confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     settings: Mapped["UserSettings"] = relationship(
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True

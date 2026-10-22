@@ -3,7 +3,7 @@ from sqlalchemy import select
 from app.auth.ratelimit import email_limiter, ip_limiter
 from app.config import get_settings
 from app.disclaimer import DISCLAIMER_VERSION
-from app.models import User
+from app.models import Intake, User
 from tests.conftest import PASSWORD, signup_body
 
 
@@ -18,7 +18,7 @@ def login(client, email="joel@example.com", password=PASSWORD):
 def test_signup_starts_a_session_with_a_safe_cookie(client):
     response = signup(client)
     assert response.status_code == 201
-    assert response.json() == {"email": "joel@example.com", "study_mode": "FT", "intake": {"key": "2607-online-ccc-ft", "title": "Test intake"}, "prefilled_through_week": None}
+    assert response.json() == {"email": "joel@example.com", "study_mode": "FT", "intake": {"key": "2607-online-ccc-ft", "title": "Test intake", "study_mode": "FT"}, "intake_confirmed": True, "prefilled_through_week": None}
     cookie = response.headers["set-cookie"].lower()
     assert "session=" in cookie and "httponly" in cookie and "samesite=lax" in cookie
     assert "max-age=2592000" in cookie
@@ -122,13 +122,26 @@ def test_fly_client_ip_is_ignored_unless_trusted(client):
     assert response.status_code == 429
 
 
-def test_signup_needs_the_schedule_loaded(client, db, intake):
-    db.delete(intake)
+def test_signup_needs_an_intake(client, db):
+    response = client.post("/api/auth/signup", json={k: v for k, v in signup_body("joel@example.com").items() if k != "intake_key"})
+    assert response.status_code == 422
+    assert db.scalars(select(User)).all() == []
+
+
+def test_signup_refuses_an_unknown_intake(client, db):
+    response = client.post("/api/auth/signup", json=signup_body("joel@example.com", intake_key="nope"))
+    assert response.status_code == 422
+    assert response.json() == {"detail": "Pick your intake from the list."}
+    assert db.scalars(select(User)).all() == []
+
+
+def test_signup_puts_the_student_on_the_chosen_intake(client, db):
+    db.add(Intake(key="2607-online-ccc-pt", title="July PT", study_mode="PT"))
     db.flush()
-    response = client.post("/api/auth/signup", json=signup_body("joel@example.com"))
-    assert response.status_code == 503
-    assert response.json() == {"detail": "The course schedule isn't loaded yet. Try again later."}
+    response = client.post("/api/auth/signup", json=signup_body("joel@example.com", intake_key="2607-online-ccc-pt"))
+    assert response.status_code == 201
+    assert (response.json()["study_mode"], response.json()["intake"]["key"]) == ("PT", "2607-online-ccc-pt")
 
 
 def test_week_setting_is_gone(user_client):
-    assert user_client.patch("/api/me/settings", json={"current_week": 9}).status_code == 404
+    assert user_client.patch("/api/me/settings", json={"current_week": 9}).status_code == 405

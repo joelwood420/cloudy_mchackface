@@ -33,7 +33,7 @@ submodules:
 assessments:
   - key: ccc602-a3
     title: "Assessment 3: Azure Practical Scenario Evaluation"
-    due_date: 2026-10-25
+    due_week: 12
     uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9649
 """
 
@@ -87,7 +87,7 @@ def test_valid_files_load_with_utf8_text(tmp_path):
     assert seed.submodules[0].prerequisites == ["azure-account"]
     assert seed.all_weeks()[0].title == "DP-900 Learning Paths 1–4 · Ngā pūkenga"
     assert seed.all_weeks()[1].tasks == []
-    assert str(seed.assessments[0].due_date) == "2026-10-25"
+    assert (seed.assessments[0].due_week, seed.assessments[0].due_weekday) == (12, 6)
     assert [p.key for p in bundle.prerequisites] == ["azure-account"]
 
 
@@ -270,3 +270,31 @@ def test_schedule_post_for_a_week_the_module_lacks_is_rejected(tmp_path):
 def test_two_schedule_posts_for_the_same_week_and_mode_are_rejected(tmp_path):
     write_valid(tmp_path, module=VALID + POSTS.replace("study_mode: PT", "study_mode: FT"))
     assert any("more than one FT schedule post" in p for p in problems(tmp_path))
+
+
+def test_assessment_weekday_is_a_day_name_defaulting_to_sunday(tmp_path):
+    write_valid(tmp_path, module=VALID.replace("    due_week: 12\n", "    due_week: 12\n    due_weekday: fri\n"))
+    [seed] = load_seed_dir(tmp_path).modules
+    assert seed.assessments[0].due_weekday == 4
+
+    write_valid(tmp_path, module=VALID.replace("    due_week: 12\n", "    due_week: 12\n    due_weekday: friday\n"))
+    assert any("assessments.0.due_weekday" in p for p in problems(tmp_path))
+
+
+def test_assessment_due_week_starts_at_1(tmp_path):
+    write_valid(tmp_path, module=VALID.replace("due_week: 12", "due_week: 0"))
+    assert any("assessments.0.due_week" in p for p in problems(tmp_path))
+
+
+def test_assessment_due_week_past_the_shortest_intake_is_rejected(tmp_path):
+    write_valid(tmp_path, module=VALID.replace("due_week: 12", "due_week: 33"))
+    assert any("ccc602-a3" in p and "due_week 33" in p for p in problems(tmp_path))
+
+
+def test_part_time_intake_needs_two_weeks_per_content_week(tmp_path):
+    # PT weeks 1-19 cover content weeks 1-9 fully, and only half of week 10.
+    pt = schedule_yaml(range(1, 20)).replace("study_mode: FT", "study_mode: PT").replace("test-ft", "test-pt")
+    write_valid(tmp_path, module=VALID.replace("due_week: 12", "due_week: 9"), schedule=pt)
+    assert [p for p in problems(tmp_path)] == [
+        "ccc602.yaml: week 10 (ccc602-w10) has no dates in intake test-pt (schedule.yaml)"
+    ]

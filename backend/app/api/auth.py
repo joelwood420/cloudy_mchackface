@@ -5,7 +5,8 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.schemas import IntakeOut, LoginIn, MeOut, SignupIn, SignupOut
+from app.api.schemas import LoginIn, MeOut, SignupIn, SignupOut
+from app.api.settings import find_intake, me_out
 from app.auth.deps import current_user
 from app.auth.passwords import hash_password, verify_password
 from app.auth.ratelimit import email_limiter, ip_limiter
@@ -15,13 +16,12 @@ from app.clock import today
 from app.config import get_settings
 from app.db import get_db
 from app.disclaimer import DISCLAIMER_VERSION
-from app.models import Intake, User, UserSettings
+from app.models import User, UserSettings
 
 router = APIRouter(tags=["auth"])
 
 EMAIL_TAKEN = "Couldn't create an account with that email. Try logging in instead."
 BAD_LOGIN = "Email or password is incorrect."
-NO_SCHEDULE = "The course schedule isn't loaded yet. Try again later."
 STALE_DISCLAIMER = "The disclaimer has changed. Reload the page and accept it to continue."
 
 
@@ -45,11 +45,6 @@ def _set_cookie(response: Response, token: str) -> None:
     response.set_cookie(SESSION_COOKIE, token, max_age=int(SESSION_LIFETIME.total_seconds()), **_cookie_args())
 
 
-def _me(user: User) -> MeOut:
-    intake = user.settings.intake
-    return MeOut(email=user.email, study_mode=intake.study_mode, intake=IntakeOut.model_validate(intake))
-
-
 @router.post("/auth/signup", response_model=SignupOut, status_code=201)
 def signup(
     body: SignupIn, request: Request, response: Response, db: Session = Depends(get_db), today_: date = Depends(today)
@@ -59,14 +54,13 @@ def signup(
         raise HTTPException(status_code=422, detail=STALE_DISCLAIMER)
     if db.scalar(select(User.id).where(User.email == body.email)) is not None:
         raise HTTPException(status_code=409, detail=EMAIL_TAKEN)
-    intake = db.scalars(select(Intake).where(Intake.key == get_settings().default_intake_key)).one_or_none()
-    if intake is None:
-        raise HTTPException(status_code=503, detail=NO_SCHEDULE)
+    intake = find_intake(db, body.intake_key)
     user = User(
         email=body.email,
         password_hash=hash_password(body.password),
         disclaimer_version=DISCLAIMER_VERSION,
         disclaimer_accepted_at=datetime.now(timezone.utc),
+        intake_confirmed_at=datetime.now(timezone.utc),
         settings=UserSettings(intake=intake),
     )
     db.add(user)
@@ -79,7 +73,7 @@ def signup(
     token = start_session(db, user)
     db.commit()
     _set_cookie(response, token)
-    return SignupOut(**_me(user).model_dump(), prefilled_through_week=prefilled)
+    return SignupOut(**me_out(user).model_dump(), prefilled_through_week=prefilled)
 
 
 @router.post("/auth/login", response_model=MeOut)
@@ -91,7 +85,7 @@ def login(body: LoginIn, request: Request, response: Response, db: Session = Dep
     token = start_session(db, user)
     db.commit()
     _set_cookie(response, token)
-    return _me(user)
+    return me_out(user)
 
 
 @router.post("/auth/logout", status_code=204)
@@ -103,4 +97,4 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
 
 @router.get("/me", response_model=MeOut)
 def me(user: User = Depends(current_user)) -> MeOut:
-    return _me(user)
+    return me_out(user)
