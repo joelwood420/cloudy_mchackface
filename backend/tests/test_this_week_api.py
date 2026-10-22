@@ -19,16 +19,16 @@ def content(db, intake):
     de_sub = Submodule(key="dp900", code="DP-900", title="Azure Data", position=0, uplearn_url="https://up.test/dp900")
     admin = Module(key="ccc601", code="CCC601", title="Admin", position=1, submodules=[admin_sub], weeks=[
         Week(key="w8", week_number=8, title="W8", position=0, submodule=admin_sub, tasks=[t("t8")]),
-    ], assessments=[Assessment(key="a2", title="A2", due_date=date(2026, 9, 13))])
+    ], assessments=[Assessment(key="a2", title="A2", due_week=8)])
     de = Module(key="ccc602", code="CCC602", title="Data Engineering", position=2, uplearn_url="https://up.test/602",
                 submodules=[de_sub], weeks=[
         Week(key="w10", week_number=10, title="W10", position=0, submodule=de_sub, tasks=[t("t10")]),
         Week(key="w11", week_number=11, title="W11", position=1, submodule=de_sub, tasks=[t("t11a", 0), t("t11b", 1)]),
         Week(key="w12", week_number=12, title="W12", position=2, submodule=de_sub, tasks=[t("t12")]),
     ], assessments=[
-        Assessment(key="a3", title="A3", due_date=date(2026, 10, 25)),
-        Assessment(key="a4", title="A4", due_date=date(2026, 11, 22)),
-        Assessment(key="a5", title="A5", due_date=None),
+        Assessment(key="a3", title="A3", due_week=12),
+        Assessment(key="a4", title="A4", due_week=16),
+        Assessment(key="a5", title="A5", due_week=None),
     ])
     azure = Prerequisite(key="azure", title="Azure account", external_url="https://azure.test")
     skillable = Prerequisite(key="skillable", title="Skillable", external_url="https://skillable.test")

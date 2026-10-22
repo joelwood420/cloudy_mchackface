@@ -24,9 +24,9 @@ def content(db, intake):
         Week(key="w11", week_number=11, title="W11", position=1, submodule=started, tasks=[t("t11")]),
         Week(key="w21", week_number=21, title="W21", position=2, submodule=later, tasks=[t("t21")]),
     ], assessments=[
-        Assessment(key="past", title="Past", due_date=date(2026, 10, 1)),
-        Assessment(key="today", title="Today", due_date=date(2026, 10, 14)),
-        Assessment(key="future", title="Future", due_date=date(2026, 11, 22)),
+        Assessment(key="past", title="Past", due_week=9),
+        Assessment(key="today", title="Today", due_week=11),
+        Assessment(key="future", title="Future", due_week=16),
     ]))
     aws_acct = Prerequisite(key="aws-account", title="AWS", external_url="https://aws.test")
     forti = Prerequisite(key="forti", title="Forti", external_url="https://forti.test")
@@ -51,7 +51,7 @@ def signup(client):
 
 
 def test_catch_up_in_a_teaching_week(client, db, content, today_is):
-    today_is(date(2026, 10, 14))  # week 11
+    today_is(date(2026, 10, 18))  # Sunday of week 11
     assert signup(client)["prefilled_through_week"] == 10
     assert keys(db, TaskCompletion, Task, TaskCompletion.task_id) == ["t9"]
     assert keys(db, AssessmentSubmission, Assessment, AssessmentSubmission.assessment_id) == ["past"]
@@ -59,7 +59,7 @@ def test_catch_up_in_a_teaching_week(client, db, content, today_is):
 
 
 def test_catch_up_leaves_assessments_due_today_alone(client, db, content, today_is):
-    today_is(date(2026, 10, 14))
+    today_is(date(2026, 10, 18))
     signup(client)
     assert "today" not in keys(db, AssessmentSubmission, Assessment, AssessmentSubmission.assessment_id)
 

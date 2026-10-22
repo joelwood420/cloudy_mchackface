@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.assessments import assessment_out, submitted_ids
+from app.api.assessments import assessment_due, assessment_out, submitted_ids
 from app.api.modules import _done_prerequisite_ids, _done_task_ids, schedule_post_urls
 from app.api.schemas import (
     AheadOut, AssessmentStatusOut, CurrentBreakOut, HolidayOut, LurkingTaskOut, LurkingWeekOut, NextWeekOut,
@@ -92,21 +92,15 @@ def this_week(
                         )
 
     modules = db.scalars(select(Module).options(selectinload(Module.assessments)).order_by(Module.position)).all()
+    dated = [(m, a, due) for m in modules for a in m.assessments if (due := assessment_due(a, intake)) is not None]
     shown = [
-        AssessmentStatusOut(**assessment_out(a, submitted, today_).model_dump(), module_key=m.key, module_code=m.code)
-        for m in modules
-        for a in m.assessments
-        if a.due_date is not None
-        and (today_ <= a.due_date <= today_ + ASSESSMENT_WINDOW or (a.due_date < today_ and a.id not in submitted))
+        AssessmentStatusOut(**assessment_out(a, submitted, today_, due).model_dump(), module_key=m.key, module_code=m.code)
+        for m, a, due in dated
+        if today_ <= due <= today_ + ASSESSMENT_WINDOW or (due < today_ and a.id not in submitted)
     ]
     position = {m.key: m.position for m in modules}
     shown.sort(key=lambda a: (a.due_date, position[a.module_key], a.title))
-    upcoming = [
-        (a.due_date - today_).days
-        for m in modules
-        for a in m.assessments
-        if a.due_date is not None and a.due_date >= today_ and a.id not in submitted
-    ]
+    upcoming = [(due - today_).days for _, a, due in dated if due >= today_ and a.id not in submitted]
 
     brk = upcoming_break(weeks, today_)
     return ThisWeekOut(

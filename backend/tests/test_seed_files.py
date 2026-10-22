@@ -55,7 +55,15 @@ def test_schedule_is_the_2607_full_time_intake():
 def test_ccc604_is_a_shell_with_its_two_deadlines():
     ccc604 = modules()["ccc604"]
     assert ccc604.submodules == []
-    assert [(a.key, str(a.due_date)) for a in ccc604.assessments] == [("ccc604-a7", "2027-04-18"), ("ccc604-a8", "2027-04-23")]
+    assert [a.key for a in ccc604.assessments] == ["ccc604-a7", "ccc604-a8"]
+
+
+def test_assessments_are_due_by_content_week():
+    due = {a.key: (a.due_week, a.due_weekday) for s in bundle().modules for a in s.assessments}
+    assert due == {
+        "ccc601-a1": (4, 6), "ccc601-a2": (8, 6), "ccc602-a3": (12, 6), "ccc602-a4": (16, 6),
+        "ccc603-a5": (20, 6), "ccc603-a6": (24, 6), "ccc604-a7": (31, 6), "ccc604-a8": (32, 4),
+    }
 
 
 def test_every_seeded_week_links_its_ft_schedule_post():

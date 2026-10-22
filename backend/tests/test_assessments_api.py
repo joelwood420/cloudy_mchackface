@@ -4,7 +4,7 @@ import pytest
 
 from app.api.assessments import assessment_status
 from app.models import Assessment, Module
-from tests.conftest import signup_body
+from tests.conftest import PT_WEEKS, add_schedule, signup_body
 
 TODAY = date(2026, 10, 17)
 
@@ -24,21 +24,22 @@ def test_assessment_status(due, submitted, expected):
     assert assessment_status(due, submitted, TODAY) == expected
 
 
-def add_assessments(db):
+def add_assessments(db, intake, weeks=None):
+    add_schedule(db, intake, **({} if weeks is None else {"weeks": weeks}))
     db.add_all([
         Module(key="ccc602", code="CCC602", title="DE", position=2, assessments=[
-            Assessment(key="a4", title="A4", due_date=date(2026, 11, 22)),
-            Assessment(key="a3", title="A3", due_date=date(2026, 10, 25), uplearn_url="https://up.test/a3"),
+            Assessment(key="a4", title="A4", due_week=16),
+            Assessment(key="a3", title="A3", due_week=12, uplearn_url="https://up.test/a3"),
         ]),
         Module(key="ccc601", code="CCC601", title="Admin", position=1, assessments=[
-            Assessment(key="a1", title="A1", due_date=date(2026, 8, 16)),
+            Assessment(key="a1", title="A1", due_week=4),
         ]),
     ])
     db.flush()
 
 
-def test_list_assessments_in_module_then_date_order(user_client, db, today_is):
-    add_assessments(db)
+def test_list_assessments_in_module_then_date_order(user_client, db, intake, today_is):
+    add_assessments(db, intake)
     today_is(TODAY)
     body = user_client.get("/api/assessments").json()
     assert [a["key"] for a in body] == ["a1", "a3", "a4"]
@@ -49,8 +50,16 @@ def test_list_assessments_in_module_then_date_order(user_client, db, today_is):
     assert body[0]["status"] == "overdue"
 
 
-def test_submit_and_unsubmit_are_idempotent(user_client, db, today_is):
-    add_assessments(db)
+def test_part_time_due_dates_follow_the_intakes_own_weeks(user_client, db, intake, today_is):
+    intake.study_mode = "PT"
+    add_assessments(db, intake, weeks=PT_WEEKS)
+    today_is(TODAY)
+    a1 = user_client.get("/api/assessments").json()[0]
+    assert (a1["key"], a1["due_date"]) == ("a1", "2026-09-13")  # content week 4 is PT week 8; its Sunday
+
+
+def test_submit_and_unsubmit_are_idempotent(user_client, db, intake, today_is):
+    add_assessments(db, intake)
     today_is(TODAY)
     for _ in range(2):
         assert user_client.put("/api/assessments/a1/submitted").status_code == 204
@@ -67,13 +76,13 @@ def test_unknown_assessment_is_404(user_client):
     assert response.json() == {"detail": "Assessment not found"}
 
 
-def test_submissions_are_per_user(user_client, client, db, today_is):
-    add_assessments(db)
+def test_submissions_are_per_user(user_client, client, db, intake, today_is):
+    add_assessments(db, intake)
     today_is(TODAY)
-    user_client.put("/api/assessments/a1/submitted")
+    user_client.put("/api/assessments/a3/submitted")  # not yet due, so sign-up catch-up leaves it alone
     client.post("/api/auth/logout")
     client.post("/api/auth/signup", json=signup_body("other@example.com"))
-    assert client.get("/api/assessments").json()[0]["submitted"] is False
+    assert client.get("/api/assessments").json()[1]["submitted"] is False
 
 
 def test_assessments_need_a_session(client):

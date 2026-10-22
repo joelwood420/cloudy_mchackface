@@ -1,5 +1,3 @@
-from datetime import date
-
 from sqlalchemy import func, select
 
 from app.models import Assessment, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
@@ -15,7 +13,7 @@ def make_module(db):
     ]
     module.submodules = [sub]
     module.weeks = [week]
-    module.assessments = [Assessment(key="a3", title="Assessment 3", due_date=date(2026, 10, 25))]
+    module.assessments = [Assessment(key="a3", title="Assessment 3", due_week=12)]
     azure = Prerequisite(key="azure-account", title="Azure account", external_url="https://azure.test")
     skillable = Prerequisite(key="skillable", title="Skillable", uplearn_url="https://up.test/s")
     db.add_all([module, azure, skillable])

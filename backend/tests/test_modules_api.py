@@ -3,6 +3,7 @@ from datetime import date
 from sqlalchemy import select
 
 from app.models import Assessment, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
+from tests.conftest import add_schedule
 
 
 def add_content(db):
@@ -18,8 +19,8 @@ def add_content(db):
         ]),
     ]
     de.assessments = [
-        Assessment(key="a4", title="Assessment 4", due_date=None),
-        Assessment(key="a3", title="Assessment 3", due_date=date(2026, 10, 25), uplearn_url="https://up.test"),
+        Assessment(key="a4", title="Assessment 4", due_week=None),
+        Assessment(key="a3", title="Assessment 3", due_week=12, uplearn_url="https://up.test"),
     ]
     admin = Module(key="ccc601", code="CCC601", title="Public Cloud Administration", position=1)
     azure = Prerequisite(key="azure-account", title="Create an Azure account", note="Personal email", external_url="https://azure.test")
@@ -44,7 +45,8 @@ def test_list_modules_when_empty(user_client):
     assert user_client.get("/api/modules").json() == []
 
 
-def test_module_detail(user_client, db, today_is):
+def test_module_detail(user_client, db, intake, today_is):
+    add_schedule(db, intake)
     add_content(db)
     today_is(date(2026, 10, 17))
     body = user_client.get("/api/modules/ccc602").json()

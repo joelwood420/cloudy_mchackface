@@ -5,6 +5,7 @@ from datetime import date
 from sqlalchemy import insert, select
 from sqlalchemy.orm import Session
 
+from app.api.assessments import assessment_due
 from app.models import (
     Assessment, AssessmentSubmission, Intake, PrerequisiteCompletion, SubmodulePrerequisite, Task, TaskCompletion,
     User, Week,
@@ -23,7 +24,9 @@ def prefill_past_work(db: Session, user: User, intake: Intake, today: date) -> i
         return None
 
     task_ids = db.scalars(select(Task.id).join(Week).where(Week.week_number < cutoff)).all()
-    assessment_ids = db.scalars(select(Assessment.id).where(Assessment.due_date < today)).all()
+    assessment_ids = [
+        a.id for a in db.scalars(select(Assessment)) if (due := assessment_due(a, intake)) is not None and due < today
+    ]
     prereq_ids = db.scalars(
         select(SubmodulePrerequisite.prerequisite_id)
         .join(Week, Week.submodule_id == SubmodulePrerequisite.submodule_id)

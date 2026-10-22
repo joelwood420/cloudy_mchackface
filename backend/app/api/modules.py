@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.assessments import _sort_key, assessment_out, submitted_ids
+from app.api.assessments import _sort_key, assessment_due, assessment_out, submitted_ids
 from app.api.schemas import ModuleDetail, ModuleSummary, PrerequisiteOut, SubmoduleOut, WeekOut
 from app.auth.deps import current_user
 from app.clock import today
@@ -110,7 +110,8 @@ def get_module(
         week_out.schedule_post_url = posts.get((module.id, week.week_number))
         weeks.append(week_out)
     done_assessments = submitted_ids(db, user)
-    assessments = [assessment_out(a, done_assessments, today_) for a in sorted(module.assessments, key=_sort_key)]
+    dated = sorted(((a, assessment_due(a, user.settings.intake)) for a in module.assessments), key=lambda p: _sort_key(*p))
+    assessments = [assessment_out(a, done_assessments, today_, due) for a, due in dated]
     return ModuleDetail(
         key=module.key,
         code=module.code,
