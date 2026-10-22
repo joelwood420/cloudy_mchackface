@@ -1,5 +1,10 @@
+from datetime import timedelta
+
+from app.pacing import due_date
+from app.schedule import TeachingWeek
 from app.seed.__main__ import DEFAULT_SEED_DIR
 from app.seed.loader import load_seed_dir
+from tests.conftest import PT_2609_WEEKS, PT_WEEKS
 
 FORBIDDEN_IN_NOTES = ("http", "calendly", "teams.microsoft", "zoom.us")
 
@@ -45,11 +50,69 @@ def test_notes_point_to_access_without_secrets():
         assert not any(s in note.lower() for s in FORBIDDEN_IN_NOTES), note
 
 
-def test_schedule_is_the_2607_full_time_intake():
-    [intake] = bundle().intakes
-    assert intake.key == "2607-online-ccc-ft"
-    assert [w.week_number for w in intake.weeks] == list(range(1, 33))
-    assert str(intake.weeks[0].starts_on) == "2026-07-20" and str(intake.weeks[-1].starts_on) == "2027-04-19"
+def intakes():
+    return {i.key: i for i in bundle().intakes}
+
+
+def starts(key):
+    return {w.week_number: w.starts_on for w in intakes()[key].weeks}
+
+
+def test_there_are_four_intakes():
+    assert set(intakes()) == {"2607-online-ccc-ft", "2607-online-ccc-pt", "2609-online-ccc-ft", "2609-online-ccc-pt"}
+    assert {k: i.study_mode for k, i in intakes().items()} == {
+        "2607-online-ccc-ft": "FT", "2607-online-ccc-pt": "PT", "2609-online-ccc-ft": "FT", "2609-online-ccc-pt": "PT",
+    }
+
+
+def test_2607_full_time_intake():
+    weeks = starts("2607-online-ccc-ft")
+    assert list(weeks) == list(range(1, 33))
+    assert str(weeks[1]) == "2026-07-20" and str(weeks[32]) == "2027-04-19"
+
+
+def test_2607_part_time_intake():
+    pt, ft = starts("2607-online-ccc-pt"), starts("2607-online-ccc-ft")
+    assert list(pt) == list(range(1, 65))
+    assert all(pt[n] == ft[n] for n in range(1, 33))
+    assert str(pt[33]) == "2027-04-26" and str(pt[64]) == "2028-01-24"
+    assert [(n, d) for n, d in pt.items()] == PT_WEEKS
+
+
+def test_2609_part_time_intake():
+    pt = starts("2609-online-ccc-pt")
+    assert list(pt) == list(range(1, 65))
+    assert [str(pt[n]) for n in (1, 13, 25, 53, 64)] == ["2026-09-28", "2027-01-18", "2027-05-10", "2028-01-17", "2028-04-03"]
+    assert [(n, d) for n, d in pt.items()] == PT_2609_WEEKS
+
+
+def test_2609_full_time_intake():
+    ft = starts("2609-online-ccc-ft")
+    assert list(ft) == list(range(1, 33))
+    assert [str(ft[n]) for n in (1, 13, 17, 25, 32)] == ["2026-09-28", "2027-01-18", "2027-03-01", "2027-05-10", "2027-06-28"]
+
+
+def test_every_holiday_falls_inside_its_intake():
+    for intake in bundle().intakes:
+        first, last = intake.weeks[0].starts_on, intake.weeks[-1].starts_on + timedelta(days=6)
+        assert intake.holidays, intake.key
+        assert all(first <= h.day <= last for h in intake.holidays), intake.key
+
+
+def test_assessments_get_the_official_dates_in_each_intake():
+    assessments = {a.key: a for s in bundle().modules for a in s.assessments}
+    official = {
+        "2607-online-ccc-ft": ["2026-08-16", "2026-09-13", "2026-10-25", "2026-11-22", "2026-12-20", "2027-02-07", "2027-04-18", "2027-04-23"],
+        "2609-online-ccc-pt": ["2026-11-22", "2027-02-14", "2027-04-25", "2027-07-04", "2027-09-12", "2027-11-21", "2028-03-26", "2028-04-07"],
+    }
+    for key, expected in official.items():
+        intake = intakes()[key]
+        weeks = [TeachingWeek(w.week_number, w.starts_on) for w in intake.weeks]
+        got = [
+            str(due_date(weeks, intake.study_mode, assessments[f"{m}-a{n}"].due_week, assessments[f"{m}-a{n}"].due_weekday))
+            for n, m in zip(range(1, 9), ["ccc601"] * 2 + ["ccc602"] * 2 + ["ccc603"] * 2 + ["ccc604"] * 2)
+        ]
+        assert got == expected, key
 
 
 def test_ccc604_is_a_shell_with_its_two_deadlines():
