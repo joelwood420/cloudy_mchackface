@@ -10,11 +10,13 @@ from app.auth.deps import current_user
 from app.clock import today
 from app.db import get_db
 from app.models import (
+    Assessment,
     Module,
     PrerequisiteCompletion,
     SchedulePost,
     Submodule,
     SubmodulePrerequisite,
+    Task,
     TaskCompletion,
     User,
     Week,
@@ -94,12 +96,12 @@ def get_module(
         select(Module)
         .where(Module.key == key)
         .options(
-            selectinload(Module.weeks).selectinload(Week.tasks),
+            selectinload(Module.weeks).selectinload(Week.tasks).selectinload(Task.assessment),
             selectinload(Module.submodules).selectinload(Submodule.weeks),
             selectinload(Module.submodules)
             .selectinload(Submodule.prerequisite_links)
             .selectinload(SubmodulePrerequisite.prerequisite),
-            selectinload(Module.assessments),
+            selectinload(Module.assessments).selectinload(Assessment.resources),
         )
     ).one_or_none()
     if module is None:

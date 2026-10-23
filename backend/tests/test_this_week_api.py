@@ -4,7 +4,7 @@ import pytest
 
 from sqlalchemy import select
 
-from app.models import Assessment, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
+from app.models import Assessment, AssessmentResource, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
 from tests.conftest import PT_WEEKS, add_schedule
 
 
@@ -215,3 +215,73 @@ def test_part_time_lurking_uses_part_time_week_numbers(user_client, part_time, t
     assert [(w["week_number"], [t["key"] for t in w["tasks"]]) for w in get(user_client)["lurking"]] == [
         (1, ["solo"]), (5, ["a", "b"]),
     ]
+
+
+def resource(key, group="recording", tasks=(), position=0):
+    return AssessmentResource(key=key, title=key.upper(), url=f"https://x.test/{key}", group=group, tasks=list(tasks), position=position)
+
+
+def link_a3(db):
+    """Make t11a A3's Task 3 step, and give A3 resources for tasks 3 and 4 plus an untagged and a submitting one."""
+    a3 = db.scalars(select(Assessment).where(Assessment.key == "a3")).one()
+    a3.title = "Assessment 3: Azure"
+    a3.resources = [
+        resource("r3", tasks=[3], position=0), resource("r4", tasks=[4], position=1),
+        resource("repo", "code_data", position=2), resource("format", "submitting", position=3),
+    ]
+    step = db.scalars(select(Task).where(Task.key == "t11a")).one()
+    step.type, step.assessment, step.assessment_task = "assessment_step", a3, 3
+    db.flush()
+
+
+def test_resource_box_in_current_week_only(user_client, db, content, today_is):
+    link_a3(db)
+    today_is(date(2026, 10, 14))
+    [group] = get(user_client)["groups"]
+    [box] = group["assessment_resources"]
+    assert (box["assessment_key"], box["assessment_short"], box["task_numbers"]) == ("a3", "A3", [3])
+    assert [r["key"] for r in box["resources"]] == ["r3", "repo"]
+    assert box["resources"][0] == {"key": "r3", "title": "R3", "url": "https://x.test/r3", "group": "recording", "tasks": [3]}
+    step = group["week"]["tasks"][0]
+    assert (step["assessment_key"], step["assessment_task"]) == ("a3", 3)
+
+    today_is(date(2026, 10, 7))  # week 10: t11a is ahead, and ahead groups never get boxes
+    user_client.put("/api/tasks/t10/complete")
+    body = get(user_client)
+    assert body["ahead"]["groups"][0]["assessment_resources"] == []
+
+
+def test_rail_assessments_carry_their_resources(user_client, db, content, today_is):
+    link_a3(db)
+    today_is(date(2026, 10, 14))
+    [a3] = [a for a in get(user_client)["assessments"] if a["key"] == "a3"]
+    assert [r["key"] for r in a3["resources"]] == ["r3", "r4", "repo", "format"]
+
+
+@pytest.fixture
+def part_time_a3(db, intake):
+    """PT intake; content week 3 holds A3's Task 3 and Task 4 steps, so each lands in its own PT week."""
+    intake.study_mode = "PT"
+    add_schedule(db, intake, weeks=PT_WEEKS)
+    sub = Submodule(key="dp203", code="DP-203", title="Data Engineer", position=0)
+    a3 = Assessment(key="a3", title="Assessment 3: Azure", due_week=4, resources=[
+        resource("r3", tasks=[3], position=0), resource("r4", tasks=[4], position=1), resource("repo", "code_data", position=2),
+    ])
+    steps = [
+        Task(key=f"s{n}", title=f"Task {n}", type="assessment_step", uplearn_url="https://x.test/a3", position=n,
+             assessment=a3, assessment_task=n)
+        for n in (3, 4)
+    ]
+    db.add(Module(key="ccc602", code="CCC602", title="DE", position=2, submodules=[sub], assessments=[a3], weeks=[
+        Week(key="w3", week_number=3, title="W3", position=0, submodule=sub, tasks=steps),
+    ]))
+    db.flush()
+
+
+def test_pt_half_weeks_split_the_box(user_client, part_time_a3, today_is):
+    today_is(date(2026, 8, 19))  # PT week 5: first half of content week 3
+    [box] = get(user_client)["groups"][0]["assessment_resources"]
+    assert (box["task_numbers"], [r["key"] for r in box["resources"]]) == ([3], ["r3", "repo"])
+    today_is(date(2026, 8, 26))  # PT week 6
+    [box] = get(user_client)["groups"][0]["assessment_resources"]
+    assert (box["task_numbers"], [r["key"] for r in box["resources"]]) == ([4], ["r4", "repo"])

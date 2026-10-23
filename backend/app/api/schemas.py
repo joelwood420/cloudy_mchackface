@@ -30,6 +30,8 @@ class TaskOut(_Out):
     uplearn_url: str | None
     note: str | None
     done: bool = False
+    assessment_key: str | None = None
+    assessment_task: int | None = None
 
 
 class WeekOut(_Out):
@@ -41,6 +43,23 @@ class WeekOut(_Out):
     schedule_post_url: str | None = None
 
 
+class ResourceOut(_Out):
+    key: str
+    title: str
+    url: str
+    group: str
+    tasks: list[int]
+
+
+class ResourceBoxOut(BaseModel):
+    """One assessment's resources for the tasks in a This week slot."""
+
+    assessment_key: str
+    assessment_short: str
+    task_numbers: list[int]
+    resources: list[ResourceOut]
+
+
 class AssessmentOut(_Out):
     key: str
     title: str
@@ -49,6 +68,7 @@ class AssessmentOut(_Out):
     submitted: bool = False
     status: str = "no_date"
     days_until: int | None = None
+    resources: list[ResourceOut] = []
 
 
 class AssessmentStatusOut(AssessmentOut):
@@ -170,6 +190,7 @@ class ThisWeekGroup(BaseModel):
     submodule: SubmoduleRef
     week: WeekOut
     prerequisites: list[PrerequisiteOut]
+    assessment_resources: list[ResourceBoxOut] = []
 
 
 class AheadOut(BaseModel):
