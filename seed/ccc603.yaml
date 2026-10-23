@@ -58,6 +58,7 @@ submodules:
           - key: ccc603-w17-a5-start
             title: "Start Assessment 5: read the brief"
             type: assessment_step
+            assessment: ccc603-a5
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
       - key: ccc603-w18
         week_number: 18
@@ -96,10 +97,14 @@ submodules:
           - key: ccc603-w18-a5-t1
             title: "Complete Task 1 of Assessment 5 (Secure VPC setup and architecture design)"
             type: assessment_step
+            assessment: ccc603-a5
+            assessment_task: 1
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
           - key: ccc603-w18-a5-t2
             title: "Complete Task 2 of Assessment 5 (VPN tunnel configuration)"
             type: assessment_step
+            assessment: ccc603-a5
+            assessment_task: 2
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
   - key: ccc603-fortinet
     code: "Fortinet"
@@ -130,6 +135,8 @@ submodules:
           - key: ccc603-w19-a5-t3
             title: "Complete Task 3 of Assessment 5 (Secure connectivity testing)"
             type: assessment_step
+            assessment: ccc603-a5
+            assessment_task: 3
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
       - key: ccc603-w20
         week_number: 20
@@ -138,10 +145,13 @@ submodules:
           - key: ccc603-w20-a5-t4
             title: "Complete Task 4 of Assessment 5 (Risk mitigation, best practices and report)"
             type: assessment_step
+            assessment: ccc603-a5
+            assessment_task: 4
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
           - key: ccc603-w20-a5-submit
             title: "Submit Assessment 5"
             type: assessment_step
+            assessment: ccc603-a5
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
       - key: ccc603-w21
         week_number: 21
@@ -180,6 +190,7 @@ submodules:
           - key: ccc603-w21-a6-start
             title: "Start Assessment 6: read the brief"
             type: assessment_step
+            assessment: ccc603-a6
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
       - key: ccc603-w22
         week_number: 22
@@ -223,10 +234,14 @@ submodules:
           - key: ccc603-w22-a6-t1
             title: "Complete Task 1 of Assessment 6"
             type: assessment_step
+            assessment: ccc603-a6
+            assessment_task: 1
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
           - key: ccc603-w22-a6-t2
             title: "Complete Task 2 of Assessment 6"
             type: assessment_step
+            assessment: ccc603-a6
+            assessment_task: 2
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
       - key: ccc603-w23
         week_number: 23
@@ -244,6 +259,8 @@ submodules:
           - key: ccc603-w23-a6-t3
             title: "Complete Task 3 of Assessment 6"
             type: assessment_step
+            assessment: ccc603-a6
+            assessment_task: 3
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
       - key: ccc603-w24
         week_number: 24
@@ -252,20 +269,69 @@ submodules:
           - key: ccc603-w24-a6-t4
             title: "Complete Task 4 of Assessment 6"
             type: assessment_step
+            assessment: ccc603-a6
+            assessment_task: 4
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
           - key: ccc603-w24-a6-submit
             title: "Submit Assessment 6"
             type: assessment_step
+            assessment: ccc603-a6
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
 assessments:
   - key: ccc603-a5
     title: "Assessment 5: Practical Demonstration (AWS Certified Security SCS-C02)"
     due_week: 20
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73321
+    resources:
+      - key: ccc603-a5-handout
+        title: "Site-to-site VPN handout (Assessment Q&A post)"
+        group: code_data
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49091
+      - key: ccc603-a5-vpc
+        title: "Amazon VPC docs"
+        group: tool
+        url: https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
+        tasks: [1]
+      - key: ccc603-a5-vpn
+        title: "AWS Site-to-Site VPN docs"
+        group: tool
+        url: https://docs.aws.amazon.com/vpn/latest/s2svpn/VPC_VPN.html
+        tasks: [2]
+      - key: ccc603-a5-apa
+        title: "APA Style"
+        group: tool
+        url: https://apastyle.apa.org/
+        tasks: [4]
+      - key: ccc603-a5-referencing
+        title: "Referencing tips (00A Digital Skills)"
+        group: tool
+        url: https://yoobee.uplearn.education/course/section.php?id=18346
+        tasks: [4]
   - key: ccc603-a6
     title: "Assessment 6: Report and Proof of Concepts (Network Security Expert using Fortinet)"
     due_week: 24
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73322
+    resources:
+      - key: ccc603-a6-fortinet-github
+        title: "Fortinet templates on GitHub"
+        group: code_data
+        url: https://github.com/fortinet
+      - key: ccc603-a6-fortinet-docs
+        title: "Fortinet docs (FortiGate in public cloud)"
+        group: tool
+        url: https://docs.fortinet.com/
+      - key: ccc603-a6-video
+        title: "Save a PowerPoint as a video (for the walkthrough)"
+        group: tool
+        url: https://support.microsoft.com/en-us/office/save-a-presentation-as-a-movie-file-or-mp4-4e1ebcc1-f46b-47b6-922a-bac76c4a5691
+      - key: ccc603-a6-apa
+        title: "APA Style"
+        group: tool
+        url: https://apastyle.apa.org/
+      - key: ccc603-a6-referencing
+        title: "Referencing tips (00A Digital Skills)"
+        group: tool
+        url: https://yoobee.uplearn.education/course/section.php?id=18346
 
 # FT schedule posts: one forum discussion per teaching week (links only). Recorded by the owner from UPLearn, 2026-10-18.
 schedule_posts:

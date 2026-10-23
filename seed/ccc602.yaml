@@ -60,6 +60,7 @@ submodules:
           - key: ccc602-w09-a3-start
             title: "Start Assessment 3: read the brief"
             type: assessment_step
+            assessment: ccc602-a3
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73319
   - key: ccc602-dp203
     code: "DP-203"
@@ -99,14 +100,20 @@ submodules:
           - key: ccc602-w10-a3-demo
             title: "Watch the Assessment 3 tutor demo recordings"
             type: assessment_step
+            assessment: ccc602-a3
+            shows_all_resources: true
             uplearn_url: https://yoobee.uplearn.education/mod/forum/view.php?id=51304
           - key: ccc602-w10-a3-t1
             title: "Complete Task 1 of Assessment 3 (Cloud vendor evaluation)"
             type: assessment_step
+            assessment: ccc602-a3
+            assessment_task: 1
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73319
           - key: ccc602-w10-a3-t2
             title: "Complete Task 2 of Assessment 3 (Dataset acquisition and IaC deployment)"
             type: assessment_step
+            assessment: ccc602-a3
+            assessment_task: 2
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73319
       - key: ccc602-w11
         week_number: 11
@@ -130,10 +137,14 @@ submodules:
           - key: ccc602-w11-a3-t3
             title: "Complete Task 3 of Assessment 3 (Data ingestion with Azure Data Factory)"
             type: assessment_step
+            assessment: ccc602-a3
+            assessment_task: 3
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73319
           - key: ccc602-w11-a3-t4
             title: "Complete Task 4 of Assessment 3 (Databricks workspace and data transformation)"
             type: assessment_step
+            assessment: ccc602-a3
+            assessment_task: 4
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73319
       - key: ccc602-w12
         week_number: 12
@@ -152,10 +163,13 @@ submodules:
           - key: ccc602-w12-a3-t5
             title: "Complete Task 5 of Assessment 3 (Synapse Analytics and data integration)"
             type: assessment_step
+            assessment: ccc602-a3
+            assessment_task: 5
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73319
           - key: ccc602-w12-a3-submit
             title: "Submit Assessment 3"
             type: assessment_step
+            assessment: ccc602-a3
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73319
   - key: ccc602-dea
     code: "DEA-C01"
@@ -203,10 +217,13 @@ submodules:
           - key: ccc602-w13-a4-start
             title: "Start Assessment 4: read the brief"
             type: assessment_step
+            assessment: ccc602-a4
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
           - key: ccc602-w13-a4-intro
             title: "Watch the Assessment 4 introduction recording"
             type: assessment_step
+            assessment: ccc602-a4
+            shows_all_resources: true
             uplearn_url: https://yoobee.uplearn.education/mod/forum/view.php?id=51304
       - key: ccc602-w14
         week_number: 14
@@ -240,10 +257,14 @@ submodules:
           - key: ccc602-w14-a4-t1
             title: "Complete Task 1 of Assessment 4 (Infrastructure setup and ingestion automation)"
             type: assessment_step
+            assessment: ccc602-a4
+            assessment_task: 1
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
           - key: ccc602-w14-a4-t2
             title: "Complete Task 2 of Assessment 4 (Query and visualise with Athena and QuickSight)"
             type: assessment_step
+            assessment: ccc602-a4
+            assessment_task: 2
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
       - key: ccc602-w15
         week_number: 15
@@ -292,6 +313,8 @@ submodules:
           - key: ccc602-w15-a4-t3
             title: "Complete Task 3 of Assessment 4 (Multi-cloud integration: GitHub, AWS, Azure Synapse)"
             type: assessment_step
+            assessment: ccc602-a4
+            assessment_task: 3
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
       - key: ccc602-w16
         week_number: 16
@@ -300,20 +323,179 @@ submodules:
           - key: ccc602-w16-a4-t4
             title: "Complete Task 4 of Assessment 4 (Final report on AWS services and architecture)"
             type: assessment_step
+            assessment: ccc602-a4
+            assessment_task: 4
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
           - key: ccc602-w16-a4-submit
             title: "Submit Assessment 4"
             type: assessment_step
+            assessment: ccc602-a4
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
 assessments:
   - key: ccc602-a3
     title: "Assessment 3: Azure Practical Scenario Evaluation"
     due_week: 12
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73319
+    resources:
+      - key: ccc602-a3-rec-3-1
+        title: "3.1 Introduction and sample data access"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48935
+      - key: ccc602-a3-rec-3-2
+        title: "3.2 Practical implementation on the Azure portal"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48936
+        tasks: [2]
+      - key: ccc602-a3-rec-3-3
+        title: "3.3 Deploying Azure resources with an ARM template"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48938
+        tasks: [2]
+      - key: ccc602-a3-rec-3-4
+        title: "3.4 Data ingestion with Azure Data Factory"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48939
+        tasks: [3]
+      - key: ccc602-a3-rec-3-5
+        title: "3.5 Azure Databricks and app registration"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48940
+        tasks: [4]
+      - key: ccc602-a3-rec-3-6
+        title: "3.6 Azure Databricks and Spark commands"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48941
+        tasks: [4]
+      - key: ccc602-a3-rec-3-7
+        title: "3.7 Azure Databricks and Spark commands (part 2)"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48942
+        tasks: [4]
+      - key: ccc602-a3-rec-3-8
+        title: "3.8 Data transformation and Synapse set-up"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48943
+        tasks: [5]
+      - key: ccc602-a3-rec-3-9
+        title: "3.9 Tables from the data lake and SQL queries"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48944
+        tasks: [5]
+      - key: ccc602-a3-rec-3-10
+        title: "3.10 Tables from the data lake and SQL queries (part 2)"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48945
+        tasks: [5]
+      - key: ccc602-a3-handout
+        title: "A3 command handout (Pānui post)"
+        group: code_data
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=52021
+      - key: ccc602-a3-repo
+        title: "Tutor repo: Assessment_3_Azure_Project_Codes"
+        group: code_data
+        url: https://github.com/yoobeecloud/Assessment_3_Azure_Project_Codes
+      - key: ccc602-a3-dataset
+        title: "Tokyo Olympics dataset (Kaggle)"
+        group: code_data
+        url: https://www.kaggle.com/datasets/arjunprasadsarkhel/2021-olympics-in-tokyo
+        tasks: [2]
+      - key: ccc602-a3-compare
+        title: "Azure for AWS professionals (service comparison)"
+        group: tool
+        url: https://learn.microsoft.com/en-us/azure/architecture/aws-professional/
+        tasks: [1]
+      - key: ccc602-a3-powershell
+        title: "Install Azure PowerShell"
+        group: tool
+        url: https://learn.microsoft.com/en-us/powershell/azure/install-azure-powershell
+        tasks: [2]
+      - key: ccc602-a3-cloud-shell
+        title: "Azure Cloud Shell"
+        group: tool
+        url: https://learn.microsoft.com/en-us/azure/cloud-shell/overview
+        tasks: [2]
+      - key: ccc602-a3-storage-explorer
+        title: "Azure Storage Explorer"
+        group: tool
+        url: https://azure.microsoft.com/en-us/products/storage/storage-explorer/
+      - key: ccc602-a3-data-factory
+        title: "Azure Data Factory docs"
+        group: tool
+        url: https://learn.microsoft.com/en-us/azure/data-factory/introduction
+        tasks: [3]
+      - key: ccc602-a3-databricks
+        title: "Azure Databricks docs"
+        group: tool
+        url: https://learn.microsoft.com/en-us/azure/databricks/
+        tasks: [4]
+      - key: ccc602-a3-synapse
+        title: "Azure Synapse Analytics docs"
+        group: tool
+        url: https://learn.microsoft.com/en-us/azure/synapse-analytics/
+        tasks: [5]
+      - key: ccc602-a3-power-bi
+        title: "Power BI"
+        group: tool
+        url: https://www.microsoft.com/en-us/power-platform/products/power-bi
+        tasks: [5]
+      - key: ccc602-a3-looker
+        title: "Looker Studio"
+        group: tool
+        url: https://lookerstudio.google.com/
+        tasks: [5]
+      - key: ccc602-a3-tableau
+        title: "Tableau Public"
+        group: tool
+        url: https://public.tableau.com/
+        tasks: [5]
   - key: ccc602-a4
     title: "Assessment 4: Scenario-Based Activity Design and Implementation (AWS)"
     due_week: 16
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
+    resources:
+      - key: ccc602-a4-rec-4-1
+        title: "4.1 Assessment 4 introduction and submission requirements"
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=48946
+      - key: ccc602-a4-repo
+        title: "Tutor repo: Assessment_4_AWS_Project_Codes"
+        group: code_data
+        url: https://github.com/yoobeecloud/Assessment_4_AWS_Project_Codes
+      - key: ccc602-a4-s3
+        title: "Amazon S3 docs"
+        group: tool
+        url: https://docs.aws.amazon.com/s3/
+        tasks: [1]
+      - key: ccc602-a4-glue
+        title: "AWS Glue docs"
+        group: tool
+        url: https://docs.aws.amazon.com/glue/
+        tasks: [1]
+      - key: ccc602-a4-lambda
+        title: "AWS Lambda docs"
+        group: tool
+        url: https://docs.aws.amazon.com/lambda/
+        tasks: [1]
+      - key: ccc602-a4-sns
+        title: "Amazon SNS docs"
+        group: tool
+        url: https://docs.aws.amazon.com/sns/
+        tasks: [1]
+      - key: ccc602-a4-athena
+        title: "Amazon Athena docs"
+        group: tool
+        url: https://docs.aws.amazon.com/athena/
+        tasks: [2]
+      - key: ccc602-a4-quicksight
+        title: "Amazon QuickSight docs"
+        group: tool
+        url: https://docs.aws.amazon.com/quicksight/
+        tasks: [2]
+      - key: ccc602-a4-synapse
+        title: "Azure Synapse Analytics docs"
+        group: tool
+        url: https://learn.microsoft.com/en-us/azure/synapse-analytics/
+        tasks: [3]
 
 # FT schedule posts: one forum discussion per teaching week (links only). Recorded by the owner from UPLearn, 2026-10-18.
 schedule_posts:

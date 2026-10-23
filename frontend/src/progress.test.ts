@@ -52,13 +52,26 @@ describe('moduleProgress', () => {
 })
 
 describe('programmeProgress', () => {
-  it('sums every module', () => {
+  it('weights every module equally, so a module with no tasks yet counts as 0%', () => {
     const summaries = [
-      { task_count: 10, completed_count: 5 },
+      { task_count: 10, completed_count: 10 },
+      { task_count: 40, completed_count: 20 },
+      { task_count: 4, completed_count: 4 },
       { task_count: 0, completed_count: 0 },
-      { task_count: 10, completed_count: 0 },
     ] as ModuleSummary[]
-    expect(programmeProgress(summaries)).toEqual({ done: 5, total: 20, pct: 25 })
+    expect(programmeProgress(summaries)).toEqual({ modulesDone: 2, modules: 4, pct: 62 })
+  })
+
+  it('only reaches 100% when every module is done', () => {
+    const summaries = [
+      { task_count: 3, completed_count: 3 },
+      { task_count: 0, completed_count: 0 },
+    ] as ModuleSummary[]
+    expect(programmeProgress(summaries)).toEqual({ modulesDone: 1, modules: 2, pct: 50 })
+  })
+
+  it('is 0% with no modules', () => {
+    expect(programmeProgress([])).toEqual({ modulesDone: 0, modules: 0, pct: 0 })
   })
 })
 

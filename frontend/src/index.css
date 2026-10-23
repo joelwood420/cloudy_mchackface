@@ -188,6 +188,24 @@ button.button-secondary { cursor: pointer; }
 .submodule-head h3 { font-size: 17px; font-weight: 600; }
 .submodule-head a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 500; }
 .prereq-box { padding: 14px 18px; border-radius: 12px; background: var(--accent-tint); border: 1px solid var(--accent-line); }
+/* Assessment resources: a box under that week's assessment steps, the rail's submitting links, the Assessments page */
+.resource-box { margin-top: 12px; padding: 4px 18px; border-radius: 12px; background: var(--accent-tint); border: 1px solid var(--accent-line); }
+.resource-box.is-open { padding-bottom: 14px; }
+.resource-box-title { margin: 0; font-size: 15px; }
+.resource-box-toggle { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 0; border: 0; background: none; color: var(--text); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.resource-box-toggle:hover span:first-child { color: var(--accent-strong); }
+.resource-box-count { margin-left: auto; font-weight: 400; color: var(--muted); white-space: nowrap; }
+.resource-box-chevron { flex: none; color: var(--muted); transition: transform 0.15s; }
+.resource-box.is-open .resource-box-chevron { transform: rotate(180deg); }
+.resource-box-panel { padding-top: 6px; }
+.resource-box-all { display: inline-flex; align-items: center; min-height: 44px; font-weight: 500; }
+.resource-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px 20px; }
+.resource-group h4 { margin: 0 0 4px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+.resource-group ul, .rail-resources { list-style: none; margin: 0; padding: 0; }
+.resource-group li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; padding: 3px 0; font-size: 14px; line-height: 1.4; }
+.resource-group li a { overflow-wrap: anywhere; }
+.resource-tasks { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.rail-resources li { display: flex; align-items: center; min-height: 44px; }
 .prereq-box h4 { margin: 0 0 4px; font-family: var(--font-body); font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent-strong); }
 .prereq-list { list-style: none; margin: 0; padding: 0; }
 .prereq-item { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; min-height: 44px; padding: 6px 0; }
@@ -391,6 +409,9 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 .assessment-row.is-lead { padding: 18px 24px; border: 1px solid var(--accent); box-shadow: var(--shadow-open); }
 .assessment-row.is-lead .assessment-title { font-family: var(--font-display); font-size: 20px; line-height: 1.25; }
 .assessment-row.is-submitted .assessment-title { color: var(--muted); }
+.assessment-resources { flex: 1 1 100%; padding: 2px 0 6px; }
+.assessment-resources .link-button { min-height: 44px; }
+.assessment-resources .resource-columns { margin-top: 4px; }
 
 /* Lurking weeks link each track's tile once, beside the week heading. */
 .malware-week-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 14px; }

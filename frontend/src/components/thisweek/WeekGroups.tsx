@@ -4,6 +4,7 @@ import { weekDone } from '../../progress'
 import { ExternalLink } from '../ExternalLink'
 import { CompletionStamp, LiveNote, SLAM_MS } from '../Stamp'
 import { PrerequisiteBox } from '../module/PrerequisiteBox'
+import { ResourceBox } from './ResourceBox'
 import { TaskRow } from '../module/WeekTimeline'
 import { uplearnLabel, uplearnTrackName } from '../../uplearn'
 
@@ -69,6 +70,7 @@ function WeekGroup({
           ))}
         </ul>
       )}
+      {g.assessment_resources?.map((box) => <ResourceBox key={box.assessment_key} box={box} />)}
       <LiveNote text={`Week ${g.week.week_number} complete.`} show={justCompleted} />
       <CompletionStamp complete={complete} size="lg" slot>
         Week complete

@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A study tracker for the Yoobee Colleges **Diploma in Cloud Computing and Cyber Security (Level 6)**. The Yoobee UPLearn portal (https://yoobee.uplearn.education/, a Moodle site) is hard to navigate, so this app shows week by week what to work on, upcoming assessments, and progress bars per course and for the whole programme. It's built for the owner first, with the aim of opening it to other students later.
 
-Status: Phase 3 done: This week home screen (week worked out from the intake's dates), lurking-task banner, break and holiday notices, assessments with a submitted tick, catch-up ticks at sign-up; CCC601–603 seeded, CCC604 a shell. Part-time and intake choice done: four intakes (July and Sept 2026, FT and PT), picked at sign-up and changed in Settings.
+Status: Phase 3 done: This week home screen (week worked out from the intake's dates), lurking-task banner, break and holiday notices, assessments with a submitted tick, catch-up ticks at sign-up; CCC601–603 seeded, CCC604 a shell. Part-time and intake choice done: four intakes (July and Sept 2026, FT and PT), picked at sign-up and changed in Settings. Assessment resources done: each assessment has links (tutor recordings, code and data, tools, submitting) from `seed/ccc60X.yaml` plus shared ones in `seed/resources.yaml`; This week shows the ones for the current assessment tasks, the Assessments page shows them all.
 
 ## Stack and layout
 
@@ -16,7 +16,7 @@ Monorepo. Runs locally for development; deployed to Fly.io as one container (`Do
 
 - `frontend/`: React + Vite + TypeScript, TanStack Query. Vite proxies `/api` to the backend in dev.
 - `backend/`: FastAPI, SQLAlchemy, Alembic, pytest. Serves the API under `/api`.
-- `seed/`: YAML content files, one per module plus `prerequisites.yaml` (shared one-off setup steps) and `schedule.yaml` (each intake's week start dates and public holidays), loaded by a CLI seed loader.
+- `seed/`: YAML content files, one per module plus `prerequisites.yaml` (shared one-off setup steps), `resources.yaml` (assessment links shared between assessments, optional) and `schedule.yaml` (each intake's week start dates and public holidays), loaded by a CLI seed loader.
 - Database: Neon. Dev branch via `DATABASE_URL`, separate test branch via `TEST_DATABASE_URL`, both in git-ignored `backend/.env` (Neon project `green-thunder-35736067`, US East; its `production` branch is unused). Prod is a separate Neon project in Sydney (`delicate-fire-20993762`); its URL lives only as the Fly secret `DATABASE_URL`. CI tests use their own Postgres container, not Neon.
 
 Structure is **Module → Submodule (certification track) → Week → Task**, one tick per task. Submodules list shared prerequisites by key; prerequisites are never counted in progress. Every seed item has a stable `key`; the loader upserts by key so re-seeding doesn't break users' ticks. Progress is computed from completions, never stored.
@@ -53,6 +53,7 @@ uv run python -m app.reset_password EMAIL # set a new password (prompts; ends th
 - The seed loader requires `schedule.yaml` and refuses to drop an intake that users are on. Migration 0008 moves existing users onto `2607-online-ccc-ft`.
 - Migration 0010 replaces assessments' `due_date` with `due_week` + `due_weekday`; re-run the seed loader after upgrading.
 - Migration 0011 adds `users.intake_confirmed_at`. Accounts from before intake choice are NULL and get asked for their intake on their next visit; that first choice clears their task ticks and submissions and re-does catch-up for the chosen intake.
+- Migration 0012 adds assessment resources and links assessment steps to their assessment; re-run the seed loader after upgrading.
 - Tests can run against a local Postgres in Docker instead of Neon (much faster): set `TEST_DATABASE_URL` to its URL on the command line.
 - On Fly, `fly.toml` sets COOKIE_SECURE and TRUST_FLY_CLIENT_IP (rate limit by the real client IP). Leave both off locally.
 - Prod runs on one machine (`--ha=false`) because the login rate limiter is in memory.

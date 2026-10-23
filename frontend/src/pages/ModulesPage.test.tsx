@@ -32,8 +32,9 @@ describe('ModulesPage', () => {
     expect(link).toHaveAttribute('href', '/modules/ccc602')
     expect(within(main).getByText('8 weeks · 30 tasks')).toBeInTheDocument()
     expect(within(main).getByRole('progressbar', { name: 'CCC602 progress' })).toHaveAttribute('aria-valuenow', '50')
-    expect(within(main).getByRole('progressbar', { name: 'Programme progress' })).toHaveAttribute('aria-valuenow', '50')
-    expect(within(main).getByText('15 of 30 tasks done')).toBeInTheDocument()
+    // CCC601 has no content yet but still counts as an equal share of the programme
+    expect(within(main).getByRole('progressbar', { name: 'Programme progress' })).toHaveAttribute('aria-valuenow', '25')
+    expect(within(main).getByText('0 of 2 modules complete')).toBeInTheDocument()
   })
 
   it('uses singular forms for one week and one task', async () => {

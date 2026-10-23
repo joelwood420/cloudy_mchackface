@@ -70,4 +70,53 @@ describe('AssessmentsPage', () => {
     expect(await screen.findByText("Everything's submitted. Nice work.")).toBeInTheDocument()
     expect(screen.queryByRole('region', { name: 'Next due' })).toBeNull()
   })
+
+  describe('resources', () => {
+    const res = (key: string, group: string) => ({ key, title: `Link ${key}`, url: `https://x.test/${key}`, group, tasks: [] })
+    const withResources = all.map((a) =>
+      a.key === 'a3' ? { ...a, resources: [res('rec', 'recording'), res('fmt', 'submitting')] }
+        : a.key === 'a4' ? { ...a, resources: [res('repo', 'code_data'), res('tool', 'tool')] }
+          : a.key === 'a1' ? { ...a, resources: [res('old', 'tool')] }
+            : { ...a, resources: [] },
+    )
+
+    it('shows resources open on the lead and collapsed elsewhere', async () => {
+      mockApi({ '/api/assessments': withResources, '/api/modules': [] })
+      renderAt('/assessments')
+      await screen.findByRole('heading', { level: 1, name: 'Assessments' })
+      const lead = row('Assessment 3')
+      expect(within(lead).getByRole('heading', { name: 'Tutor recordings' })).toBeInTheDocument()
+      expect(within(lead).getByRole('heading', { name: 'Submitting' })).toBeInTheDocument()
+      const a4 = row('Assessment 4')
+      const toggle = within(a4).getByRole('button', { name: 'Resources (2)' })
+      expect(toggle).toHaveAttribute('aria-expanded', 'false')
+      expect(within(a4).queryByRole('link', { name: /Link repo/ })).not.toBeInTheDocument()
+      await userEvent.click(toggle)
+      expect(toggle).toHaveAttribute('aria-expanded', 'true')
+      expect(within(a4).getByRole('link', { name: /Link repo/ })).toHaveAttribute('href', 'https://x.test/repo')
+    })
+
+    it('opens the assessment named in the hash', async () => {
+      mockApi({ '/api/assessments': withResources, '/api/modules': [] })
+      renderAt('/assessments#a4')
+      await screen.findByRole('heading', { level: 1, name: 'Assessments' })
+      expect(within(row('Assessment 4')).getByRole('link', { name: /Link repo/ })).toBeInTheDocument()
+    })
+
+    it('opens a submitted assessment from the hash', async () => {
+      mockApi({ '/api/assessments': withResources, '/api/modules': [] })
+      renderAt('/assessments#a1')
+      await screen.findByRole('heading', { level: 1, name: 'Assessments' })
+      expect(await screen.findByRole('link', { name: /Link old/ })).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Hide' })).toHaveAttribute('aria-expanded', 'true')
+    })
+
+    it('has no resources button when there are none', async () => {
+      mockApi({ '/api/assessments': withResources, '/api/modules': [] })
+      renderAt('/assessments')
+      await screen.findByRole('heading', { level: 1, name: 'Assessments' })
+      expect(within(row('Assessment 5')).queryByRole('button', { name: /Resources/ })).not.toBeInTheDocument()
+    })
+  })
 })
+

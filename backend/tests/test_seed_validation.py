@@ -298,3 +298,88 @@ def test_part_time_intake_needs_two_weeks_per_content_week(tmp_path):
     assert [p for p in problems(tmp_path)] == [
         "ccc602.yaml: week 10 (ccc602-w10) has no dates in intake test-pt (schedule.yaml)"
     ]
+
+
+# A3 with one linked step (Task 1) and one resource tagged for it.
+STEP = """\
+          - key: ccc602-w09-a3-t1
+            title: Complete Task 1 of Assessment 3
+            type: assessment_step
+            assessment: ccc602-a3
+            assessment_task: 1
+            uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=1
+"""
+RESOURCE = """\
+    resources:
+      - key: ccc602-a3-rec-1
+        title: 3.1 Introduction
+        group: recording
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=1
+        tasks: [1]
+"""
+SHARED = """\
+resources:
+  - key: submission-format
+    title: Format and file name
+    group: submitting
+    url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49398
+    assessments: all
+"""
+
+
+def with_resources(step: str = STEP, resource: str = RESOURCE) -> str:
+    text = VALID.replace("      - key: ccc602-w10\n", step + "      - key: ccc602-w10\n")
+    return text + resource
+
+
+def test_valid_resources_load(tmp_path):
+    write_valid(tmp_path, module=with_resources())
+    write(tmp_path, "resources.yaml", SHARED)
+    bundle = load_seed_dir(tmp_path)
+    [a3] = bundle.modules[0].assessments
+    assert (a3.resources[0].group, a3.resources[0].tasks) == ("recording", [1])
+    step = bundle.modules[0].all_weeks()[0].tasks[1]
+    assert (step.assessment, step.assessment_task, step.shows_all_resources) == ("ccc602-a3", 1, False)
+    assert [(r.key, r.assessments) for r in bundle.shared_resources] == [("submission-format", "all")]
+
+
+def test_resources_file_is_optional(tmp_path):
+    write_valid(tmp_path, module=with_resources())
+    assert load_seed_dir(tmp_path).shared_resources == []
+
+
+def test_resource_task_without_step_is_rejected(tmp_path):
+    write_valid(tmp_path, module=with_resources(resource=RESOURCE.replace("tasks: [1]", "tasks: [6]")))
+    assert any("ccc602-a3-rec-1" in p and "tagged task 6" in p for p in problems(tmp_path))
+
+
+def test_resource_group_must_be_known(tmp_path):
+    write_valid(tmp_path, module=with_resources(resource=RESOURCE.replace("group: recording", "group: video")))
+    assert any("resources.0.group" in p for p in problems(tmp_path))
+
+
+def test_assessment_on_non_step_task_is_rejected(tmp_path):
+    write_valid(tmp_path, module=with_resources(step=STEP.replace("type: assessment_step", "type: lab")))
+    assert any("assessment_step" in p for p in problems(tmp_path))
+
+
+def test_assessment_task_needs_assessment(tmp_path):
+    write_valid(tmp_path, module=with_resources(step=STEP.replace("            assessment: ccc602-a3\n", ""), resource=""))
+    assert any("needs assessment" in p for p in problems(tmp_path))
+
+
+def test_unknown_assessment_on_step_is_rejected(tmp_path):
+    write_valid(tmp_path, module=with_resources(step=STEP.replace("assessment: ccc602-a3", "assessment: ccc602-a9"), resource=""))
+    assert any("unknown assessment 'ccc602-a9'" in p for p in problems(tmp_path))
+
+
+def test_shared_resource_unknown_assessment_is_rejected(tmp_path):
+    write_valid(tmp_path, module=with_resources())
+    write(tmp_path, "resources.yaml", SHARED.replace("assessments: all", "assessments: [ccc602-a9]"))
+    assert any(p.startswith("resources.yaml") and "unknown assessment 'ccc602-a9'" in p for p in problems(tmp_path))
+
+
+def test_duplicate_shared_resource_key_is_rejected(tmp_path):
+    write_valid(tmp_path, module=with_resources())
+    write(tmp_path, "resources.yaml", SHARED + SHARED.replace("resources:\n", ""))
+    assert any("duplicate key 'submission-format'" in p for p in problems(tmp_path))

@@ -1,9 +1,10 @@
 from datetime import date
 
 import pytest
+from sqlalchemy import select
 
 from app.api.assessments import assessment_status
-from app.models import Assessment, Module
+from app.models import Assessment, AssessmentResource, Module
 from tests.conftest import PT_WEEKS, add_schedule, signup_body
 
 TODAY = date(2026, 10, 17)
@@ -46,6 +47,7 @@ def test_list_assessments_in_module_then_date_order(user_client, db, intake, tod
     assert body[1] == {
         "key": "a3", "title": "A3", "due_date": "2026-10-25", "uplearn_url": "https://up.test/a3",
         "submitted": False, "status": "upcoming", "days_until": 8, "module_key": "ccc602", "module_code": "CCC602",
+        "resources": [],
     }
     assert body[0]["status"] == "overdue"
 
@@ -88,3 +90,22 @@ def test_submissions_are_per_user(user_client, client, db, intake, today_is):
 def test_assessments_need_a_session(client):
     assert client.get("/api/assessments").status_code == 401
     assert client.put("/api/assessments/a1/submitted").status_code == 401
+
+
+def test_assessments_include_resources(user_client, db, intake, today_is):
+    add_assessments(db, intake)
+    a3 = db.scalars(select(Assessment).where(Assessment.key == "a3")).one()
+    a3.resources = [
+        AssessmentResource(key="b", title="B", url="https://x.test/b", group="tool", position=1),
+        AssessmentResource(key="a", title="A", url="https://x.test/a", group="recording", tasks=[2, 3], position=0),
+    ]
+    db.flush()
+    db.expire_all()  # reload so the relationship's position order applies
+    today_is(TODAY)
+    body = user_client.get("/api/assessments").json()
+    [row] = [a for a in body if a["key"] == "a3"]
+    assert row["resources"] == [
+        {"key": "a", "title": "A", "url": "https://x.test/a", "group": "recording", "tasks": [2, 3]},
+        {"key": "b", "title": "B", "url": "https://x.test/b", "group": "tool", "tasks": []},
+    ]
+    assert all(a["resources"] == [] for a in body if a["key"] != "a3")

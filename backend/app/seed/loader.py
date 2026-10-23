@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.models import (
     Assessment,
+    AssessmentResource,
     Intake,
     IntakeHoliday,
     IntakeWeek,
@@ -22,10 +23,13 @@ from app.models import (
     Week,
 )
 from app.pacing import intake_weeks
-from app.seed.schema import SeedFile, SeedIntake, SeedPrerequisite, SeedPrerequisiteFile, SeedScheduleFile
+from app.seed.schema import (
+    SeedFile, SeedIntake, SeedPrerequisite, SeedPrerequisiteFile, SeedResourceFile, SeedScheduleFile, SeedSharedResource,
+)
 
 PREREQUISITES_FILE = "prerequisites.yaml"
 SCHEDULE_FILE = "schedule.yaml"
+RESOURCES_FILE = "resources.yaml"  # optional
 
 
 class SeedError(Exception):
@@ -39,6 +43,7 @@ class SeedBundle:
     modules: list[SeedFile]
     prerequisites: list[SeedPrerequisite]
     intakes: list[SeedIntake]
+    shared_resources: list[SeedSharedResource]
 
 
 def _parse(file: Path, schema: type[BaseModel], problems: list[str]) -> BaseModel | None:
@@ -60,7 +65,7 @@ def load_seed_dir(path: Path) -> SeedBundle:
     files = sorted(path.glob("*.yaml"))
     if not files:
         raise SeedError([f"no .yaml files in {path}"])
-    module_files = [f for f in files if f.name not in (PREREQUISITES_FILE, SCHEDULE_FILE)]
+    module_files = [f for f in files if f.name not in (PREREQUISITES_FILE, SCHEDULE_FILE, RESOURCES_FILE)]
     if not module_files:
         raise SeedError([f"no module files in {path}"])
 
@@ -77,10 +82,14 @@ def load_seed_dir(path: Path) -> SeedBundle:
     prereq_file = _parse(prereq_path, SeedPrerequisiteFile, problems)
     schedule = _parse(schedule_path, SeedScheduleFile, problems)
     modules = [(f.name, seed) for f in module_files if (seed := _parse(f, SeedFile, problems)) is not None]
+    resources_path = path / RESOURCES_FILE
+    resource_file = _parse(resources_path, SeedResourceFile, problems) if resources_path.exists() else SeedResourceFile()
 
     named: list[tuple[str, SeedFile | SeedPrerequisiteFile]] = list(modules)
     if prereq_file is not None:
         named.insert(0, (PREREQUISITES_FILE, prereq_file))
+    if resource_file is not None:
+        named.append((RESOURCES_FILE, resource_file))
     seen: dict[str, str] = {}
     for name, seed in named:
         for key in seed.keys():
@@ -100,6 +109,15 @@ def load_seed_dir(path: Path) -> SeedBundle:
                             f"{name}: submodules.{i}.prerequisites: unknown prerequisite '{key}' "
                             f"(submodule {sub.key}; define it in {PREREQUISITES_FILE})"
                         )
+
+    for name, seed in modules:
+        problems += _assessment_link_problems(name, seed)
+    if resource_file is not None:
+        all_assessments = {a.key for _, seed in modules for a in seed.assessments}
+        for r in resource_file.resources:
+            for key in [] if r.assessments == "all" else r.assessments:
+                if key not in all_assessments:
+                    problems.append(f"{RESOURCES_FILE}: resource {r.key}: unknown assessment '{key}'")
 
     if schedule is not None:
         for name, seed in modules:
@@ -126,7 +144,31 @@ def load_seed_dir(path: Path) -> SeedBundle:
         [seed for _, seed in modules],
         prereq_file.prerequisites if prereq_file else [],
         schedule.intakes if schedule else [],
+        resource_file.resources if resource_file else [],
     )
+
+
+def _assessment_link_problems(name: str, seed: SeedFile) -> list[str]:
+    """Steps must point at an assessment in their own file, and a resource's task tags must match a step."""
+    problems = []
+    steps: dict[str, set[int]] = {a.key: set() for a in seed.assessments}
+    for week in seed.all_weeks():
+        for task in week.tasks:
+            if task.assessment is None:
+                continue
+            if task.assessment not in steps:
+                problems.append(f"{name}: task {task.key}: unknown assessment '{task.assessment}' (not in this file)")
+            elif task.assessment_task is not None:
+                steps[task.assessment].add(task.assessment_task)
+    for a in seed.assessments:
+        for r in a.resources:
+            for n in r.tasks:
+                if n not in steps[a.key]:
+                    problems.append(
+                        f"{name}: assessment {a.key}: resource {r.key} is tagged task {n}, "
+                        f"but no step has assessment_task {n}"
+                    )
+    return problems
 
 
 def apply_schedule(session: Session, intakes: Sequence[SeedIntake]) -> None:
@@ -171,11 +213,14 @@ def _url(value) -> str | None:
     return str(value) if value else None
 
 
-def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[SeedPrerequisite] = ()) -> None:
+def apply_seed(
+    session: Session, seeds: list[SeedFile], prerequisites: Sequence[SeedPrerequisite] = (),
+    shared_resources: Sequence[SeedSharedResource] = (),
+) -> None:
     """Upsert all seed content by key, then delete anything no longer in the seed files.
 
     Rows keep their ids across re-seeds, so anything per-user that points at a task or prerequisite survives."""
-    models = (Prerequisite, Module, Submodule, Week, Task, Assessment)
+    models = (Prerequisite, Module, Submodule, Week, Task, Assessment, AssessmentResource)
     existing = {model: {row.key: row for row in session.scalars(select(model))} for model in models}
     kept: dict[type, set[str]] = {model: set() for model in models}
 
@@ -193,6 +238,7 @@ def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[
         prereq.external_url, prereq.uplearn_url = _url(sp.external_url), _url(sp.uplearn_url)
 
     wanted_links: list[tuple[Submodule, str, int]] = []
+    step_links: list[tuple[Task, str | None]] = []
     wanted_posts: list[tuple[Module, SeedFile]] = []
     for seed in seeds:
         sm = seed.module
@@ -221,6 +267,8 @@ def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[
                     task.title, task.type, task.position = st.title, st.type, t_pos
                     task.external_url, task.uplearn_url = _url(st.external_url), _url(st.uplearn_url)
                     task.note = st.note
+                    task.assessment_task, task.shows_all_resources = st.assessment_task, st.shows_all_resources
+                    step_links.append((task, st.assessment))
 
         for sa in seed.assessments:
             assessment = upsert(Assessment, sa.key)
@@ -228,10 +276,25 @@ def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[
             assessment.title, assessment.due_week, assessment.due_weekday = sa.title, sa.due_week, sa.due_weekday
             assessment.uplearn_url = _url(sa.uplearn_url)
 
+            # Its own resources first, then shared ones (each assessment gets its own copy, keyed apart).
+            own = [(r.key, r) for r in sa.resources]
+            common = [
+                (f"{sa.key}--{r.key}", r) for r in shared_resources if r.assessments == "all" or sa.key in r.assessments
+            ]
+            for r_pos, (key, sr) in enumerate(own + common):
+                res = upsert(AssessmentResource, key)
+                res.assessment = assessment
+                res.title, res.group, res.url, res.position = sr.title, sr.group, str(sr.url), r_pos
+                res.tasks = list(getattr(sr, "tasks", []))
+
+    # Assessments exist now (a step can sit in an earlier week than its assessment is listed).
+    for task, key in step_links:
+        task.assessment = existing[Assessment][key] if key else None
+
     session.flush()
 
     # One statement per table: rows under a removed parent go with it via ON DELETE CASCADE.
-    for model in (Module, Submodule, Week, Task, Assessment, Prerequisite):
+    for model in (Module, Submodule, Week, Task, Assessment, AssessmentResource, Prerequisite):
         session.execute(
             delete(model).where(model.key.not_in(list(kept[model]))).execution_options(synchronize_session=False)
         )
