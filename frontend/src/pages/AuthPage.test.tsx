@@ -181,7 +181,7 @@ describe('sign-in flow', () => {
     expect(await screen.findByRole('link', { name: 'Already have an account? Log in' })).toBeInTheDocument()
   })
 
-  it('logs out from the sidebar', async () => {
+  it('logs out from the sidebar to the landing page', async () => {
     let loggedIn = true
     mockApi({
       '/api/me': () => (loggedIn ? jsonResponse(ME) : unauthorized()),
@@ -195,7 +195,7 @@ describe('sign-in flow', () => {
     const nav = await screen.findByRole('navigation', { name: 'Main' })
     expect(within(nav).getByText('joel@example.com')).toBeInTheDocument()
     await userEvent.click(within(nav).getByRole('button', { name: 'Log out' }))
-    expect(await screen.findByRole('heading', { name: 'Log in' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Know exactly what to do this week.' })).toBeInTheDocument()
   })
 
   it('shows a friendly message when the server is unreachable', async () => {
