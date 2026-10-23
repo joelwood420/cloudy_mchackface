@@ -189,8 +189,15 @@ button.button-secondary { cursor: pointer; }
 .submodule-head a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 500; }
 .prereq-box { padding: 14px 18px; border-radius: 12px; background: var(--accent-tint); border: 1px solid var(--accent-line); }
 /* Assessment resources: a box under that week's assessment steps, the rail's submitting links, the Assessments page */
-.resource-box { margin-top: 12px; padding: 14px 18px; border-radius: 12px; background: var(--accent-tint); border: 1px solid var(--accent-line); }
-.resource-box-title { margin: 0 0 10px; font-size: 15px; }
+.resource-box { margin-top: 12px; padding: 4px 18px; border-radius: 12px; background: var(--accent-tint); border: 1px solid var(--accent-line); }
+.resource-box.is-open { padding-bottom: 14px; }
+.resource-box-title { margin: 0; font-size: 15px; }
+.resource-box-toggle { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 0; border: 0; background: none; color: var(--text); font: inherit; font-weight: 600; text-align: left; cursor: pointer; }
+.resource-box-toggle:hover span:first-child { color: var(--accent-strong); }
+.resource-box-count { margin-left: auto; font-weight: 400; color: var(--muted); white-space: nowrap; }
+.resource-box-chevron { flex: none; color: var(--muted); transition: transform 0.15s; }
+.resource-box.is-open .resource-box-chevron { transform: rotate(180deg); }
+.resource-box-panel { padding-top: 6px; }
 .resource-box-all { display: inline-flex; align-items: center; min-height: 44px; font-weight: 500; }
 .resource-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px 20px; }
 .resource-group h4 { margin: 0 0 4px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
