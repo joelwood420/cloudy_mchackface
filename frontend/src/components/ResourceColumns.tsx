@@ -1,13 +1,7 @@
 import type { Resource, ResourceGroup } from '../api'
+import { RESOURCE_GROUP_LABELS } from '../resources'
 import { uplearnLabel } from '../uplearn'
 import { ExternalLink } from './ExternalLink'
-
-export const RESOURCE_GROUP_LABELS: Record<ResourceGroup, string> = {
-  recording: 'Tutor recordings',
-  code_data: 'Code and data',
-  tool: 'Tools',
-  submitting: 'Submitting',
-}
 
 function taskLabel(tasks: number[]): string {
   return tasks.map((n) => `T${n}`).join(', ')

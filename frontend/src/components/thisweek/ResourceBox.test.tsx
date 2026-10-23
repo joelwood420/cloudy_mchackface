@@ -2,7 +2,8 @@ import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import type { ResourceBox as Box } from '../../api'
-import { ResourceBox, resourceBoxHeading } from './ResourceBox'
+import { resourceBoxHeading } from '../../resources'
+import { ResourceBox } from './ResourceBox'
 
 const box: Box = {
   assessment_key: 'ccc602-a3',

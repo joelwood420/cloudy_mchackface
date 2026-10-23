@@ -75,19 +75,20 @@ export function AssessmentsPage() {
   usePageTitle('Assessments')
   const query = useQuery({ queryKey: ['assessments'], queryFn: fetchAssessments })
   const submit = useSubmitAssessment()
-  const [showSubmitted, setShowSubmitted] = useState(false)
+  // null until the student toggles it; until then it follows the #hash (open when it names a submitted one)
+  const [submittedToggled, setShowSubmitted] = useState<boolean | null>(null)
   const [note, setNote] = useState('')
   const submittedToggle = useRef<HTMLButtonElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
   const { hash } = useLocation()
 
-  // Arriving from a This week "All A3 resources" link: unfold Submitted if that's where it is, then bring it into view.
+  const hashTarget = query.data?.find((a) => `#${a.key}` === hash)
+  const showSubmitted = submittedToggled ?? Boolean(hashTarget?.submitted)
+
+  // Arriving from a This week "All A3 resources" link: bring that assessment into view.
   useEffect(() => {
-    const target = query.data?.find((a) => `#${a.key}` === hash)
-    if (!target) return
-    if (target.submitted) setShowSubmitted(true)
-    requestAnimationFrame(() => document.getElementById(target.key)?.scrollIntoView?.({ block: 'start' }))
-  }, [query.data, hash])
+    if (hashTarget) requestAnimationFrame(() => document.getElementById(hashTarget.key)?.scrollIntoView?.({ block: 'start' }))
+  }, [hashTarget])
 
   if (query.isPending) return <ListSkeleton label="Loading assessments…" />
   if (query.isError) return <main className="page"><ErrorMessage error={query.error} onRetry={() => query.refetch()} /></main>
