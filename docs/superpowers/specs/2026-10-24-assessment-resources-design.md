@@ -64,7 +64,7 @@ This feature gathers the tools and links for each assessment and puts them where
    - **A5:** the site-to-site VPN handout post (CCC603 Assessment Q&A d=49091), AWS VPN docs, APA referencing guide.
    - **A1, A2, A6:** tools and docs named in portal-extras (AWS Budgets, Trusted Advisor; Azure portal/Cloud Shell; Fortinet GitHub templates, screen-recording tools for the A6 video, APA).
    Exact titles and links are the builder's to fill from portal-extras; check every URL is public or a UPLearn link, never a file attachment.
-   - **No portal visits for this.** Where portal-extras names something but has no URL, link the nearest known page instead: DP-900 tile recordings → the DP-900 tile (section 9656); screen-recording guides → the 00A Digital Skills tile (section 18346); APA → the public APA Style site (apastyle.apa.org); Fortinet templates → github.com/fortinet; Lucid, Cloudcraft, Sketch → their public home pages. Anything that can't be linked this way is left out.
+   - **Missing URLs: look them up on the portal.** Where portal-extras names something but has no URL (DP-900 tile recordings, the 00A screen-recording guides, any APA/referencing page), the owner has OK'd looking it up on UPLearn by hand in their logged-in browser (a few page visits, not scraping) and recording the post/page URL. Add what's found to `docs/portal-extras.md` too. Public tools use their own sites: Fortinet templates → github.com/fortinet; Lucid, Cloudcraft, Sketch → their home pages; APA → apastyle.apa.org if UPLearn has nothing better.
 
 ### Database
 
