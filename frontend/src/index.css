@@ -192,7 +192,7 @@ button.button-secondary { cursor: pointer; }
 .resource-box { margin-top: 12px; padding: 14px 18px; border-radius: 12px; background: var(--accent-tint); border: 1px solid var(--accent-line); }
 .resource-box-title { margin: 0 0 10px; font-size: 15px; }
 .resource-box-all { display: inline-flex; align-items: center; min-height: 44px; font-weight: 500; }
-.resource-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px 20px; }
+.resource-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 12px 20px; }
 .resource-group h4 { margin: 0 0 4px; font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
 .resource-group ul, .rail-resources { list-style: none; margin: 0; padding: 0; }
 .resource-group li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px; padding: 3px 0; font-size: 14px; line-height: 1.4; }
