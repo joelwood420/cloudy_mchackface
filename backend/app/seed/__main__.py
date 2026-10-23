@@ -18,7 +18,7 @@ def run(seed_dir: Path, session: Session) -> int:
         for problem in e.problems:
             print(f"  - {problem}", file=sys.stderr)
         return 1
-    apply_seed(session, bundle.modules, bundle.prerequisites)
+    apply_seed(session, bundle.modules, bundle.prerequisites, bundle.shared_resources)
     print(
         f"Seeded {len(bundle.modules)} module(s), {len(bundle.prerequisites)} prerequisite(s) "
         f"and {len(bundle.intakes)} intake(s) from {seed_dir}"

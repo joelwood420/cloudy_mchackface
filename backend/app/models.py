@@ -133,7 +133,8 @@ class Assessment(Base):
     module: Mapped[Module] = relationship(back_populates="assessments")
     submissions: Mapped[list["AssessmentSubmission"]] = relationship(cascade="all, delete-orphan", passive_deletes=True)
     resources: Mapped[list["AssessmentResource"]] = relationship(
-        order_by="AssessmentResource.position", cascade="all, delete-orphan", passive_deletes=True
+        back_populates="assessment", order_by="AssessmentResource.position", cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
 
@@ -154,6 +155,8 @@ class AssessmentResource(Base):
     group: Mapped[str] = mapped_column(String(20))
     tasks: Mapped[list[int]] = mapped_column(ARRAY(SmallInteger), default=list, server_default=text("'{}'"))
     position: Mapped[int]
+
+    assessment: Mapped[Assessment] = relationship(back_populates="resources")
 
 
 class Intake(Base):

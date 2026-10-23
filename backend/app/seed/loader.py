@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 
 from app.models import (
     Assessment,
+    AssessmentResource,
     Intake,
     IntakeHoliday,
     IntakeWeek,
@@ -212,11 +213,14 @@ def _url(value) -> str | None:
     return str(value) if value else None
 
 
-def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[SeedPrerequisite] = ()) -> None:
+def apply_seed(
+    session: Session, seeds: list[SeedFile], prerequisites: Sequence[SeedPrerequisite] = (),
+    shared_resources: Sequence[SeedSharedResource] = (),
+) -> None:
     """Upsert all seed content by key, then delete anything no longer in the seed files.
 
     Rows keep their ids across re-seeds, so anything per-user that points at a task or prerequisite survives."""
-    models = (Prerequisite, Module, Submodule, Week, Task, Assessment)
+    models = (Prerequisite, Module, Submodule, Week, Task, Assessment, AssessmentResource)
     existing = {model: {row.key: row for row in session.scalars(select(model))} for model in models}
     kept: dict[type, set[str]] = {model: set() for model in models}
 
@@ -234,6 +238,7 @@ def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[
         prereq.external_url, prereq.uplearn_url = _url(sp.external_url), _url(sp.uplearn_url)
 
     wanted_links: list[tuple[Submodule, str, int]] = []
+    step_links: list[tuple[Task, str | None]] = []
     wanted_posts: list[tuple[Module, SeedFile]] = []
     for seed in seeds:
         sm = seed.module
@@ -262,6 +267,8 @@ def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[
                     task.title, task.type, task.position = st.title, st.type, t_pos
                     task.external_url, task.uplearn_url = _url(st.external_url), _url(st.uplearn_url)
                     task.note = st.note
+                    task.assessment_task, task.shows_all_resources = st.assessment_task, st.shows_all_resources
+                    step_links.append((task, st.assessment))
 
         for sa in seed.assessments:
             assessment = upsert(Assessment, sa.key)
@@ -269,10 +276,25 @@ def apply_seed(session: Session, seeds: list[SeedFile], prerequisites: Sequence[
             assessment.title, assessment.due_week, assessment.due_weekday = sa.title, sa.due_week, sa.due_weekday
             assessment.uplearn_url = _url(sa.uplearn_url)
 
+            # Its own resources first, then shared ones (each assessment gets its own copy, keyed apart).
+            own = [(r.key, r) for r in sa.resources]
+            common = [
+                (f"{sa.key}--{r.key}", r) for r in shared_resources if r.assessments == "all" or sa.key in r.assessments
+            ]
+            for r_pos, (key, sr) in enumerate(own + common):
+                res = upsert(AssessmentResource, key)
+                res.assessment = assessment
+                res.title, res.group, res.url, res.position = sr.title, sr.group, str(sr.url), r_pos
+                res.tasks = list(getattr(sr, "tasks", []))
+
+    # Assessments exist now (a step can sit in an earlier week than its assessment is listed).
+    for task, key in step_links:
+        task.assessment = existing[Assessment][key] if key else None
+
     session.flush()
 
     # One statement per table: rows under a removed parent go with it via ON DELETE CASCADE.
-    for model in (Module, Submodule, Week, Task, Assessment, Prerequisite):
+    for model in (Module, Submodule, Week, Task, Assessment, AssessmentResource, Prerequisite):
         session.execute(
             delete(model).where(model.key.not_in(list(kept[model]))).execution_options(synchronize_session=False)
         )
