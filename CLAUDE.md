@@ -53,6 +53,7 @@ uv run python -m app.reset_password EMAIL # set a new password (prompts; ends th
 - The seed loader requires `schedule.yaml` and refuses to drop an intake that users are on. Migration 0008 moves existing users onto `2607-online-ccc-ft`.
 - Migration 0010 replaces assessments' `due_date` with `due_week` + `due_weekday`; re-run the seed loader after upgrading.
 - Migration 0011 adds `users.intake_confirmed_at`. Accounts from before intake choice are NULL and get asked for their intake on their next visit; that first choice clears their task ticks and submissions and re-does catch-up for the chosen intake.
+- Migration 0012 adds assessment resources and links assessment steps to their assessment; re-run the seed loader after upgrading.
 - Tests can run against a local Postgres in Docker instead of Neon (much faster): set `TEST_DATABASE_URL` to its URL on the command line.
 - On Fly, `fly.toml` sets COOKIE_SECURE and TRUST_FLY_CLIENT_IP (rate limit by the real client IP). Leave both off locally.
 - Prod runs on one machine (`--ha=false`) because the login rate limiter is in memory.
