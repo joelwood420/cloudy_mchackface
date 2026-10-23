@@ -26,10 +26,12 @@ export function moduleProgress(mod: ModuleDetail) {
   return { done, total, pct: percent(done, total), weeksComplete, weeksWithTasks }
 }
 
+/** Every module is an equal share, so one whose content isn't loaded yet (no tasks) counts as 0%, not as nothing. */
 export function programmeProgress(modules: ModuleSummary[]) {
-  const done = modules.reduce((sum, m) => sum + m.completed_count, 0)
-  const total = modules.reduce((sum, m) => sum + m.task_count, 0)
-  return { done, total, pct: percent(done, total) }
+  const share = modules.reduce((sum, m) => sum + (m.task_count === 0 ? 0 : m.completed_count / m.task_count), 0)
+  const modulesDone = modules.filter((m) => m.task_count > 0 && m.completed_count === m.task_count).length
+  const pct = modules.length === 0 ? 0 : Math.floor((share * 100) / modules.length)
+  return { modulesDone, modules: modules.length, pct }
 }
 
 export function withTaskDone(mod: ModuleDetail, taskKey: string, done: boolean): ModuleDetail {
