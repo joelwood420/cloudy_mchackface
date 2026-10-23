@@ -9,8 +9,8 @@ import { useIntakes } from '../hooks/useIntakes'
 import { usePageTitle } from '../usePageTitle'
 
 const COPY = {
-  login: { eyebrow: 'Welcome back', title: 'Log in', submit: 'Log in', busy: 'Logging in…', prompt: 'New here?', link: 'Create an account', to: '/signup' },
-  signup: { eyebrow: 'Get started', title: 'Create your account', submit: 'Create account', busy: 'Creating account…', prompt: 'Already have an account?', link: 'Log in', to: '/login' },
+  login: { greeting: 'Welcome back', title: 'Log in', submit: 'Log in', busy: 'Logging in…', prompt: 'New here?', link: 'Create an account', to: '/signup' },
+  signup: { greeting: 'Welcome aboard', title: 'Create your account', submit: 'Create account', busy: 'Creating account…', prompt: 'Already have an account?', link: 'Log in', to: '/login' },
 } as const
 
 export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
@@ -69,8 +69,12 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
           <span className="lp-cloud">
             <BrandMark width={220} height={160} />
           </span>
-          <span className="lp-eyebrow">{copy.eyebrow}</span>
-          <h1>{copy.title}</h1>
+          <span className="auth-bubble" aria-hidden="true">
+            {copy.greeting}
+          </span>
+        </div>
+        <div className="auth-form-side">
+          <h1 className="sr-only">{copy.title}</h1>
           <form className="form auth-form" onSubmit={onSubmit} noValidate>
             <label className="field">
               <span>Email</span>
@@ -115,7 +119,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
                 {error}
               </p>
             )}
-            <button type="submit" className="lp-btn lp-btn-primary auth-submit" disabled={busy}>
+            <button type="submit" className="auth-submit" disabled={busy}>
               {busy ? copy.busy : copy.submit}
             </button>
           </form>
