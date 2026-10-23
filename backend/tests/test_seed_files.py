@@ -135,3 +135,46 @@ def test_every_seeded_week_links_its_ft_schedule_post():
         posts = {p.week_number for p in seed.schedule_posts if p.study_mode == "FT"}
         assert posts == {w.week_number for w in seed.all_weeks()}, key
         assert all(str(p.url).startswith("https://yoobee.uplearn.education/mod/forum/discuss.php?d=") for p in seed.schedule_posts)
+
+
+def all_tasks():
+    return [t for s in bundle().modules for w in s.all_weeks() for t in w.tasks]
+
+
+def test_every_assessment_step_is_linked():
+    import re
+
+    steps = [t for t in all_tasks() if t.type == "assessment_step"]
+    assert steps
+    for t in steps:
+        assert t.assessment, t.key
+        m = re.search(r"Task (\d+) of Assessment", t.title)
+        assert t.assessment_task == (int(m.group(1)) if m else None), t.key
+    shows_all = {t.key for t in steps if t.shows_all_resources}
+    assert shows_all == {"ccc602-w10-a3-demo", "ccc602-w13-a4-intro"}
+
+
+def test_a3_recordings_tagged_by_task():
+    [a3] = [a for a in modules()["ccc602"].assessments if a.key == "ccc602-a3"]
+    tags = {str(r.url).split("d=")[-1]: r.tasks for r in a3.resources if "discuss.php?d=" in str(r.url)}
+    assert tags["48939"] == [3]
+    assert tags["48940"] == tags["48941"] == tags["48942"] == [4]
+    assert tags["48943"] == tags["48944"] == tags["48945"] == [5]
+
+
+def test_resources_are_links_not_files():
+    b = bundle()
+    urls = [str(r.url) for s in b.modules for a in s.assessments for r in a.resources]
+    urls += [str(r.url) for r in b.shared_resources]
+    assert urls
+    for url in urls:
+        lower = url.lower()
+        assert not lower.endswith((".pdf", ".docx", ".pptx")), url
+        assert not any(s in lower for s in ("pluginfile.php", "calendly", "teams.microsoft", "zoom.us")), url
+
+
+def test_shared_submitting_on_every_assessment():
+    shared = {str(r.url): r for r in bundle().shared_resources}
+    for url in ("https://yoobee.uplearn.education/mod/forum/discuss.php?d=49398",
+                "https://myacg.sharepoint.com/sites/YoobeeCollegesStudentHub"):
+        assert shared[url].assessments == "all" and shared[url].group == "submitting"
