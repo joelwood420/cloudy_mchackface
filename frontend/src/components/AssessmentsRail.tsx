@@ -46,6 +46,15 @@ export function AssessmentsRail({
                   <input type="checkbox" checked={a.submitted} onChange={() => onToggleSubmitted(a.key, !a.submitted)} aria-describedby={titleId} />
                   Mark submitted
                 </label>
+                {(a.resources ?? []).some((r) => r.group === 'submitting') && (
+                  <ul className="rail-resources small">
+                    {(a.resources ?? []).filter((r) => r.group === 'submitting').map((r) => (
+                      <li key={r.key}>
+                        <ExternalLink href={r.url}>{r.title}</ExternalLink>
+                      </li>
+                    ))}
+                  </ul>
+                )}
                 {a.uplearn_url && (
                   <span className="task-links">
                     <ExternalLink href={a.uplearn_url} label={uplearnName(uplearnLabel(a.uplearn_url), a.title)}>{uplearnLabel(a.uplearn_url)}</ExternalLink>
