@@ -13,9 +13,9 @@ describe('sign-in flow', () => {
   it('sends a logged-out visitor to a welcome page with both choices', async () => {
     mockApi({ '/api/me': unauthorized })
     renderAt('/')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Your week-by-week study guide' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Know exactly what to do this week.' })).toBeInTheDocument()
     await waitFor(() => expect(document.title).toBe('Welcome · Cloudy McHackface'))
-    expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/signup')
+    for (const link of screen.getAllByRole('link', { name: 'Get started' })) expect(link).toHaveAttribute('href', '/signup')
     await userEvent.click(screen.getByRole('link', { name: 'Already have an account? Log in' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Log in' })).toBeInTheDocument()
   })
@@ -23,7 +23,7 @@ describe('sign-in flow', () => {
   it('Get started opens sign-up', async () => {
     mockApi({ '/api/me': unauthorized, '/api/intakes': INTAKES })
     renderAt('/welcome')
-    await userEvent.click(await screen.findByRole('link', { name: 'Get started' }))
+    await userEvent.click((await screen.findAllByRole('link', { name: 'Get started' }))[0])
     expect(screen.getByRole('heading', { level: 1, name: 'Create your account' })).toBeInTheDocument()
   })
 
