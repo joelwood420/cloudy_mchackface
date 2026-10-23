@@ -1,6 +1,6 @@
 from datetime import date, datetime
 
-from sqlalchemy import CheckConstraint, Date, DateTime, ForeignKey, SmallInteger, String, func
+from sqlalchemy import ARRAY, Boolean, CheckConstraint, Date, DateTime, ForeignKey, SmallInteger, String, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db import Base
@@ -99,11 +99,21 @@ class Task(Base):
     uplearn_url: Mapped[str | None] = mapped_column(String(1000))
     note: Mapped[str | None] = mapped_column(String(300))
     position: Mapped[int]
+    # Assessment steps only: which assessment and which of its tasks (None for "read the brief", "submit" and so on).
+    assessment_id: Mapped[int | None] = mapped_column(ForeignKey("assessments.id", ondelete="SET NULL"), index=True)
+    assessment_task: Mapped[int | None] = mapped_column(SmallInteger)
+    # A "watch the tutor recordings" step: its This week box lists all the assessment's resources, whatever the task.
+    shows_all_resources: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
 
     week: Mapped[Week] = relationship(back_populates="tasks")
+    assessment: Mapped["Assessment | None"] = relationship()
     completions: Mapped[list["TaskCompletion"]] = relationship(
         cascade="all, delete-orphan", passive_deletes=True
     )
+
+    @property
+    def assessment_key(self) -> str | None:
+        return self.assessment.key if self.assessment else None
 
 
 class Assessment(Base):
@@ -122,6 +132,31 @@ class Assessment(Base):
 
     module: Mapped[Module] = relationship(back_populates="assessments")
     submissions: Mapped[list["AssessmentSubmission"]] = relationship(cascade="all, delete-orphan", passive_deletes=True)
+    resources: Mapped[list["AssessmentResource"]] = relationship(
+        back_populates="assessment", order_by="AssessmentResource.position", cascade="all, delete-orphan",
+        passive_deletes=True,
+    )
+
+
+class AssessmentResource(Base):
+    """A link that helps with an assessment: a tutor recording, code or data, a tool, or how to submit.
+
+    tasks lists the assessment's task numbers it's for; empty means the whole assessment. Shared resources from
+    seed/resources.yaml get one row per assessment, keyed <assessment key>--<shared key>."""
+
+    __tablename__ = "assessment_resources"
+    __table_args__ = (CheckConstraint("\"group\" IN ('recording', 'code_data', 'tool', 'submitting')", name="group"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    key: Mapped[str] = mapped_column(String(203), unique=True)
+    assessment_id: Mapped[int] = mapped_column(ForeignKey("assessments.id", ondelete="CASCADE"), index=True)
+    title: Mapped[str] = mapped_column(String(300))
+    url: Mapped[str] = mapped_column(String(1000))
+    group: Mapped[str] = mapped_column(String(20))
+    tasks: Mapped[list[int]] = mapped_column(ARRAY(SmallInteger), default=list, server_default=text("'{}'"))
+    position: Mapped[int]
+
+    assessment: Mapped[Assessment] = relationship(back_populates="resources")
 
 
 class Intake(Base):

@@ -1,0 +1,44 @@
+# Resources shared between assessments. Each listed assessment gets its own copy (key <assessment>--<key>).
+# Links only: never a copy of a brief, handout or attached file, and never a Teams/Calendly/Zoom link.
+# The diagram tools are the ones the tutors recommended in the intake's Teams channel (Aug 2026).
+resources:
+  - key: submission-format
+    title: "Submission format and file name"
+    group: submitting
+    url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49398
+    assessments: all
+  - key: special-consideration
+    title: "Need more time? Special consideration (Kāpehu Student Hub)"
+    group: submitting
+    url: https://myacg.sharepoint.com/sites/YoobeeCollegesStudentHub
+    assessments: all
+  - key: diagrams-net
+    title: "draw.io / diagrams.net (diagram tool)"
+    group: tool
+    url: https://app.diagrams.net/
+    assessments: [ccc601-a1, ccc602-a4, ccc603-a5, ccc603-a6]
+  - key: lucid
+    title: "Lucid (diagram tool)"
+    group: tool
+    url: https://lucid.app/
+    assessments: [ccc601-a1, ccc602-a4, ccc603-a5, ccc603-a6]
+  - key: cloudcraft
+    title: "Cloudcraft (AWS diagram tool)"
+    group: tool
+    url: https://www.cloudcraft.co/
+    assessments: [ccc601-a1, ccc602-a4, ccc603-a5, ccc603-a6]
+  - key: sketch
+    title: "Sketch (design tool)"
+    group: tool
+    url: https://www.sketch.com/
+    assessments: [ccc601-a1, ccc602-a4, ccc603-a5, ccc603-a6]
+  - key: aws-icons
+    title: "AWS architecture icons"
+    group: tool
+    url: https://aws.amazon.com/architecture/icons/
+    assessments: [ccc601-a1, ccc602-a4, ccc603-a5, ccc603-a6]
+  - key: azure-icons
+    title: "Azure architecture icons"
+    group: tool
+    url: https://learn.microsoft.com/en-us/azure/architecture/icons/
+    assessments: [ccc601-a2, ccc602-a3]

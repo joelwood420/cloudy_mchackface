@@ -11,3 +11,6 @@ docs/assessments/
 
 # Impeccable live-mode runtime state
 .impeccable/live/
+
+# Brainstorm mockups and plan workspaces
+.superpowers/

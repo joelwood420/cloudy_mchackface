@@ -15,8 +15,9 @@ from app.api.schemas import (
 from app.auth.deps import current_user
 from app.clock import today
 from app.db import get_db
-from app.models import Module, Submodule, SubmodulePrerequisite, Task, User, Week
+from app.models import Assessment, Module, Submodule, SubmodulePrerequisite, Task, User, Week
 from app.pacing import StudyMode, week_slots
+from app.resources import resource_boxes
 from app.schedule import TeachingWeek, locate, upcoming_break
 
 router = APIRouter(tags=["this-week"])
@@ -26,7 +27,7 @@ ASSESSMENT_WINDOW = timedelta(days=28)
 
 def _group(
     mode: StudyMode, number: int, week: Week, tasks: list[Task], done: set[int], done_prereqs: set[int],
-    posts: dict[tuple[int, int], str],
+    posts: dict[tuple[int, int], str], with_resources: bool = False,
 ) -> ThisWeekGroup:
     """One module's slice of intake week `number`: the content week, cut down to the tasks that land in it."""
     week_out = WeekOut.model_validate(week).model_copy(
@@ -50,6 +51,7 @@ def _group(
             for link in s.prerequisite_links
             if link.prerequisite_id not in done_prereqs
         ],
+        assessment_resources=resource_boxes(tasks) if with_resources else [],
     )
 
 
@@ -67,7 +69,7 @@ def this_week(
         select(Week)
         .join(Module)
         .options(
-            selectinload(Week.tasks),
+            selectinload(Week.tasks).selectinload(Task.assessment).selectinload(Assessment.resources),
             selectinload(Week.module),
             selectinload(Week.submodule)
             .selectinload(Submodule.prerequisite_links)
@@ -77,10 +79,14 @@ def this_week(
     ).all()
     slots = week_slots(intake.study_mode, content)
 
-    def groups_for(number: int) -> list[ThisWeekGroup]:
-        return [_group(intake.study_mode, n, w, tasks, done, done_prereqs, posts) for n, w, tasks in slots if n == number]
+    def groups_for(number: int, with_resources: bool = False) -> list[ThisWeekGroup]:
+        return [
+            _group(intake.study_mode, n, w, tasks, done, done_prereqs, posts, with_resources)
+            for n, w, tasks in slots if n == number
+        ]
 
-    groups = groups_for(pos.week.week_number) if pos.week else []
+    # Only the current week gets resource boxes; the "ahead" preview stays short.
+    groups = groups_for(pos.week.week_number, with_resources=True) if pos.week else []
     tasks_now = [t for g in groups for t in g.week.tasks]
 
     ahead = None
@@ -104,7 +110,9 @@ def this_week(
                             )
                         )
 
-    modules = db.scalars(select(Module).options(selectinload(Module.assessments)).order_by(Module.position)).all()
+    modules = db.scalars(
+        select(Module).options(selectinload(Module.assessments).selectinload(Assessment.resources)).order_by(Module.position)
+    ).all()
     dated = [(m, a, due) for m in modules for a in m.assessments if (due := assessment_due(a, intake)) is not None]
     shown = [
         AssessmentStatusOut(**assessment_out(a, submitted, today_, due).model_dump(), module_key=m.key, module_code=m.code)

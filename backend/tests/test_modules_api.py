@@ -55,14 +55,15 @@ def test_module_detail(user_client, db, intake, today_is):
     assert body["weeks"][0]["tasks"][0] == {
         "key": "t1", "title": "LP1", "type": "learning_path",
         "external_url": "https://learn.test", "uplearn_url": None, "note": None, "done": False,
+        "assessment_key": None, "assessment_task": None,
     }
     assert body["weeks"][0]["tasks"][1]["note"] == "Key in Teams"
     assert body["weeks"][1]["tasks"] == []
     assert body["assessments"] == [
         {"key": "a3", "title": "Assessment 3", "due_date": "2026-10-25", "uplearn_url": "https://up.test",
-         "submitted": False, "status": "upcoming", "days_until": 8},
+         "submitted": False, "status": "upcoming", "days_until": 8, "resources": []},
         {"key": "a4", "title": "Assessment 4", "due_date": None, "uplearn_url": None,
-         "submitted": False, "status": "no_date", "days_until": None},
+         "submitted": False, "status": "no_date", "days_until": None, "resources": []},
     ]
 
 

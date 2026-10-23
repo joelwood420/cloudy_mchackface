@@ -10,6 +10,7 @@ ShortTitle = Annotated[str, StringConstraints(min_length=1, max_length=200, stri
 Title = Annotated[str, StringConstraints(min_length=1, max_length=300, strip_whitespace=True)]
 Note = Annotated[str, StringConstraints(min_length=1, max_length=300, strip_whitespace=True)]
 TaskType = Literal["learning_path", "lab", "assessment_step"]
+ResourceGroup = Literal["recording", "code_data", "tool", "submitting"]
 
 
 def _fits_url_column(url: HttpUrl) -> HttpUrl:
@@ -55,6 +56,20 @@ class SeedTask(_Linked):
     title: Title
     type: TaskType
     note: Note | None = None
+    # Assessment steps only: the assessment (in the same module file), its task number, and whether the step's
+    # This week box lists every resource ("watch the tutor recordings").
+    assessment: Key | None = None
+    assessment_task: int | None = Field(default=None, ge=1)
+    shows_all_resources: bool = False
+
+    @model_validator(mode="after")
+    def assessment_fields(self) -> "SeedTask":
+        linked = self.assessment is not None or self.assessment_task is not None or self.shows_all_resources
+        if linked and self.type != "assessment_step":
+            raise ValueError("assessment, assessment_task and shows_all_resources are only for assessment_step tasks")
+        if self.assessment is None and (self.assessment_task is not None or self.shows_all_resources):
+            raise ValueError("assessment_task and shows_all_resources needs assessment")
+        return self
 
 
 class SeedWeek(_Strict):
@@ -90,12 +105,29 @@ class SeedModule(_Strict):
     uplearn_url: Url | None = None
 
 
+class SeedResource(_Strict):
+    """A link that helps with an assessment. Links only: never a copy of a brief, handout or file attachment."""
+
+    key: Key
+    title: Title
+    group: ResourceGroup
+    url: Url
+    tasks: list[Annotated[int, Field(ge=1)]] = []  # the assessment's task numbers it's for; empty = all of it
+
+    @model_validator(mode="after")
+    def unique_tasks(self) -> "SeedResource":
+        if len(set(self.tasks)) != len(self.tasks):
+            raise ValueError("a task number is listed more than once")
+        return self
+
+
 class SeedAssessment(_Strict):
     key: Key
     title: Title
     due_week: int | None = Field(default=None, ge=1)  # a content (FT) week; each intake dates it in its own weeks
     due_weekday: Weekday = 6
     uplearn_url: Url | None = None
+    resources: list[SeedResource] = []
 
 
 class SeedSchedulePost(_Strict):
@@ -141,6 +173,7 @@ class SeedFile(_Strict):
                 out.append(week.key)
                 out.extend(task.key for task in week.tasks)
         out.extend(a.key for a in self.assessments)
+        out.extend(r.key for a in self.assessments for r in a.resources)
         return out
 
 
@@ -157,6 +190,25 @@ class SeedPrerequisiteFile(_Strict):
 
     def keys(self) -> list[str]:
         return [p.key for p in self.prerequisites]
+
+
+class SeedSharedResource(_Strict):
+    """A resource that applies to several assessments; the loader gives each one its own copy."""
+
+    key: Key
+    title: Title
+    group: ResourceGroup
+    url: Url
+    assessments: Literal["all"] | list[Key]
+
+
+class SeedResourceFile(_Strict):
+    """seed/resources.yaml (optional): resources shared between assessments."""
+
+    resources: list[SeedSharedResource] = []
+
+    def keys(self) -> list[str]:
+        return [r.key for r in self.resources]
 
 
 class SeedIntakeWeek(_Strict):

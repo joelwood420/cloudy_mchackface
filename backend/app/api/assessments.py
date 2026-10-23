@@ -5,7 +5,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session, selectinload
 
-from app.api.schemas import AssessmentOut, AssessmentStatusOut
+from app.api.schemas import AssessmentOut, AssessmentStatusOut, ResourceOut
 from app.auth.deps import current_user
 from app.clock import today
 from app.db import get_db
@@ -42,6 +42,7 @@ def assessment_out(a: Assessment, submitted: set[int], today: date, due: date | 
     return AssessmentOut(
         key=a.key, title=a.title, due_date=due, uplearn_url=a.uplearn_url,
         submitted=a.id in submitted, status=status, days_until=days,
+        resources=[ResourceOut.model_validate(r) for r in a.resources],
     )
 
 
@@ -55,7 +56,9 @@ def list_assessments(
 ) -> list[AssessmentStatusOut]:
     done = submitted_ids(db, user)
     intake = user.settings.intake
-    modules = db.scalars(select(Module).options(selectinload(Module.assessments)).order_by(Module.position)).all()
+    modules = db.scalars(
+        select(Module).options(selectinload(Module.assessments).selectinload(Assessment.resources)).order_by(Module.position)
+    ).all()
     return [
         AssessmentStatusOut(**assessment_out(a, done, today_, due).model_dump(), module_key=m.key, module_code=m.code)
         for m in modules

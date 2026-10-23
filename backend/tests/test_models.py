@@ -1,6 +1,6 @@
 from sqlalchemy import func, select
 
-from app.models import Assessment, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
+from app.models import Assessment, AssessmentResource, Module, Prerequisite, Submodule, SubmodulePrerequisite, Task, Week
 
 
 def make_module(db):
@@ -62,3 +62,35 @@ def test_deleting_a_prerequisite_removes_only_its_links(db):
     db.flush()
     assert db.scalars(select(SubmodulePrerequisite.position)).all() == [1]
     assert count(db, Submodule) == 1
+
+
+def test_assessment_resource_cascades(db):
+    module = make_module(db)
+    a = module.assessments[0]
+    a.resources = [
+        AssessmentResource(key="r-second", title="Second", url="https://x.test/2", group="tool", position=1),
+        AssessmentResource(key="r-first", title="First", url="https://x.test/1", group="recording", tasks=[3], position=0),
+    ]
+    db.flush()
+    db.expire_all()
+    a = db.scalars(select(Assessment).where(Assessment.key == "a3")).one()
+    assert [r.key for r in a.resources] == ["r-first", "r-second"]
+    assert a.resources[0].tasks == [3] and a.resources[1].tasks == []
+    db.delete(a)
+    db.flush()
+    assert count(db, AssessmentResource) == 0
+
+
+def test_task_assessment_link_nulls_on_delete(db):
+    module = make_module(db)
+    a = module.assessments[0]
+    task = module.weeks[0].tasks[0]
+    task.assessment, task.assessment_task = a, 3
+    db.flush()
+    assert task.assessment_key == "a3"
+    assert task.shows_all_resources is False
+    db.delete(a)
+    db.flush()
+    db.expire_all()
+    task = db.scalars(select(Task).where(Task.key == "t1")).one()
+    assert task.assessment_id is None and task.assessment_key is None

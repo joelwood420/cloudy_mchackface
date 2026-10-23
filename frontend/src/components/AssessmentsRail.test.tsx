@@ -59,4 +59,18 @@ describe('AssessmentsRail', () => {
     rerender(<AssessmentsRail code="CCC602" assessments={[]} portalUrl={null} onToggleSubmitted={noop} />)
     expect(screen.queryByRole('link', { name: /course page on UPLearn/ })).toBeNull()
   })
+
+  it('lists the submitting links but not the other resources', () => {
+    const withResources = {
+      ...list[0],
+      resources: [
+        { key: 'f', title: 'Format and file name', url: 'https://up.test/format', group: 'submitting' as const, tasks: [] },
+        { key: 't', title: 'Power BI', url: 'https://powerbi.test', group: 'tool' as const, tasks: [] },
+      ],
+    }
+    render(<AssessmentsRail assessments={[withResources]} portalUrl={null} onToggleSubmitted={noop} />)
+    const a3 = card('Assessment 3')
+    expect(within(a3).getByRole('link', { name: /Format and file name/ })).toHaveAttribute('href', 'https://up.test/format')
+    expect(within(a3).queryByRole('link', { name: /Power BI/ })).not.toBeInTheDocument()
+  })
 })

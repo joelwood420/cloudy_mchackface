@@ -38,6 +38,7 @@ def test_migrations_build_the_model_schema_and_downgrade_cleanly(engine):
             ).scalars().all()
             assert "intakes_study_mode_check" in checks, checks
             assert "assessments_due_weekday_check" in checks, checks
+            assert "assessment_resources_group_check" in checks, checks
 
             command.downgrade(alembic_config(conn), "base")
             tables = conn.execute(

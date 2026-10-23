@@ -179,6 +179,11 @@ CCC602 Assessment Q&A forum: https://yoobee.uplearn.education/mod/forum/view.php
 
 These could become optional "watch" tasks under the matching assessment weeks if wanted.
 
+Checked 2026-10-24 (owner's browser, for the assessment resources feature):
+- The DP-900 tile's three recordings (Introduction and sample data access 14:36, Practical implementation on Azure portal 20:06, Deploying Azure resources using ARM template 15:28) are the same videos as Assessment Q&A posts 3.1–3.3, embedded on the tile with no separate links. The resources use the Q&A posts.
+- 00A Digital Skills tile (section 18346) holds "Tips on self-directed learning: searching, evaluating, referencing" with an APA example, and links Microsoft's guide to saving a PowerPoint as a video: https://support.microsoft.com/en-us/office/save-a-presentation-as-a-movie-file-or-mp4-4e1ebcc1-f46b-47b6-922a-bac76c4a5691 . No separate screen-recording guide links were found on that tile.
+- Tutors' Teams post (6 Aug 2026) recommends these diagram tools: diagrams.net / draw.io, Sketch, Cloudcraft, Lucid. This answers the "which tool does the tutor prefer" question below.
+
 ## Assessment task timelines (from each brief)
 
 Every brief has a "Recommended Tasks Completion Timeline". The FT weeks are in the seed files as "Complete Task N of Assessment M" items. PT weeks are kept here for when part-time students are added.

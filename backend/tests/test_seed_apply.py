@@ -1,9 +1,9 @@
 from sqlalchemy import func, select
 
-from app.models import Assessment, Intake, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
+from app.models import Assessment, AssessmentResource, Intake, Module, Prerequisite, SchedulePost, Submodule, SubmodulePrerequisite, Task, Week
 from app.seed.__main__ import run
 from app.seed.loader import apply_seed
-from app.seed.schema import SeedFile, SeedPrerequisite, SeedSchedulePost
+from app.seed.schema import SeedFile, SeedPrerequisite, SeedSchedulePost, SeedSharedResource
 from tests.conftest import schedule_yaml
 
 
@@ -231,3 +231,70 @@ def test_schedule_posts_are_rebuilt_on_every_run(db):
     apply_seed(db, [with_posts((10, "FT"), (10, "PT"))])
     rows = db.execute(select(SchedulePost.week_number, SchedulePost.study_mode, SchedulePost.url).order_by(SchedulePost.study_mode)).all()
     assert rows == [(10, "FT", "https://up.test/10FT"), (10, "PT", "https://up.test/10PT")]
+
+
+def step(key, assessment, number=None):
+    out = {"key": key, "title": key, "type": "assessment_step", "uplearn_url": "https://x.test/" + key, "assessment": assessment}
+    return out | ({"assessment_task": number} if number else {})
+
+
+def resource(key, group="code_data", tasks=()):
+    return {"key": key, "title": key, "group": group, "url": "https://x.test/" + key, "tasks": list(tasks)}
+
+
+def shared(key, assessments="all"):
+    return SeedSharedResource.model_validate(
+        {"key": key, "title": key, "group": "submitting", "url": "https://x.test/" + key, "assessments": assessments}
+    )
+
+
+def a3_a4(a3_resources=()):
+    return seed(
+        weeks=[week("w11", 11, [step("w11-a3-t1", "ccc602-a3", 1)])],
+        assessments=[
+            {"key": "ccc602-a3", "title": "Assessment 3", "due_week": 12, "resources": list(a3_resources)},
+            {"key": "ccc602-a4", "title": "Assessment 4", "due_week": 16},
+        ],
+    )
+
+
+def resource_keys(db, assessment):
+    a = db.scalars(select(Assessment).where(Assessment.key == assessment)).one()
+    return [r.key for r in a.resources]
+
+
+def test_resources_and_step_links_are_written(db):
+    apply_seed(db, [a3_a4([resource("ccc602-a3-repo", tasks=[1])])], shared_resources=[shared("submission-format")])
+    assert resource_keys(db, "ccc602-a3") == ["ccc602-a3-repo", "ccc602-a3--submission-format"]
+    assert resource_keys(db, "ccc602-a4") == ["ccc602-a4--submission-format"]
+    repo = db.scalars(select(AssessmentResource).where(AssessmentResource.key == "ccc602-a3-repo")).one()
+    assert (repo.group, repo.tasks, repo.url) == ("code_data", [1], "https://x.test/ccc602-a3-repo")
+    t = db.scalars(select(Task).where(Task.key == "w11-a3-t1")).one()
+    assert (t.assessment_key, t.assessment_task, t.shows_all_resources) == ("ccc602-a3", 1, False)
+
+
+def test_shared_resources_rerun_and_removal(db):
+    files = [a3_a4([resource("ccc602-a3-repo")])]
+    apply_seed(db, files, shared_resources=[shared("submission-format")])
+    ids = db.scalars(select(AssessmentResource.id).order_by(AssessmentResource.id)).all()
+    apply_seed(db, files, shared_resources=[shared("submission-format")])
+    assert db.scalars(select(AssessmentResource.id).order_by(AssessmentResource.id)).all() == ids
+    apply_seed(db, files)
+    assert resource_keys(db, "ccc602-a3") == ["ccc602-a3-repo"]
+    assert resource_keys(db, "ccc602-a4") == []
+
+
+def test_shared_resource_listed_assessments_only(db):
+    apply_seed(db, [a3_a4()], shared_resources=[shared("diagram-tools", ["ccc602-a3"])])
+    assert resource_keys(db, "ccc602-a3") == ["ccc602-a3--diagram-tools"]
+    assert resource_keys(db, "ccc602-a4") == []
+
+
+def test_unlinking_a_step_clears_its_assessment(db):
+    apply_seed(db, [a3_a4()])
+    unlinked = a3_a4()
+    unlinked.submodules[0].weeks[0].tasks[0].assessment = None
+    unlinked.submodules[0].weeks[0].tasks[0].assessment_task = None
+    apply_seed(db, [unlinked])
+    t = db.scalars(select(Task).where(Task.key == "w11-a3-t1")).one()
+    assert (t.assessment_id, t.assessment_task) == (None, None)

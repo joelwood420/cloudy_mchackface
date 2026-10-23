@@ -22,6 +22,9 @@ export interface Task {
   uplearn_url: string | null
   note: string | null
   done: boolean
+  /** Assessment steps only: the assessment and its task number. */
+  assessment_key?: string | null
+  assessment_task?: number | null
 }
 
 export interface Week {
@@ -54,6 +57,25 @@ export interface Submodule {
 
 export type AssessmentStatus = 'submitted' | 'due_today' | 'upcoming' | 'overdue' | 'no_date'
 
+export type ResourceGroup = 'recording' | 'code_data' | 'tool' | 'submitting'
+
+/** A link that helps with an assessment. `tasks` are its task numbers; empty means the whole assessment. */
+export interface Resource {
+  key: string
+  title: string
+  url: string
+  group: ResourceGroup
+  tasks: number[]
+}
+
+/** One assessment's resources for the tasks in a This week slot. */
+export interface ResourceBox {
+  assessment_key: string
+  assessment_short: string
+  task_numbers: number[]
+  resources: Resource[]
+}
+
 export interface Assessment {
   key: string
   title: string
@@ -62,6 +84,7 @@ export interface Assessment {
   submitted: boolean
   status: AssessmentStatus
   days_until: number | null
+  resources?: Resource[]
 }
 
 export interface AssessmentWithModule extends Assessment {
@@ -106,6 +129,7 @@ export interface ThisWeekGroup {
   submodule: { key: string; code: string; title: string; uplearn_url: string | null }
   week: Week
   prerequisites: Prerequisite[]
+  assessment_resources?: ResourceBox[]
 }
 
 export interface LurkingTask extends Task {

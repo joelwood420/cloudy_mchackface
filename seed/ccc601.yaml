@@ -70,6 +70,7 @@ submodules:
           - key: ccc601-w01-a1-start
             title: "Start Assessment 1: read the brief"
             type: assessment_step
+            assessment: ccc601-a1
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
       - key: ccc601-w02
         week_number: 2
@@ -128,6 +129,8 @@ submodules:
           - key: ccc601-w02-a1-t1
             title: "Complete Task 1 of Assessment 1 (Cloud-based virtualisation solution evaluation)"
             type: assessment_step
+            assessment: ccc601-a1
+            assessment_task: 1
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
   - key: ccc601-saa
     code: "SAA-C03"
@@ -245,10 +248,14 @@ submodules:
           - key: ccc601-w03-a1-t2
             title: "Complete Task 2 of Assessment 1 (Virtualisation architecture design)"
             type: assessment_step
+            assessment: ccc601-a1
+            assessment_task: 2
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
           - key: ccc601-w03-a1-t3
             title: "Complete Task 3 of Assessment 1 (Virtual machines and storage services)"
             type: assessment_step
+            assessment: ccc601-a1
+            assessment_task: 3
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
       - key: ccc601-w04
         week_number: 4
@@ -347,10 +354,13 @@ submodules:
           - key: ccc601-w04-a1-t4
             title: "Complete Task 4 of Assessment 1 (Optimisation and security)"
             type: assessment_step
+            assessment: ccc601-a1
+            assessment_task: 4
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
           - key: ccc601-w04-a1-submit
             title: "Submit Assessment 1"
             type: assessment_step
+            assessment: ccc601-a1
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
   - key: ccc601-az900
     code: "AZ-900"
@@ -422,6 +432,7 @@ submodules:
           - key: ccc601-w05-a2-start
             title: "Start Assessment 2: read the brief"
             type: assessment_step
+            assessment: ccc601-a2
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
   - key: ccc601-az104
     code: "AZ-104"
@@ -487,6 +498,8 @@ submodules:
           - key: ccc601-w06-a2-t1
             title: "Complete Task 1 of Assessment 2 (Cloud infrastructure planning and cost optimisation)"
             type: assessment_step
+            assessment: ccc601-a2
+            assessment_task: 1
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
       - key: ccc601-w07
         week_number: 7
@@ -535,10 +548,14 @@ submodules:
           - key: ccc601-w07-a2-t2
             title: "Complete Task 2 of Assessment 2 (Active Directory migration to Azure)"
             type: assessment_step
+            assessment: ccc601-a2
+            assessment_task: 2
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
           - key: ccc601-w07-a2-t3
             title: "Complete Task 3 of Assessment 2 (High availability with a load balancer)"
             type: assessment_step
+            assessment: ccc601-a2
+            assessment_task: 3
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
       - key: ccc601-w08
         week_number: 8
@@ -586,20 +603,77 @@ submodules:
           - key: ccc601-w08-a2-t4
             title: "Complete Task 4 of Assessment 2 (File share for multi-user access)"
             type: assessment_step
+            assessment: ccc601-a2
+            assessment_task: 4
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
           - key: ccc601-w08-a2-submit
             title: "Submit Assessment 2"
             type: assessment_step
+            assessment: ccc601-a2
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
 assessments:
   - key: ccc601-a1
     title: "Assessment 1: AWS Theoretical and Practical Scenario Evaluation"
     due_week: 4
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73317
+    resources:
+      - key: ccc601-a1-well-architected
+        title: "AWS Well-Architected Framework"
+        group: tool
+        url: https://aws.amazon.com/architecture/well-architected/
+        tasks: [1]
+      - key: ccc601-a1-security-groups
+        title: "AWS docs: security groups"
+        group: tool
+        url: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-security-groups.html
+        tasks: [2]
+      - key: ccc601-a1-nacls
+        title: "AWS docs: network ACLs"
+        group: tool
+        url: https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html
+        tasks: [2]
+      - key: ccc601-a1-trusted-advisor
+        title: "AWS Trusted Advisor (explore it in AWS Academy)"
+        group: tool
+        url: https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor.html
+        tasks: [4]
+      - key: ccc601-a1-budget
+        title: "Setting an AWS budget limit (UPLearn)"
+        group: tool
+        url: https://yoobee.uplearn.education/mod/forum/discuss.php?d=49394
+      - key: ccc601-a1-academy
+        title: "AWS Academy"
+        group: tool
+        url: https://awsacademy.instructure.com/
   - key: ccc601-a2
     title: "Assessment 2: Azure Theoretical and Practical Concepts Evaluation"
     due_week: 8
     uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73318
+    resources:
+      - key: ccc601-a2-pricing
+        title: "Azure pricing calculator"
+        group: tool
+        url: https://azure.microsoft.com/en-us/pricing/calculator/
+        tasks: [1]
+      - key: ccc601-a2-domain-services
+        title: "Microsoft Entra Domain Services"
+        group: tool
+        url: https://learn.microsoft.com/en-us/entra/identity/domain-services/overview
+        tasks: [2]
+      - key: ccc601-a2-load-balancer
+        title: "Azure Load Balancer overview"
+        group: tool
+        url: https://learn.microsoft.com/en-us/azure/load-balancer/load-balancer-overview
+        tasks: [3]
+      - key: ccc601-a2-files
+        title: "Azure Files introduction"
+        group: tool
+        url: https://learn.microsoft.com/en-us/azure/storage/files/storage-files-introduction
+        tasks: [4]
+      - key: ccc601-a2-portal
+        title: "Azure portal"
+        group: tool
+        url: https://portal.azure.com/
 
 # FT schedule posts: one forum discussion per teaching week (links only). Recorded by the owner from UPLearn, 2026-10-18.
 schedule_posts:
