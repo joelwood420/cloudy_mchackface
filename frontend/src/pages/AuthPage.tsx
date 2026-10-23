@@ -9,8 +9,8 @@ import { useIntakes } from '../hooks/useIntakes'
 import { usePageTitle } from '../usePageTitle'
 
 const COPY = {
-  login: { title: 'Log in', submit: 'Log in', busy: 'Logging in…', prompt: 'New here?', link: 'Create an account', to: '/signup' },
-  signup: { title: 'Create your account', submit: 'Create account', busy: 'Creating account…', prompt: 'Already have an account?', link: 'Log in', to: '/login' },
+  login: { eyebrow: 'Welcome back', title: 'Log in', submit: 'Log in', busy: 'Logging in…', prompt: 'New here?', link: 'Create an account', to: '/signup' },
+  signup: { eyebrow: 'Get started', title: 'Create your account', submit: 'Create account', busy: 'Creating account…', prompt: 'Already have an account?', link: 'Log in', to: '/login' },
 } as const
 
 export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
@@ -64,13 +64,14 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
         </svg>
         Back
       </SpinLink>
-      <div className="auth-stack">
-        <span className="lp-cloud">
-          <BrandMark width={120} height={88} />
-        </span>
-        <div className={`card auth-card is-${mode}`}>
+      <div className={`lp-wrap auth-grid is-${mode}`}>
+        <div className="auth-col">
+          <span className="lp-cloud">
+            <BrandMark width={220} height={160} />
+          </span>
+          <span className="lp-eyebrow">{copy.eyebrow}</span>
           <h1>{copy.title}</h1>
-          <form className="form" onSubmit={onSubmit} noValidate>
+          <form className="form auth-form" onSubmit={onSubmit} noValidate>
             <label className="field">
               <span>Email</span>
               <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
@@ -114,11 +115,11 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
                 {error}
               </p>
             )}
-            <button type="submit" className="button-primary" disabled={busy}>
+            <button type="submit" className="lp-btn lp-btn-primary auth-submit" disabled={busy}>
               {busy ? copy.busy : copy.submit}
             </button>
           </form>
-          <p className="muted small">
+          <p className="auth-alt">
             {copy.prompt}{' '}
             <SpinLink to={copy.to} state={location.state} direction={mode === 'login' ? 'forward' : 'back'}>
               {copy.link}

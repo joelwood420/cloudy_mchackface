@@ -226,14 +226,33 @@ a.button-primary { text-decoration: none; }
 .field input, .field select { font: inherit; min-height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--dot-border); background: var(--surface); color: var(--text); }
 .field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 /* Log in and sign up sit in the landing page's night sky, with the cloud above the form. */
-.auth-page { position: relative; overflow: hidden; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding-block: 76px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: radial-gradient(120% 90% at 85% 10%, var(--night-2) 0%, var(--night) 60%); color: var(--night-text); }
-.auth-back { position: absolute; top: max(16px, env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); min-height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px 0 8px; border-radius: 8px; color: var(--night-text); font-weight: 500; text-decoration: none; }
+.auth-page { position: relative; overflow: hidden; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; background: radial-gradient(120% 90% at 85% 10%, var(--night-2) 0%, var(--night) 60%); color: var(--night-text); color-scheme: dark; }
+.auth-back { position: absolute; z-index: 1; top: max(16px, env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); min-height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px 0 8px; border-radius: 8px; color: var(--night-text); font-weight: 500; text-decoration: none; }
 .auth-back:hover { color: #fff; background: rgba(219, 228, 240, 0.08); }
-.auth-back:focus-visible { outline-color: var(--amber); }
-.auth-stack { position: relative; width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.auth-stack .lp-cloud .brand-mark { width: 120px; }
-.auth-card { width: 100%; padding: 28px; display: flex; flex-direction: column; gap: 18px; color: var(--text); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35); }
-.auth-card > p { margin: 0; }
+/* Same grid as the landing hero, so the cloud stays where it was; the form takes the headline's place. */
+.auth-grid { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 48px; padding-block: 64px 72px; }
+.auth-col { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.auth-page .lp-eyebrow { color: var(--amber-light); }
+.auth-page h1 { color: #fff; font-weight: 800; font-size: clamp(36px, 5.2vw, 60px); line-height: 1.02; letter-spacing: -0.025em; text-wrap: balance; }
+.auth-page :focus-visible { outline-color: var(--amber); }
+.auth-form { width: 100%; max-width: 380px; gap: 18px; margin-top: 6px; }
+.auth-form .field { font-size: 14px; color: var(--night-text); }
+.auth-form .field input, .auth-form .field select { min-height: 50px; padding: 0 14px; border-radius: 10px; border: 1px solid rgba(219, 228, 240, 0.28); background: rgba(219, 228, 240, 0.06); color: #fff; font-size: 16px; caret-color: var(--amber); transition: border-color 140ms ease-out, background-color 140ms ease-out; }
+.auth-form .field select option { background: var(--night); color: #fff; }
+.auth-form .field input:hover, .auth-form .field select:hover { border-color: rgba(219, 228, 240, 0.6); }
+.auth-form .field input:focus-visible, .auth-form .field select:focus-visible { outline: none; border-color: var(--amber); background: rgba(242, 163, 58, 0.06); box-shadow: 0 0 0 3px rgba(242, 163, 58, 0.22); }
+/* Browser autofill would paint the fields pale; keep them in the sky. */
+.auth-form .field input:-webkit-autofill { -webkit-text-fill-color: #fff; box-shadow: 0 0 0 1000px var(--night-2) inset; caret-color: var(--amber); transition: background-color 9999s; }
+.auth-form .muted { color: var(--night-muted); }
+.auth-form .error { color: var(--text); }
+.auth-submit { min-height: 50px; margin-top: 4px; border-radius: 10px; font-size: 16px; cursor: pointer; }
+.auth-submit:disabled { opacity: 0.6; cursor: default; }
+.auth-alt { margin: 0; color: var(--night-muted); font-size: 14px; }
+.auth-alt a { color: var(--amber-light); font-weight: 500; }
+.auth-alt a:hover { color: var(--amber); }
+@media (max-width: 900px) {
+  .auth-grid { grid-template-columns: minmax(0, 1fr); gap: 0; padding-block: 72px 56px; }
+}
 .sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 .sidebar-foot p { margin: 0; }
 .sidebar-email { overflow-wrap: anywhere; }
@@ -524,8 +543,8 @@ html.lp-snap { scroll-snap-type: y proximity; }
 .lp-hero, .auth-page { view-transition-name: lp-sky; }
 .lp-cloud { view-transition-name: lp-cloud; }
 .lp-hero-grid { view-transition-name: lp-stage-landing; }
-.auth-card.is-login { view-transition-name: lp-stage-login; }
-.auth-card.is-signup { view-transition-name: lp-stage-signup; }
+.auth-grid.is-login { view-transition-name: lp-stage-login; }
+.auth-grid.is-signup { view-transition-name: lp-stage-signup; }
 ::view-transition-group(*) { animation-duration: 650ms; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
 ::view-transition-old(lp-stage-landing), ::view-transition-old(lp-stage-login), ::view-transition-old(lp-stage-signup) { animation: lp-turn-out 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
 ::view-transition-new(lp-stage-landing), ::view-transition-new(lp-stage-login), ::view-transition-new(lp-stage-signup) { animation: lp-turn-in 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
