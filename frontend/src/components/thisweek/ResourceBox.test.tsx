@@ -1,4 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import type { ResourceBox as Box } from '../../api'
@@ -18,17 +19,26 @@ const box: Box = {
 
 describe('resourceBoxHeading', () => {
   it('names the tasks in the slot', () => {
-    expect(resourceBoxHeading('A3', [])).toBe('What you need for A3')
-    expect(resourceBoxHeading('A3', [3])).toBe('What you need for A3 Task 3')
-    expect(resourceBoxHeading('A3', [3, 4])).toBe('What you need for A3 Tasks 3 and 4')
-    expect(resourceBoxHeading('A3', [2, 3, 4])).toBe('What you need for A3 Tasks 2, 3 and 4')
+    expect(resourceBoxHeading('A3', [])).toBe('Resources for A3')
+    expect(resourceBoxHeading('A3', [3])).toBe('Resources for A3 Task 3')
+    expect(resourceBoxHeading('A3', [3, 4])).toBe('Resources for A3 Tasks 3 and 4')
+    expect(resourceBoxHeading('A3', [2, 3, 4])).toBe('Resources for A3 Tasks 2, 3 and 4')
   })
 })
 
 describe('ResourceBox', () => {
-  it('shows the slot resources in group columns with task labels and a link to all of them', () => {
+  it('starts folded, showing only its heading as a button', () => {
     render(<MemoryRouter><ResourceBox box={box} /></MemoryRouter>)
-    const region = screen.getByRole('region', { name: 'What you need for A3 Tasks 3 and 4' })
+    const toggle = screen.getByRole('button', { name: /Resources for A3 Tasks 3 and 4/ })
+    expect(toggle).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('link')).not.toBeInTheDocument()
+  })
+
+  it('opens on click to show the slot resources in group columns with task labels and a link to all of them', async () => {
+    render(<MemoryRouter><ResourceBox box={box} /></MemoryRouter>)
+    await userEvent.click(screen.getByRole('button', { name: /Resources for A3/ }))
+    expect(screen.getByRole('button', { name: /Resources for A3/ })).toHaveAttribute('aria-expanded', 'true')
+    const region = screen.getByRole('region', { name: 'Resources for A3 Tasks 3 and 4' })
     expect(within(region).getByRole('heading', { name: 'Tutor recordings' })).toBeInTheDocument()
     expect(within(region).getByRole('heading', { name: 'Code and data' })).toBeInTheDocument()
     expect(within(region).getByRole('heading', { name: 'Tools' })).toBeInTheDocument()

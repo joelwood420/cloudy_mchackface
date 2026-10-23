@@ -11,8 +11,8 @@ function list(numbers: number[]): string {
   return numbers.length === 1 ? `${numbers[0]}` : `${numbers.slice(0, -1).join(', ')} and ${numbers[numbers.length - 1]}`
 }
 
-/** "What you need for A3 Tasks 3 and 4"; just "What you need for A3" when no task numbers are in the slot. */
+/** "Resources for A3 Tasks 3 and 4"; just "Resources for A3" when no task numbers are in the slot. */
 export function resourceBoxHeading(short: string, numbers: number[]): string {
-  if (numbers.length === 0) return `What you need for ${short}`
-  return `What you need for ${short} ${numbers.length === 1 ? 'Task' : 'Tasks'} ${list(numbers)}`
+  if (numbers.length === 0) return `Resources for ${short}`
+  return `Resources for ${short} ${numbers.length === 1 ? 'Task' : 'Tasks'} ${list(numbers)}`
 }
