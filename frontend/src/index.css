@@ -29,6 +29,7 @@
   --night-2: #182b46;
   --night-text: #dbe4f0;
   --night-muted: #9fb0c6;
+  --night-error: #ffb4a8;
   --amber: #f2a33a;
   --amber-light: #f7c47e;
   --font-body: 'IBM Plex Sans', system-ui, sans-serif;
@@ -238,22 +239,25 @@ a.button-primary { text-decoration: none; }
 .auth-page :focus-visible { outline-color: var(--amber); }
 /* Underlined fields: no boxes, just a line under each answer that turns amber while you type. */
 .auth-form { width: 100%; max-width: 400px; gap: 26px; }
-.auth-form .field { gap: 4px; color: var(--night-muted); font-family: var(--font-mono); font-size: 11px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; }
-.auth-form .field input, .auth-form .field select { min-height: 44px; padding: 0 2px; border: 0; border-bottom: 2px solid rgba(219, 228, 240, 0.28); border-radius: 0; background: transparent; color: #fff; font-family: var(--font-body); font-size: 18px; letter-spacing: 0; text-transform: none; caret-color: var(--amber); transition: border-color 140ms ease-out, box-shadow 140ms ease-out; }
+.auth-form .field { gap: 4px; color: var(--night-text); font-size: 13px; font-weight: 500; }
+.auth-form .field input, .auth-form .field select { min-height: 44px; padding: 0 2px; border: 0; border-bottom: 2px solid rgba(219, 228, 240, 0.5); border-radius: 0; background: transparent; color: #fff; font-family: var(--font-body); font-size: 18px; caret-color: var(--amber); transition: border-color 140ms ease-out, box-shadow 140ms ease-out; }
+.auth-form .field select:invalid { color: var(--night-muted); }
 .auth-form .field select option { background: var(--night); color: #fff; }
-.auth-form .field input:hover, .auth-form .field select:hover { border-bottom-color: rgba(219, 228, 240, 0.6); }
+.auth-form .field input:hover, .auth-form .field select:hover { border-bottom-color: rgba(219, 228, 240, 0.8); }
 .auth-form .field input:focus-visible, .auth-form .field select:focus-visible { outline: none; border-bottom-color: var(--amber); box-shadow: 0 1px 0 var(--amber); }
+.auth-form .field [aria-invalid='true'] { border-bottom-color: var(--night-error); }
 /* Browser autofill would paint the fields pale; keep them in the sky. */
 .auth-form .field input:-webkit-autofill { -webkit-text-fill-color: #fff; box-shadow: 0 0 0 1000px var(--night) inset; caret-color: var(--amber); transition: background-color 9999s; }
-.auth-form .muted { margin-top: -16px; color: var(--night-muted); }
-.auth-form .error { color: var(--text); }
-/* Log in button: white and square like the cloud, with an amber pixel shadow; it lifts on hover and presses in on click. */
-.auth-submit { align-self: flex-start; min-width: 160px; min-height: 50px; margin-top: 4px; padding: 0 28px; border: 3px solid var(--night); border-radius: 0; background: #fff; color: var(--night); font-family: var(--font-mono); font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; box-shadow: 5px 5px 0 var(--amber); cursor: pointer; transition: transform 90ms ease-out, box-shadow 90ms ease-out; }
-.auth-submit:hover { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--amber); }
-.auth-submit:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--amber); }
-.auth-submit:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: 5px 5px 0 var(--amber); }
-.auth-alt { margin: 0; color: var(--night-muted); font-size: 14px; }
-.auth-alt a { color: var(--amber-light); font-weight: 500; }
+.auth-hint { margin: -16px 0 0; color: var(--night-muted); font-size: 13px; }
+.auth-field-error { margin: -16px 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 0 6px; color: var(--night-error); font-size: 13px; font-weight: 500; }
+.auth-field-error svg { flex: 0 0 auto; }
+.auth-hint + .auth-field-error { margin-top: -20px; }
+.auth-inline-button { min-height: 44px; padding: 0; border: 0; background: none; color: var(--amber-light); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.auth-error { margin: 0; padding: 12px 14px; border: 1px solid rgba(255, 180, 168, 0.45); background: rgba(255, 180, 168, 0.08); color: #fff; font-size: 14px; }
+.auth-submit { align-self: flex-start; min-width: 160px; margin-top: 4px; }
+.auth-alt { max-width: 400px; display: flex; flex-direction: column; color: var(--night-muted); font-size: 14px; }
+.auth-alt p { margin: 0; }
+.auth-alt a { display: inline-flex; align-items: center; min-height: 44px; color: var(--amber-light); font-weight: 500; text-underline-offset: 3px; }
 .auth-alt a:hover { color: var(--amber); }
 @media (max-width: 900px) {
   .auth-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 72px 56px; }
@@ -460,22 +464,28 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 html.lp-snap { scroll-snap-type: y proximity; }
 .lp-part { scroll-snap-align: start; }
 @media (min-width: 901px) and (min-height: 640px) {
-  html.lp-snap { scroll-snap-type: y mandatory; }
-  .lp-part { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; }
-  .lp-last { justify-content: flex-start; }
-  .lp-last > section:first-child, .lp-last > .lp-footer { margin-top: auto; }
+  .lp-hero { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+}
+/* Short laptop screens: tighten the hero so all of it fits in the first screen. */
+@media (min-width: 901px) and (max-height: 800px) {
+  .lp-hero-grid { padding-block: 32px 40px; }
+  .lp-hero-copy { gap: 16px; }
+  .lp-hero .lp-cloud .brand-mark { width: 150px; }
 }
 .lp h3 { font-family: var(--font-display); }
 .lp p { margin: 0; }
 .lp-wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
-.lp-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 48px; padding: 0 22px; border-radius: 8px; font-weight: 600; text-decoration: none; }
-.lp-btn-primary { background: var(--amber); border: 1px solid var(--amber); color: var(--night); }
-.lp-btn-primary:hover { background: var(--amber-light); border-color: var(--amber-light); color: var(--night); }
-.lp-btn-ghost { border: 1px solid rgba(219, 228, 240, 0.35); color: var(--night-text); }
-.lp-btn-ghost:hover { border-color: var(--night-text); color: #fff; }
+/* One button for the logged-out screens: white and square like the cloud, with an amber pixel shadow to match its
+   pixel-art sunglasses. It lifts on hover and presses in on click. */
+.pixel-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 26px; border: 3px solid var(--night); border-radius: 0; background: #fff; color: var(--night); font-family: var(--font-mono); font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; box-shadow: 5px 5px 0 var(--amber); cursor: pointer; transition: transform 90ms ease-out, box-shadow 90ms ease-out; }
+.pixel-btn:hover { color: var(--night); transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--amber); }
+.pixel-btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--amber); }
+.pixel-btn:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: 5px 5px 0 var(--amber); }
+/* The quieter choice next to it is a plain link, so there's only ever one button to press. */
+.lp-text-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--night-text); font-weight: 500; text-decoration: underline; text-decoration-color: var(--amber); text-underline-offset: 4px; }
+.lp-text-link:hover { color: #fff; }
 .lp :focus-visible { outline-color: var(--amber); }
-.lp-eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent-strong); }
-.lp-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.lp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
 
 .lp-hero { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 85% 10%, var(--night-2) 0%, var(--night) 60%); color: var(--night-text); }
 .lp-stars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
@@ -484,11 +494,10 @@ html.lp-snap { scroll-snap-type: y proximity; }
 .lp-cloud { display: block; width: fit-content; }
 .lp-cloud .brand-mark { width: min(220px, 52vw); height: auto; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.35)); animation: lp-drift 7s ease-in-out infinite; }
 .lp-cloud .brand-glint { animation: lp-glint 7s ease-in-out infinite; }
-.lp-hero .lp-eyebrow { color: var(--amber-light); }
 .lp-hero h1 { color: #fff; font-weight: 800; font-size: clamp(36px, 5.2vw, 60px); line-height: 1.02; letter-spacing: -0.025em; text-wrap: balance; }
 .lp-hero h1 em { font-style: normal; color: var(--amber); }
 .lp-lede { font-size: 18px; max-width: 34em; }
-.lp-note { font-size: 13px; color: var(--night-muted); }
+.lp-note { max-width: 34em; font-size: 14px; color: var(--night-muted); }
 
 .lp-preview { position: relative; min-width: 0; padding: 22px; border-radius: 14px; background: var(--surface); color: var(--text); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35); transform: rotate(1.2deg); display: flex; flex-direction: column; gap: 16px; }
 .lp-preview-label { position: absolute; top: -12px; left: 20px; padding: 3px 9px; border-radius: 4px; background: var(--amber); color: var(--night); font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
@@ -512,8 +521,8 @@ html.lp-snap { scroll-snap-type: y proximity; }
 .lp-due strong { color: var(--text); font-weight: 600; }
 .lp-due .mono { margin-left: auto; font-size: 12px; font-weight: 700; white-space: nowrap; }
 
-.lp-section { padding-block: 72px; }
-.lp-section-head { display: flex; flex-direction: column; gap: 10px; max-width: 40em; margin-bottom: 36px; }
+.lp-section { padding-block: 88px; }
+.lp-section-head { max-width: 40em; margin-bottom: 32px; }
 .lp-section-head h2 { font-size: clamp(26px, 3vw, 36px); font-weight: 700; line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance; }
 .lp-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
 .lp-compare-col { padding: 24px; border-radius: 12px; display: flex; flex-direction: column; gap: 12px; }
@@ -524,7 +533,7 @@ html.lp-snap { scroll-snap-type: y proximity; }
 .lp-compare-col.is-after { background: var(--surface); border: 1px solid var(--accent-line); }
 .lp-compare-col.is-after h3 { color: var(--accent-strong); }
 .lp-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
-.lp-feature { min-width: 0; padding: 22px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); display: flex; flex-direction: column; gap: 14px; }
+.lp-feature { min-width: 0; padding: 22px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 14px; }
 .lp-feature h3 { font-size: 19px; font-weight: 700; }
 .lp-feature p { color: var(--muted); }
 .lp-mini { min-height: 148px; padding: 14px; border-radius: 10px; background: var(--bg); display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
@@ -545,7 +554,7 @@ html.lp-snap { scroll-snap-type: y proximity; }
 .lp-cta { position: relative; overflow: hidden; padding: 48px clamp(20px, 5vw, 56px); border-radius: 18px; background: var(--night); color: var(--night-text); display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap; }
 .lp-cta h2 { max-width: 14em; color: #fff; font-size: clamp(26px, 3.4vw, 38px); font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; }
 .lp-footer { padding-block: 36px 48px; color: var(--muted); font-size: 13px; }
-.lp-footer p { max-width: 60em; }
+.lp-footer p { max-width: 65ch; }
 /* The camera turn between the landing page and the forms. The sky and cloud are captured on their own so they stay put
    (the cloud glides to its new spot); the content turns away to one side and the next screen turns in from the other. */
 .lp-hero, .auth-page { view-transition-name: lp-sky; }

@@ -25,7 +25,7 @@ export function WelcomePage() {
   }, [])
 
   const getStarted = (
-    <SpinLink to="/signup" state={location.state} direction="forward" className="lp-btn lp-btn-primary">
+    <SpinLink to="/signup" state={location.state} direction="forward" className="pixel-btn">
       Get started
     </SpinLink>
   )
@@ -39,7 +39,6 @@ export function WelcomePage() {
             <span className="lp-cloud">
               <BrandMark width={220} height={160} />
             </span>
-            <span className="lp-eyebrow">Level 6 · Cloud Computing &amp; Cyber Security</span>
             <h1>
               Know exactly what to do <em>this week.</em>
             </h1>
@@ -49,11 +48,14 @@ export function WelcomePage() {
             </p>
             <div className="lp-actions">
               {getStarted}
-              <SpinLink to="/login" state={location.state} direction="forward" className="lp-btn lp-btn-ghost">
+              <SpinLink to="/login" state={location.state} direction="forward" className="lp-text-link">
                 Already have an account? Log in
               </SpinLink>
             </div>
-            <p className="lp-note">Free. Built by a Yoobee student, for Yoobee students.</p>
+            <p className="lp-note">
+              Free, for Yoobee's Level 6 Cloud Computing &amp; Cyber Security diploma. Built by a student on it; not an official
+              Yoobee app.
+            </p>
           </div>
 
           <div className="lp-preview" role="img" aria-label="Example of the This week page">
@@ -110,7 +112,6 @@ export function WelcomePage() {
       <section className="lp-section lp-part">
         <div className="lp-wrap">
           <div className="lp-section-head">
-            <span className="lp-eyebrow">Why it exists</span>
             <h2>Less clicking around. More actual study.</h2>
           </div>
           <div className="lp-compare">
@@ -139,7 +140,6 @@ export function WelcomePage() {
       <section className="lp-section lp-part">
         <div className="lp-wrap">
           <div className="lp-section-head">
-            <span className="lp-eyebrow">What you get</span>
             <h2>Three things, done properly.</h2>
           </div>
           <div className="lp-features">
@@ -220,11 +220,10 @@ export function WelcomePage() {
         </div>
       </section>
 
-      <div className="lp-part lp-last">
+      <div className="lp-part">
         <section className="lp-section">
           <div className="lp-wrap">
             <div className="lp-section-head">
-              <span className="lp-eyebrow">Getting going</span>
               <h2>Set up in about a minute.</h2>
             </div>
             <ol className="lp-steps">
@@ -249,7 +248,7 @@ export function WelcomePage() {
               <h2>Stop digging through UPLearn.</h2>
               <div className="lp-actions">
                 {getStarted}
-                <SpinLink to="/login" state={location.state} direction="forward" className="lp-btn lp-btn-ghost">
+                <SpinLink to="/login" state={location.state} direction="forward" className="lp-text-link">
                   Log in
                 </SpinLink>
               </div>

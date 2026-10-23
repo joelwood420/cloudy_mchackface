@@ -163,7 +163,7 @@ A cool, low-chroma neutral world with one teal accent and a small set of semanti
 - **Deadline Amber** (#9a4f08 on #fcefdd): "Due in N days" within a week.
 - **Overdue Red** (#b42318 on #fde7e7): overdue chips; **Error Wash** (#fdecec) behind error messages.
 - **Notice Blue** (#164f80 on #e3eef9): submitted chips and informational notices (breaks, holidays).
-- **Night Console** (#0f1e33), **Alarm Amber** (#f2a33a), **Alarm Amber Light** (#f7c47e): the malware banner only.
+- **Night Console** (#0f1e33), **Alarm Amber** (#f2a33a), **Alarm Amber Light** (#f7c47e): inside the app, the malware banner only. Outside the app they make the Night Sky (below).
 
 ### Brand mark
 - **Cloud mark:** a white cloud with a Brand Navy (#121e33) outline, pixel sunglasses and a pixel smirk, beside the "Cloudy McHackface" name in the sidebar and phone top bar.
@@ -173,7 +173,9 @@ A cool, low-chroma neutral world with one teal accent and a small set of semanti
 ### Named Rules
 **The You-Are-Here Rule.** Terminal Teal marks where you are and how far you've come. Don't spend it on decoration.
 
-**The One Alarm Rule.** Night Console and Alarm Amber belong to the malware banner alone. No other component borrows them.
+**The One Alarm Rule.** Inside the app, Night Console and Alarm Amber belong to the malware banner alone. No other in-app component borrows them.
+
+**The Night and Day Rule.** Night means outside the app: the landing page hero and closing band, log in and sign up. Day (cool paper and teal) means inside. Once you're logged in, the only night left is the malware banner, so it still reads as an alarm.
 
 ## Typography
 
@@ -241,6 +243,13 @@ Gently rounded throughout: 12px for cards, panels and the malware banner; 10px f
 - **Desktop:** vertical list of 44px items with 18px line icons; active item gets Teal Wash and Terminal Teal Deep text.
 - **Phone:** bottom tab bar, icon over a 12px label, same active treatment.
 
+### Night Sky (logged-out screens)
+The landing page hero, its closing band, and the log in and sign up pages sit in a night sky: a Night Console radial gradient with fixed pixel stars (`NightSky.tsx`). The cloud is the character here. It sits large on the left of the landing hero and holds the same spot on log in and sign up, where it greets you in a white pixel speech bubble ("Welcome back", "Welcome aboard"). Moving between these screens plays a camera turn (`SpinLink.tsx`, a view transition): the sky and cloud hold still and the content swings away to one side while the next screen swings in from the other. Reduced motion gets a fade.
+
+- **Pixel button:** the one main button on these screens ("Get started", "Log in", "Create account"). White, square, 3px Night Console border, IBM Plex Mono 700 uppercase, with a hard 5px Alarm Amber pixel shadow that echoes the cloud's pixel sunglasses. It lifts 2px on hover and presses in on click. The secondary choice beside it is a plain underlined link, never a second button.
+- **Fields:** no boxes, just a 2px underline (Night Text at 50%) under each answer that turns amber while you type. Labels in Plex Sans 13px 500. Hints in Night Muted (#9fb0c6). Errors in Night Error (#ffb4a8) with a small alert icon, under the field they belong to, all shown at once.
+- **No visible page heading on log in and sign up:** the cloud's bubble does that job; the h1 is there for screen readers only.
+
 ### Week Timeline (signature)
 Numbered 32px dots on a grey spine, each beside an expandable week card (Week N in mono, title, x/y done, slim progress bar, chevron). The current week fills its dot with Terminal Teal and carries a "Current week" badge. Open cards lift and show their schedule post link, then task rows.
 
@@ -257,7 +266,7 @@ A Night Console panel with an amber bug tile, "MALWARE DETECTED" in mono Alarm A
 - **Do** use the semantic chips (amber soon, red overdue, blue done) for status, never plain teal.
 
 ### Don't:
-- **Don't** reuse Night Console or Alarm Amber outside the malware banner.
+- **Don't** reuse Night Console or Alarm Amber inside the app outside the malware banner. The logged-out Night Sky is the one exception.
 - **Don't** make the malware banner dismissible or quieter; it is meant to be in your face.
 - **Don't** show progress or numbers that don't come from real ticks.
 - **Don't** fade text with opacity to mark "coming soon"; use Slate (#5a6472).
