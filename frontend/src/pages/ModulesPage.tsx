@@ -9,7 +9,7 @@ import { percent, programmeProgress } from '../progress'
 import { usePageTitle } from '../usePageTitle'
 
 function ProgrammeProgress({ modules }: { modules: ModuleSummary[] }) {
-  const { done, total, pct } = programmeProgress(modules)
+  const { modulesDone, modules: count, pct } = programmeProgress(modules)
   return (
     <section className="card progress-card" aria-labelledby="programme-heading">
       <div className="progress-main">
@@ -17,9 +17,9 @@ function ProgrammeProgress({ modules }: { modules: ModuleSummary[] }) {
           <h2 id="programme-heading">Programme progress</h2>
           <span className="big-number">{pct}%</span>
         </div>
-        <ProgressBar value={pct} label="Programme progress" valueText={`${done} of ${total} tasks done`} size="lg" />
+        <ProgressBar value={pct} label="Programme progress" valueText={`${modulesDone} of ${plural(count, 'module')} complete`} size="lg" />
         <p className="muted small">
-          {done} of {plural(total, 'task')} done
+          {modulesDone} of {plural(count, 'module')} complete
         </p>
       </div>
     </section>
