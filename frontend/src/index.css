@@ -402,6 +402,9 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 .assessment-row.is-lead { padding: 18px 24px; border: 1px solid var(--accent); box-shadow: var(--shadow-open); }
 .assessment-row.is-lead .assessment-title { font-family: var(--font-display); font-size: 20px; line-height: 1.25; }
 .assessment-row.is-submitted .assessment-title { color: var(--muted); }
+.assessment-resources { flex: 1 1 100%; padding: 2px 0 6px; }
+.assessment-resources .link-button { min-height: 44px; }
+.assessment-resources .resource-columns { margin-top: 4px; }
 
 /* Lurking weeks link each track's tile once, beside the week heading. */
 .malware-week-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 14px; }

@@ -1,8 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { type AssessmentWithModule, fetchAssessments } from '../api'
 import { ErrorMessage } from '../components/ErrorMessage'
 import { ExternalLink } from '../components/ExternalLink'
+import { ResourceColumns } from '../components/ResourceColumns'
 import { ListSkeleton } from '../components/Skeleton'
 import { formatDueDate, statusChip } from '../format'
 import { useSubmitAssessment } from '../hooks/useSubmitAssessment'
@@ -17,11 +19,32 @@ function byDue(a: AssessmentWithModule, b: AssessmentWithModule): number {
 
 type Toggle = (a: AssessmentWithModule, submitted: boolean) => void
 
+/** The assessment's links, grouped. Starts open on the lead row and on the row the URL's #hash names. */
+function Resources({ a, startOpen }: { a: AssessmentWithModule; startOpen: boolean }) {
+  const [open, setOpen] = useState(startOpen)
+  const panelId = useId()
+  const resources = a.resources ?? []
+  if (resources.length === 0) return null
+  return (
+    <div className="assessment-resources">
+      <button type="button" className="link-button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen(!open)}>
+        {`Resources (${resources.length})`}
+      </button>
+      {open && (
+        <div id={panelId}>
+          <ResourceColumns resources={resources} groups={['recording', 'code_data', 'tool', 'submitting']} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 function AssessmentRow({ a, lead = false, onToggle }: { a: AssessmentWithModule; lead?: boolean; onToggle: Toggle }) {
   const chip = statusChip(a)
   const titleId = `assessment-${a.key}-title`
+  const { hash } = useLocation()
   return (
-    <li className={`assessment-row${lead ? ' is-lead card' : ''}${a.submitted ? ' is-submitted' : ''}`}>
+    <li id={a.key} className={`assessment-row${lead ? ' is-lead card' : ''}${a.submitted ? ' is-submitted' : ''}`}>
       <span className="assessment-code mono small">{a.module_code}</span>
       <div className="assessment-row-main">
         <h3 id={titleId} className="assessment-title">
@@ -43,6 +66,7 @@ function AssessmentRow({ a, lead = false, onToggle }: { a: AssessmentWithModule;
           </span>
         )}
       </div>
+      <Resources a={a} startOpen={lead || hash === `#${a.key}`} />
     </li>
   )
 }
@@ -55,6 +79,15 @@ export function AssessmentsPage() {
   const [note, setNote] = useState('')
   const submittedToggle = useRef<HTMLButtonElement>(null)
   const heading = useRef<HTMLHeadingElement>(null)
+  const { hash } = useLocation()
+
+  // Arriving from a This week "All A3 resources" link: unfold Submitted if that's where it is, then bring it into view.
+  useEffect(() => {
+    const target = query.data?.find((a) => `#${a.key}` === hash)
+    if (!target) return
+    if (target.submitted) setShowSubmitted(true)
+    requestAnimationFrame(() => document.getElementById(target.key)?.scrollIntoView?.({ block: 'start' }))
+  }, [query.data, hash])
 
   if (query.isPending) return <ListSkeleton label="Loading assessments…" />
   if (query.isError) return <main className="page"><ErrorMessage error={query.error} onRetry={() => query.refetch()} /></main>
