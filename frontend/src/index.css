@@ -225,8 +225,14 @@ a.button-primary { text-decoration: none; }
 .field { display: flex; flex-direction: column; gap: 6px; font-weight: 500; }
 .field input, .field select { font: inherit; min-height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--dot-border); background: var(--surface); color: var(--text); }
 .field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
-.auth-card { width: 100%; max-width: 400px; padding: 28px; display: flex; flex-direction: column; gap: 18px; }
+/* Log in and sign up sit in the landing page's night sky, with the cloud above the form. */
+.auth-page { position: relative; overflow: hidden; min-height: 100vh; min-height: 100svh; display: flex; align-items: center; justify-content: center; padding-block: 76px 48px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); background: radial-gradient(120% 90% at 85% 10%, var(--night-2) 0%, var(--night) 60%); color: var(--night-text); }
+.auth-back { position: absolute; top: max(16px, env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); min-height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px 0 8px; border-radius: 8px; color: var(--night-text); font-weight: 500; text-decoration: none; }
+.auth-back:hover { color: #fff; background: rgba(219, 228, 240, 0.08); }
+.auth-back:focus-visible { outline-color: var(--amber); }
+.auth-stack { position: relative; width: 100%; max-width: 400px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+.auth-stack .lp-cloud .brand-mark { width: 120px; }
+.auth-card { width: 100%; padding: 28px; display: flex; flex-direction: column; gap: 18px; color: var(--text); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35); }
 .auth-card > p { margin: 0; }
 .sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 .sidebar-foot p { margin: 0; }
@@ -448,7 +454,7 @@ html.lp-snap { scroll-snap-type: y proximity; }
 .lp-stars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .lp-hero-grid { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 48px; align-items: center; padding-block: 64px 72px; }
 .lp-hero-copy { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
-.lp-cloud { display: block; }
+.lp-cloud { display: block; width: fit-content; }
 .lp-cloud .brand-mark { width: min(220px, 52vw); height: auto; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.35)); animation: lp-drift 7s ease-in-out infinite; }
 .lp-cloud .brand-glint { animation: lp-glint 7s ease-in-out infinite; }
 .lp-hero .lp-eyebrow { color: var(--amber-light); }
@@ -513,6 +519,24 @@ html.lp-snap { scroll-snap-type: y proximity; }
 .lp-cta h2 { max-width: 14em; color: #fff; font-size: clamp(26px, 3.4vw, 38px); font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; }
 .lp-footer { padding-block: 36px 48px; color: var(--muted); font-size: 13px; }
 .lp-footer p { max-width: 60em; }
+/* The camera turn between the landing page and the forms. The sky and cloud are captured on their own so they stay put
+   (the cloud glides to its new spot); the content turns away to one side and the next screen turns in from the other. */
+.lp-hero, .auth-page { view-transition-name: lp-sky; }
+.lp-cloud { view-transition-name: lp-cloud; }
+.lp-hero-grid { view-transition-name: lp-stage-landing; }
+.auth-card.is-login { view-transition-name: lp-stage-login; }
+.auth-card.is-signup { view-transition-name: lp-stage-signup; }
+::view-transition-group(*) { animation-duration: 650ms; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+::view-transition-old(lp-stage-landing), ::view-transition-old(lp-stage-login), ::view-transition-old(lp-stage-signup) { animation: lp-turn-out 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+::view-transition-new(lp-stage-landing), ::view-transition-new(lp-stage-login), ::view-transition-new(lp-stage-signup) { animation: lp-turn-in 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+html[data-spin='back']::view-transition-old(lp-stage-landing), html[data-spin='back']::view-transition-old(lp-stage-login), html[data-spin='back']::view-transition-old(lp-stage-signup) { animation-name: lp-turn-out-back; }
+html[data-spin='back']::view-transition-new(lp-stage-landing), html[data-spin='back']::view-transition-new(lp-stage-login), html[data-spin='back']::view-transition-new(lp-stage-signup) { animation-name: lp-turn-in-back; }
+@keyframes lp-turn-out { to { transform: perspective(1400px) translateX(-45vw) rotateY(75deg); opacity: 0; } }
+@keyframes lp-turn-in { from { transform: perspective(1400px) translateX(45vw) rotateY(-75deg); opacity: 0; } }
+@keyframes lp-turn-out-back { to { transform: perspective(1400px) translateX(45vw) rotateY(-75deg); opacity: 0; } }
+@keyframes lp-turn-in-back { from { transform: perspective(1400px) translateX(-45vw) rotateY(75deg); opacity: 0; } }
+@keyframes lp-fade-out { to { opacity: 0; } }
+@keyframes lp-fade-in { from { opacity: 0; } }
 @keyframes lp-drift { 0%, 100% { transform: translate(0, 0) rotate(-2deg); } 50% { transform: translate(10px, -8px) rotate(1deg); } }
 @keyframes lp-glint { 0%, 70%, 100% { opacity: 1; } 74%, 78% { opacity: 0.2; } }
 @media (max-width: 900px) {
@@ -529,6 +553,10 @@ html.lp-snap { scroll-snap-type: y proximity; }
 
 @media (prefers-reduced-motion: reduce) {
   .lp-cloud .brand-mark, .lp-cloud .brand-glint { animation: none; }
+  /* No turn: the cloud jumps to its spot and the screens cross-fade. */
+  ::view-transition-group(*) { animation: none; }
+  ::view-transition-old(*), html[data-spin]::view-transition-old(*) { animation: lp-fade-out 200ms ease-out both; }
+  ::view-transition-new(*), html[data-spin]::view-transition-new(*) { animation: lp-fade-in 200ms ease-out both; }
   .sk-bar { animation: none; }
   .jump-chip svg { transition: none; }
   input[type='checkbox'] { transition: background-color 120ms ease-out, border-color 120ms ease-out; }

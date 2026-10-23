@@ -1,8 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { type FormEvent, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { type SignupResult, login, signup } from '../api'
-import { BrandLockup } from '../components/BrandMark'
+import { BrandMark } from '../components/BrandMark'
+import { NightSky } from '../components/NightSky'
+import { SpinLink } from '../components/SpinLink'
 import { useIntakes } from '../hooks/useIntakes'
 import { usePageTitle } from '../usePageTitle'
 
@@ -55,63 +57,74 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
 
   return (
     <main className="auth-page">
-      <div className="card auth-card">
-        <BrandLockup />
-        <h1>{copy.title}</h1>
-        <form className="form" onSubmit={onSubmit} noValidate>
-          <label className="field">
-            <span>Email</span>
-            <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-          </label>
-          <label className="field">
-            <span>Password</span>
-            <input
-              type="password"
-              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              aria-describedby={mode === 'signup' ? 'password-hint' : undefined}
-            />
-          </label>
-          {mode === 'signup' && (
-            <>
-              <p id="password-hint" className="muted small">
-                At least 8 characters.
-              </p>
-              <label className="field">
-                <span>Intake</span>
-                <select required value={intakeKey} onChange={(e) => setIntakeKey(e.target.value)} aria-describedby="intake-hint">
-                  <option value="" disabled>
-                    {intakes.isError ? "Couldn't load intakes. Reload to try again." : 'Choose your intake'}
-                  </option>
-                  {intakes.data?.map((i) => (
-                    <option key={i.key} value={i.key}>
-                      {i.title}
+      <NightSky />
+      <SpinLink to="/welcome" state={location.state} direction="back" className="auth-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+        Back
+      </SpinLink>
+      <div className="auth-stack">
+        <span className="lp-cloud">
+          <BrandMark width={120} height={88} />
+        </span>
+        <div className={`card auth-card is-${mode}`}>
+          <h1>{copy.title}</h1>
+          <form className="form" onSubmit={onSubmit} noValidate>
+            <label className="field">
+              <span>Email</span>
+              <input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+            </label>
+            <label className="field">
+              <span>Password</span>
+              <input
+                type="password"
+                autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                aria-describedby={mode === 'signup' ? 'password-hint' : undefined}
+              />
+            </label>
+            {mode === 'signup' && (
+              <>
+                <p id="password-hint" className="muted small">
+                  At least 8 characters.
+                </p>
+                <label className="field">
+                  <span>Intake</span>
+                  <select required value={intakeKey} onChange={(e) => setIntakeKey(e.target.value)} aria-describedby="intake-hint">
+                    <option value="" disabled>
+                      {intakes.isError ? "Couldn't load intakes. Reload to try again." : 'Choose your intake'}
                     </option>
-                  ))}
-                </select>
-              </label>
-              <p id="intake-hint" className="muted small">
-                When you started, and full-time or part-time. You can change it later in Settings.
+                    {intakes.data?.map((i) => (
+                      <option key={i.key} value={i.key}>
+                        {i.title}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <p id="intake-hint" className="muted small">
+                  When you started, and full-time or part-time. You can change it later in Settings.
+                </p>
+              </>
+            )}
+            {error && (
+              <p role="alert" className="error">
+                {error}
               </p>
-            </>
-          )}
-          {error && (
-            <p role="alert" className="error">
-              {error}
-            </p>
-          )}
-          <button type="submit" className="button-primary" disabled={busy}>
-            {busy ? copy.busy : copy.submit}
-          </button>
-        </form>
-        <p className="muted small">
-          {copy.prompt}{' '}
-          <Link to={copy.to} state={location.state}>
-            {copy.link}
-          </Link>
-        </p>
+            )}
+            <button type="submit" className="button-primary" disabled={busy}>
+              {busy ? copy.busy : copy.submit}
+            </button>
+          </form>
+          <p className="muted small">
+            {copy.prompt}{' '}
+            <SpinLink to={copy.to} state={location.state} direction={mode === 'login' ? 'forward' : 'back'}>
+              {copy.link}
+            </SpinLink>
+          </p>
+        </div>
       </div>
     </main>
   )

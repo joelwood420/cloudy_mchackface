@@ -1,23 +1,9 @@
 import { useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { BrandMark } from '../components/BrandMark'
+import { NightSky } from '../components/NightSky'
+import { SpinLink } from '../components/SpinLink'
 import { usePageTitle } from '../usePageTitle'
-
-// Fixed pixel stars for the hero sky, from a seeded random so they don't move between renders.
-const STARS = (() => {
-  let seed = 7
-  const rand = () => {
-    seed = (seed * 16807) % 2147483647
-    return seed / 2147483647
-  }
-  return Array.from({ length: 140 }, () => ({
-    x: Math.round(rand() * 1600),
-    y: Math.round(rand() * 900),
-    size: rand() < 0.08 ? 3 : 2,
-    warm: rand() < 0.15,
-    opacity: 0.25 + rand() * 0.45,
-  }))
-})()
 
 function Tick() {
   return (
@@ -39,19 +25,15 @@ export function WelcomePage() {
   }, [])
 
   const getStarted = (
-    <Link to="/signup" state={location.state} className="lp-btn lp-btn-primary">
+    <SpinLink to="/signup" state={location.state} direction="forward" className="lp-btn lp-btn-primary">
       Get started
-    </Link>
+    </SpinLink>
   )
 
   return (
     <main className="lp">
       <div className="lp-hero lp-part">
-        <svg className="lp-stars" aria-hidden="true" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
-          {STARS.map((s, i) => (
-            <rect key={i} x={s.x} y={s.y} width={s.size} height={s.size} fill={s.warm ? '#f7c47e' : '#dbe4f0'} opacity={s.warm ? 0.7 : s.opacity} />
-          ))}
-        </svg>
+        <NightSky />
         <div className="lp-wrap lp-hero-grid">
           <div className="lp-hero-copy">
             <span className="lp-cloud">
@@ -67,9 +49,9 @@ export function WelcomePage() {
             </p>
             <div className="lp-actions">
               {getStarted}
-              <Link to="/login" state={location.state} className="lp-btn lp-btn-ghost">
+              <SpinLink to="/login" state={location.state} direction="forward" className="lp-btn lp-btn-ghost">
                 Already have an account? Log in
-              </Link>
+              </SpinLink>
             </div>
             <p className="lp-note">Free. Built by a Yoobee student, for Yoobee students.</p>
           </div>
@@ -267,9 +249,9 @@ export function WelcomePage() {
               <h2>Stop digging through UPLearn.</h2>
               <div className="lp-actions">
                 {getStarted}
-                <Link to="/login" state={location.state} className="lp-btn lp-btn-ghost">
+                <SpinLink to="/login" state={location.state} direction="forward" className="lp-btn lp-btn-ghost">
                   Log in
-                </Link>
+                </SpinLink>
               </div>
             </div>
           </div>
