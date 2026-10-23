@@ -116,7 +116,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
       <div className={`lp-wrap auth-grid is-${mode}`}>
         <div className="auth-col">
           <span className="lp-cloud">
-            <BrandMark width={220} height={160} />
+            <BrandMark width={220} height={160} glint="right" />
           </span>
           <span className="auth-bubble" aria-hidden="true">
             {copy.greeting}
