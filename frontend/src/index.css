@@ -597,6 +597,19 @@ html[data-spin='back']::view-transition-new(lp-stage-landing), html[data-spin='b
 @keyframes lp-turn-in { from { transform: perspective(1400px) translateX(45vw) rotateY(-75deg); opacity: 0; } }
 @keyframes lp-turn-out-back { to { transform: perspective(1400px) translateX(45vw) rotateY(-75deg); opacity: 0; } }
 @keyframes lp-turn-in-back { from { transform: perspective(1400px) translateX(-45vw) rotateY(75deg); opacity: 0; } }
+/* The stars pan with the camera turn: the old sky slides off one side as the new one slides in from the other, so the
+   star field looks like one wide sky swinging past. The glow behind them stays put. */
+.lp-hero > .lp-stars, .auth-page > .lp-stars { view-transition-name: lp-stars; }
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(lp-stars) { animation: lp-pan-out 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+  ::view-transition-new(lp-stars) { animation: lp-pan-in 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+  html[data-spin='back']::view-transition-old(lp-stars) { animation-name: lp-pan-out-back; }
+  html[data-spin='back']::view-transition-new(lp-stars) { animation-name: lp-pan-in-back; }
+}
+@keyframes lp-pan-out { to { transform: translateX(-100%); } }
+@keyframes lp-pan-in { from { transform: translateX(100%); } }
+@keyframes lp-pan-out-back { to { transform: translateX(100%); } }
+@keyframes lp-pan-in-back { from { transform: translateX(-100%); } }
 @keyframes lp-fade-out { to { opacity: 0; } }
 @keyframes lp-fade-in { from { opacity: 0; } }
 @keyframes lp-drift { 0%, 100% { transform: translate(0, 0) rotate(-2deg); } 50% { transform: translate(10px, -8px) rotate(1deg); } }
