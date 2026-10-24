@@ -246,7 +246,7 @@ export function WelcomePage() {
           <div className="lp-wrap">
             <div className="lp-cta">
               <NightSky />
-              <h2>Stop digging through UPLearn.</h2>
+              <h2>Stop stressing your brain out before you even start studying.</h2>
               <div className="lp-actions">
                 {getStarted}
                 <SpinLink to="/login" state={location.state} direction="forward" className="lp-text-link">
