@@ -551,7 +551,9 @@ html.lp-snap { scroll-snap-type: y proximity; }
 .lp-steps h3 { font-size: 19px; font-weight: 700; }
 .lp-steps p { color: var(--muted); }
 .lp-cta-section { padding-top: 0; }
-.lp-cta { position: relative; overflow: hidden; padding: 48px clamp(20px, 5vw, 56px); border-radius: 18px; background: var(--night); color: var(--night-text); display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap; }
+.lp-cta { position: relative; overflow: hidden; padding: 48px clamp(20px, 5vw, 56px); border-radius: 18px; background: radial-gradient(120% 140% at 85% 0%, var(--night-2) 0%, var(--night) 60%); color: var(--night-text); display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap; }
+/* The closing band is a window back onto the hero's sky; its content sits above the stars. */
+.lp-cta > :not(.lp-stars) { position: relative; }
 .lp-cta h2 { max-width: 14em; color: #fff; font-size: clamp(26px, 3.4vw, 38px); font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; }
 .lp-footer { padding-block: 36px 48px; color: var(--muted); font-size: 13px; }
 .lp-footer p { max-width: 65ch; }

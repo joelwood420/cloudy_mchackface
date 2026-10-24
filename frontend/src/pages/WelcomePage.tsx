@@ -245,6 +245,7 @@ export function WelcomePage() {
         <section className="lp-section lp-cta-section">
           <div className="lp-wrap">
             <div className="lp-cta">
+              <NightSky />
               <h2>Stop digging through UPLearn.</h2>
               <div className="lp-actions">
                 {getStarted}
