@@ -601,8 +601,8 @@ html[data-spin='back']::view-transition-new(lp-stage-landing), html[data-spin='b
    star field looks like one wide sky swinging past. The glow behind them stays put. */
 .lp-hero > .lp-stars, .auth-page > .lp-stars { view-transition-name: lp-stars; }
 @media (prefers-reduced-motion: no-preference) {
-  ::view-transition-old(lp-stars) { animation: lp-pan-out 420ms cubic-bezier(0.65, 0, 0.35, 1) both; }
-  ::view-transition-new(lp-stars) { animation: lp-pan-in 420ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+  ::view-transition-old(lp-stars) { animation: lp-pan-out 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+  ::view-transition-new(lp-stars) { animation: lp-pan-in 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
   html[data-spin='back']::view-transition-old(lp-stars) { animation-name: lp-pan-out-back; }
   html[data-spin='back']::view-transition-new(lp-stars) { animation-name: lp-pan-in-back; }
 }
