@@ -470,12 +470,30 @@ html.lp-snap { scroll-snap-type: y proximity; }
   /* The last screen holds the steps, the closing band and the footer; tighter spacing keeps all three on one screen. */
   .lp-part > .lp-section { padding-block: 52px; }
   .lp-part > .lp-cta-section { padding-top: 0; }
+  /* The night sky stays pinned and the first day screen slides up over it, with a shadow on its top edge. */
+  /* A pinned element is a moving snap target, so the wrapper holds the hero's snap point instead. */
+  /* Its last 2px are cut off so the pinned hero's edge can't show as a line under the day screen. */
+  .lp-cover { scroll-snap-align: start; clip-path: inset(0 0 2px 0); }
+  .lp-cover .lp-hero { position: sticky; top: 0; z-index: 0; scroll-snap-align: none; }
+  /* The clip keeps the shadow to the top edge. */
+  .lp-cover-over { position: relative; z-index: 1; background: var(--bg); box-shadow: 0 -30px 60px -12px rgba(6, 13, 26, 0.6), 0 -8px 18px rgba(6, 13, 26, 0.25); clip-path: inset(-120px 0 0 0); }
+  /* As it's covered, the night sinks back and darkens. */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .lp-cover .lp-hero-grid { transform-origin: 50% 40%; animation: lp-sink linear both; animation-timeline: scroll(root block); animation-range: 0 100vh; }
+      .lp-cover .lp-hero::after { content: ''; position: absolute; inset: 0; background: #050b16; pointer-events: none; animation: lp-darken linear both; animation-timeline: scroll(root block); animation-range: 0 100vh; }
+    }
+  }
 }
+@keyframes lp-sink { from { transform: none; } to { transform: scale(0.94) translateY(-30px); } }
+@keyframes lp-darken { from { opacity: 0; } to { opacity: 0.55; } }
 /* Short laptop screens: tighten the hero so all of it fits in the first screen. */
 @media (min-width: 901px) and (max-height: 800px) {
-  .lp-hero-grid { padding-block: 32px 40px; }
-  .lp-hero-copy { gap: 16px; }
-  .lp-hero .lp-cloud .brand-mark { width: 150px; }
+  /* .lp in front so these win over the base rules further down. */
+  .lp .lp-hero-grid { padding-block: 28px 36px; }
+  .lp .lp-hero-copy { gap: 16px; }
+  .lp .lp-hero h1 { font-size: clamp(36px, 7vh, 60px); }
+  .lp .lp-hero .lp-lede { font-size: 17px; }
 }
 .lp h3 { font-family: var(--font-display); }
 .lp p { margin: 0; }
@@ -500,6 +518,7 @@ html.lp-snap { scroll-snap-type: y proximity; }
 .lp-cloud .brand-mark { width: min(220px, 52vw); height: auto; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.35)); animation: lp-drift 7s ease-in-out infinite; }
 .lp-cloud .brand-glint { animation: lp-glint 7s ease-in-out infinite; }
 .lp-hero h1 { color: #fff; font-weight: 800; font-size: clamp(36px, 5.2vw, 60px); line-height: 1.02; letter-spacing: -0.025em; text-wrap: balance; }
+.lp-eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber-light); }
 .lp-hero h1 em { font-style: normal; color: var(--amber); }
 .lp-lede { font-size: 18px; max-width: 34em; }
 .lp-note { max-width: 34em; font-size: 14px; color: var(--night-muted); }

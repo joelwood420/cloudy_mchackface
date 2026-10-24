@@ -32,110 +32,115 @@ export function WelcomePage() {
 
   return (
     <main className="lp">
-      <div className="lp-hero lp-part">
-        <NightSky />
-        <div className="lp-wrap lp-hero-grid">
-          <div className="lp-hero-copy">
-            <span className="lp-cloud">
-              <BrandMark width={220} height={160} />
-            </span>
-            <h1>
-              Know exactly what to do <em>this week.</em>
-            </h1>
-            <p className="lp-lede">
-              UPLearn hides your week behind tiles, forums and calendars. Cloudy McHackface puts it on one page: the
-              modules to cover, the labs to run, what's due, and how far through you are.
-            </p>
-            <div className="lp-actions">
-              {getStarted}
-              <SpinLink to="/login" state={location.state} direction="forward" className="lp-text-link">
-                Already have an account? Log in
-              </SpinLink>
-            </div>
-            <p className="lp-note">
-              Free, for Yoobee's Level 6 Cloud Computing &amp; Cyber Security diploma. Built by a student on it; not an official
-              Yoobee app.
-            </p>
-          </div>
-
-          <div className="lp-preview" role="img" aria-label="Example of the This week page">
-            <span className="lp-preview-label">This week</span>
-            <div className="lp-pv-head">
-              <span className="lp-pv-title">Week 9</span>
-              <span className="lp-pv-meta">CCC602 · 20–24 Oct</span>
-            </div>
-            <div className="lp-pv-progress">
-              <div className="lp-pv-row">
-                <span>Data Engineering in the Public Cloud</span>
-                <span className="mono">58%</span>
-              </div>
-              <div className="lp-bar">
-                <span style={{ width: '58%' }} />
-              </div>
-            </div>
-            <ul className="lp-tasks">
-              <li className="lp-task is-done">
-                <span className="lp-tick"><Tick /></span>
-                <span className="lp-task-name">Explore core data concepts</span>
-                <span className="lp-chip">Learn</span>
-              </li>
-              <li className="lp-task is-done">
-                <span className="lp-tick"><Tick /></span>
-                <span className="lp-task-name">Explore relational data in Azure</span>
-                <span className="lp-chip">Learn</span>
-              </li>
-              <li className="lp-task">
-                <span className="lp-tick" />
-                <span className="lp-task-name">Provision Azure SQL Database</span>
-                <span className="lp-chip is-lab">Lab</span>
-              </li>
-              <li className="lp-task">
-                <span className="lp-tick" />
-                <span className="lp-task-name">Explore non-relational data in Azure</span>
-                <span className="lp-chip">Learn</span>
-              </li>
-            </ul>
-            <div className="lp-due">
-              <svg width="18" height="18" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
-                <path d="M12 7v5l3 2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-              </svg>
-              <span>
-                <strong>Assessment 3</strong> due Friday
+      {/* The night sky stays put while the first day screen slides up over it. */}
+      <div className="lp-cover">
+        <div className="lp-hero lp-part">
+          <NightSky />
+          <div className="lp-wrap lp-hero-grid">
+            <div className="lp-hero-copy">
+              <span className="lp-cloud">
+                <BrandMark width={220} height={160} />
               </span>
-              <span className="mono">3 DAYS</span>
+              {/* Says which diploma it's for, so nobody on another Yoobee course thinks it's for them. */}
+              <span className="lp-eyebrow">Level 6 · Cloud Computing &amp; Cyber Security</span>
+              <h1>
+                Know exactly what to do <em>this week.</em>
+              </h1>
+              <p className="lp-lede">
+                UPLearn hides your week behind tiles, forums and calendars. Cloudy McHackface puts it on one page: the
+                modules to cover, the labs to run, what's due, and how far through you are.
+              </p>
+              <div className="lp-actions">
+                {getStarted}
+                <SpinLink to="/login" state={location.state} direction="forward" className="lp-text-link">
+                  Already have an account? Log in
+                </SpinLink>
+              </div>
+              <p className="lp-note">
+                Free, for Yoobee's Level 6 Cloud Computing &amp; Cyber Security diploma. Built by a student on it; not an official
+                Yoobee app.
+              </p>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <section className="lp-section lp-part">
-        <div className="lp-wrap">
-          <div className="lp-section-head">
-            <h2>Less clicking around. More actual study.</h2>
-          </div>
-          <div className="lp-compare">
-            <div className="lp-compare-col is-before">
-              <h3>In UPLearn</h3>
-              <ul>
-                <li>Find the right course tile, then the schedule forum</li>
-                <li>Scroll to this week's post and decode it</li>
-                <li>Open each Microsoft Learn or AWS link one by one</li>
-                <li>Check the calendar to see what's due</li>
+            <div className="lp-preview" role="img" aria-label="Example of the This week page">
+              <span className="lp-preview-label">This week</span>
+              <div className="lp-pv-head">
+                <span className="lp-pv-title">Week 9</span>
+                <span className="lp-pv-meta">CCC602 · 20–24 Oct</span>
+              </div>
+              <div className="lp-pv-progress">
+                <div className="lp-pv-row">
+                  <span>Data Engineering in the Public Cloud</span>
+                  <span className="mono">58%</span>
+                </div>
+                <div className="lp-bar">
+                  <span style={{ width: '58%' }} />
+                </div>
+              </div>
+              <ul className="lp-tasks">
+                <li className="lp-task is-done">
+                  <span className="lp-tick"><Tick /></span>
+                  <span className="lp-task-name">Explore core data concepts</span>
+                  <span className="lp-chip">Learn</span>
+                </li>
+                <li className="lp-task is-done">
+                  <span className="lp-tick"><Tick /></span>
+                  <span className="lp-task-name">Explore relational data in Azure</span>
+                  <span className="lp-chip">Learn</span>
+                </li>
+                <li className="lp-task">
+                  <span className="lp-tick" />
+                  <span className="lp-task-name">Provision Azure SQL Database</span>
+                  <span className="lp-chip is-lab">Lab</span>
+                </li>
+                <li className="lp-task">
+                  <span className="lp-tick" />
+                  <span className="lp-task-name">Explore non-relational data in Azure</span>
+                  <span className="lp-chip">Learn</span>
+                </li>
               </ul>
-            </div>
-            <div className="lp-compare-col is-after">
-              <h3>In Cloudy McHackface</h3>
-              <ul>
-                <li>Open the app. This week is already there.</li>
-                <li>Every module and lab links straight to where you do it</li>
-                <li>Tick things off and watch the bars fill</li>
-                <li>Due dates worked out for your intake</li>
-              </ul>
+              <div className="lp-due">
+                <svg width="18" height="18" viewBox="0 0 24 24">
+                  <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" strokeWidth="2" />
+                  <path d="M12 7v5l3 2" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                <span>
+                  <strong>Assessment 3</strong> due Friday
+                </span>
+                <span className="mono">3 DAYS</span>
+              </div>
             </div>
           </div>
         </div>
-      </section>
+
+        <section className="lp-section lp-part lp-cover-over">
+          <div className="lp-wrap">
+            <div className="lp-section-head">
+              <h2>Less clicking around. More actual study.</h2>
+            </div>
+            <div className="lp-compare">
+              <div className="lp-compare-col is-before">
+                <h3>In UPLearn</h3>
+                <ul>
+                  <li>Find the right course tile, then the schedule forum</li>
+                  <li>Scroll to this week's post and decode it</li>
+                  <li>Open each Microsoft Learn or AWS link one by one</li>
+                  <li>Check the calendar to see what's due</li>
+                </ul>
+              </div>
+              <div className="lp-compare-col is-after">
+                <h3>In Cloudy McHackface</h3>
+                <ul>
+                  <li>Open the app. This week is already there.</li>
+                  <li>Every module and lab links straight to where you do it</li>
+                  <li>Tick things off and watch the bars fill</li>
+                  <li>Due dates worked out for your intake</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
 
       <section className="lp-section lp-part">
         <div className="lp-wrap">
