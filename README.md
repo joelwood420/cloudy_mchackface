@@ -16,7 +16,7 @@
 > [!IMPORTANT]
 > **This isn't an official Yoobee app.** A student built it. Yoobee Colleges didn't make, endorse or approve it. UPLearn is always the source of truth for dates, weeks and assessment details, so check there and with your tutors.
 
-![This week screen](docs/readme/this-week.png)
+![Landing page: "Know exactly what to do this week." next to an example This week checklist](docs/readme/landing.png)
 
 ## Why it exists
 
@@ -32,6 +32,8 @@ So I built the thing I wanted: one screen that tells me what this week is about,
 - **Deadlines.** Every assessment with its due date, a countdown, and a "submitted" tick.
 - **Catch-up help.** Leftover tasks from earlier weeks show up as "malware" you can quarantine. Finished weeks get a stamp.
 - **Works on your phone**, so you can tick things off from the couch.
+
+![This week screen](docs/readme/this-week.png)
 
 | Modules | Module timeline |
 | --- | --- |
