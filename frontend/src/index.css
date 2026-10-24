@@ -597,19 +597,21 @@ html[data-spin='back']::view-transition-new(lp-stage-landing), html[data-spin='b
 @keyframes lp-turn-in { from { transform: perspective(1400px) translateX(45vw) rotateY(-75deg); opacity: 0; } }
 @keyframes lp-turn-out-back { to { transform: perspective(1400px) translateX(45vw) rotateY(-75deg); opacity: 0; } }
 @keyframes lp-turn-in-back { from { transform: perspective(1400px) translateX(-45vw) rotateY(75deg); opacity: 0; } }
-/* The stars pan with the camera turn: the old sky slides off one side as the new one slides in from the other, so the
-   star field looks like one wide sky swinging past. The glow behind them stays put. */
+/* The stars pan two screen-widths with the camera turn, so the star field looks like one wide sky swinging past; the glow
+   behind them stays put. The new sky crosses the whole screen, and the old one goes off one side and comes back in on
+   the other to fill the gap behind it. The easing is baked into the keyframes (generated, every 5%) because a curve set
+   on the animation would restart at the jump. */
 .lp-hero > .lp-stars, .auth-page > .lp-stars { view-transition-name: lp-stars; }
 @media (prefers-reduced-motion: no-preference) {
-  ::view-transition-old(lp-stars) { animation: lp-pan-out 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
-  ::view-transition-new(lp-stars) { animation: lp-pan-in 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+  ::view-transition-old(lp-stars) { animation: lp-pan-out 650ms linear both; }
+  ::view-transition-new(lp-stars) { animation: lp-pan-in 650ms linear both; }
   html[data-spin='back']::view-transition-old(lp-stars) { animation-name: lp-pan-out-back; }
   html[data-spin='back']::view-transition-new(lp-stars) { animation-name: lp-pan-in-back; }
 }
-@keyframes lp-pan-out { to { transform: translateX(-100%); } }
-@keyframes lp-pan-in { from { transform: translateX(100%); } }
-@keyframes lp-pan-out-back { to { transform: translateX(100%); } }
-@keyframes lp-pan-in-back { from { transform: translateX(-100%); } }
+@keyframes lp-pan-out { 0% { transform: translateX(-0.00%); } 5% { transform: translateX(-0.42%); } 10% { transform: translateX(-1.79%); } 15% { transform: translateX(-4.32%); } 20% { transform: translateX(-8.31%); } 25% { transform: translateX(-14.16%); } 30% { transform: translateX(-22.48%); } 35% { transform: translateX(-34.15%); } 40% { transform: translateX(-50.42%); } 45% { transform: translateX(-72.60%); } 49.99% { transform: translateX(-100%); } 50% { transform: translateX(100%); } 55% { transform: translateX(72.60%); } 60% { transform: translateX(50.42%); } 65% { transform: translateX(34.15%); } 70% { transform: translateX(22.48%); } 75% { transform: translateX(14.16%); } 80% { transform: translateX(8.31%); } 85% { transform: translateX(4.32%); } 90% { transform: translateX(1.79%); } 95% { transform: translateX(0.42%); } 100% { transform: translateX(0.00%); } }
+@keyframes lp-pan-in { 0% { transform: translateX(100.00%); } 5% { transform: translateX(99.58%); } 10% { transform: translateX(98.21%); } 15% { transform: translateX(95.68%); } 20% { transform: translateX(91.69%); } 25% { transform: translateX(85.84%); } 30% { transform: translateX(77.52%); } 35% { transform: translateX(65.85%); } 40% { transform: translateX(49.58%); } 45% { transform: translateX(27.40%); } 50% { transform: translateX(0.00%); } 55% { transform: translateX(-27.40%); } 60% { transform: translateX(-49.58%); } 65% { transform: translateX(-65.85%); } 70% { transform: translateX(-77.52%); } 75% { transform: translateX(-85.84%); } 80% { transform: translateX(-91.69%); } 85% { transform: translateX(-95.68%); } 90% { transform: translateX(-98.21%); } 95% { transform: translateX(-99.58%); } 100% { transform: translateX(-100.00%); } }
+@keyframes lp-pan-out-back { 0% { transform: translateX(0.00%); } 5% { transform: translateX(0.42%); } 10% { transform: translateX(1.79%); } 15% { transform: translateX(4.32%); } 20% { transform: translateX(8.31%); } 25% { transform: translateX(14.16%); } 30% { transform: translateX(22.48%); } 35% { transform: translateX(34.15%); } 40% { transform: translateX(50.42%); } 45% { transform: translateX(72.60%); } 49.99% { transform: translateX(100%); } 50% { transform: translateX(-100%); } 55% { transform: translateX(-72.60%); } 60% { transform: translateX(-50.42%); } 65% { transform: translateX(-34.15%); } 70% { transform: translateX(-22.48%); } 75% { transform: translateX(-14.16%); } 80% { transform: translateX(-8.31%); } 85% { transform: translateX(-4.32%); } 90% { transform: translateX(-1.79%); } 95% { transform: translateX(-0.42%); } 100% { transform: translateX(-0.00%); } }
+@keyframes lp-pan-in-back { 0% { transform: translateX(-100.00%); } 5% { transform: translateX(-99.58%); } 10% { transform: translateX(-98.21%); } 15% { transform: translateX(-95.68%); } 20% { transform: translateX(-91.69%); } 25% { transform: translateX(-85.84%); } 30% { transform: translateX(-77.52%); } 35% { transform: translateX(-65.85%); } 40% { transform: translateX(-49.58%); } 45% { transform: translateX(-27.40%); } 50% { transform: translateX(-0.00%); } 55% { transform: translateX(27.40%); } 60% { transform: translateX(49.58%); } 65% { transform: translateX(65.85%); } 70% { transform: translateX(77.52%); } 75% { transform: translateX(85.84%); } 80% { transform: translateX(91.69%); } 85% { transform: translateX(95.68%); } 90% { transform: translateX(98.21%); } 95% { transform: translateX(99.58%); } 100% { transform: translateX(100.00%); } }
 @keyframes lp-fade-out { to { opacity: 0; } }
 @keyframes lp-fade-in { from { opacity: 0; } }
 @keyframes lp-drift { 0%, 100% { transform: translate(0, 0) rotate(-2deg); } 50% { transform: translate(10px, -8px) rotate(1deg); } }
