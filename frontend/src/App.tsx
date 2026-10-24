@@ -66,7 +66,8 @@ export function AppRoutes() {
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      {/* Page changes render straight away (not as a React transition), so the camera turn's view transition sees the new page. */}
+      <BrowserRouter useTransitions={false}>
         <AppRoutes />
       </BrowserRouter>
     </QueryClientProvider>

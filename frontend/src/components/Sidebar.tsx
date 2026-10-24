@@ -28,7 +28,7 @@ export function Sidebar() {
   const signOut = useMutation({
     mutationFn: logout,
     onSuccess: () => {
-      navigate('/login', { replace: true })
+      navigate('/welcome', { replace: true })
       queryClient.clear()
     },
   })

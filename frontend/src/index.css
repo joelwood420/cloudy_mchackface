@@ -26,6 +26,10 @@
   --info: #164f80;
   --info-bg: #e3eef9;
   --night: #0f1e33;
+  --night-2: #182b46;
+  --night-text: #dbe4f0;
+  --night-muted: #9fb0c6;
+  --night-error: #ffb4a8;
   --amber: #f2a33a;
   --amber-light: #f7c47e;
   --font-body: 'IBM Plex Sans', system-ui, sans-serif;
@@ -222,11 +226,45 @@ a.button-primary { text-decoration: none; }
 .field { display: flex; flex-direction: column; gap: 6px; font-weight: 500; }
 .field input, .field select { font: inherit; min-height: 44px; padding: 0 12px; border-radius: 8px; border: 1px solid var(--dot-border); background: var(--surface); color: var(--text); }
 .field input:focus-visible, .field select:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.auth-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; }
-.auth-card { width: 100%; max-width: 400px; padding: 28px; display: flex; flex-direction: column; gap: 18px; }
-.auth-card > p { margin: 0; }
-.welcome-actions { display: flex; flex-direction: column; gap: 12px; }
-.welcome-actions > a { width: 100%; }
+/* Log in and sign up sit in the landing page's night sky, with the cloud above the form. */
+.auth-page { position: relative; overflow: hidden; min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; background: radial-gradient(120% 90% at 85% 10%, var(--night-2) 0%, var(--night) 60%); color: var(--night-text); color-scheme: dark; }
+.auth-back { position: absolute; z-index: 1; top: max(16px, env(safe-area-inset-top, 0px)); left: max(16px, env(safe-area-inset-left, 0px)); min-height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 12px 0 8px; border-radius: 8px; color: var(--night-text); font-weight: 500; text-decoration: none; }
+.auth-back:hover { color: #fff; background: rgba(219, 228, 240, 0.08); }
+/* Cloud where it sits on the landing hero, saying hello in a speech bubble; the fields fill the right half. */
+.auth-grid { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 48px; align-items: center; padding-block: 64px 72px; }
+.auth-col { display: flex; align-items: flex-start; gap: 18px; min-width: 0; }
+.auth-bubble { position: relative; margin-top: 14px; padding: 10px 14px; border-radius: 3px; background: #fff; color: var(--night); font-family: var(--font-mono); font-size: 13px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap; box-shadow: 5px 5px 0 rgba(0, 0, 0, 0.35); }
+.auth-bubble::before { content: ''; position: absolute; left: -12px; top: 50%; width: 12px; height: 12px; margin-top: -6px; background: #fff; clip-path: polygon(100% 0, 100% 100%, 0 50%); }
+.auth-form-side { min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+.auth-page :focus-visible { outline-color: var(--amber); }
+/* Underlined fields: no boxes, just a line under each answer that turns amber while you type. */
+.auth-form { width: 100%; max-width: 400px; gap: 26px; }
+.auth-form .field { gap: 4px; color: var(--night-text); font-size: 13px; font-weight: 500; }
+.auth-form .field input, .auth-form .field select { min-height: 44px; padding: 0 2px; border: 0; border-bottom: 2px solid rgba(219, 228, 240, 0.5); border-radius: 0; background: transparent; color: #fff; font-family: var(--font-body); font-size: 18px; caret-color: var(--amber); transition: border-color 140ms ease-out, box-shadow 140ms ease-out; }
+.auth-form .field select:invalid { color: var(--night-muted); }
+.auth-form .field select option { background: var(--night); color: #fff; }
+.auth-form .field input:hover, .auth-form .field select:hover { border-bottom-color: rgba(219, 228, 240, 0.8); }
+.auth-form .field input:focus-visible, .auth-form .field select:focus-visible { outline: none; border-bottom-color: var(--amber); box-shadow: 0 1px 0 var(--amber); }
+.auth-form .field [aria-invalid='true'] { border-bottom-color: var(--night-error); }
+/* Browser autofill would paint the fields pale; keep them in the sky. */
+.auth-form .field input:-webkit-autofill { -webkit-text-fill-color: #fff; box-shadow: 0 0 0 1000px var(--night) inset; caret-color: var(--amber); transition: background-color 9999s; }
+.auth-hint { margin: -16px 0 0; color: var(--night-muted); font-size: 13px; }
+.auth-field-error { margin: -16px 0 0; display: flex; align-items: center; flex-wrap: wrap; gap: 0 6px; color: var(--night-error); font-size: 13px; font-weight: 500; }
+.auth-field-error svg { flex: 0 0 auto; }
+.auth-hint + .auth-field-error { margin-top: -20px; }
+.auth-inline-button { min-height: 44px; padding: 0; border: 0; background: none; color: var(--amber-light); font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.auth-error { margin: 0; padding: 12px 14px; border: 1px solid rgba(255, 180, 168, 0.45); background: rgba(255, 180, 168, 0.08); color: #fff; font-size: 14px; }
+.auth-submit { align-self: flex-start; min-width: 160px; margin-top: 4px; }
+.auth-alt { max-width: 400px; display: flex; flex-direction: column; color: var(--night-muted); font-size: 14px; }
+.auth-alt p { margin: 0; }
+.auth-alt a { display: inline-flex; align-items: center; min-height: 44px; color: var(--amber-light); font-weight: 500; text-underline-offset: 3px; }
+.auth-alt a:hover { color: var(--amber); }
+@media (max-width: 900px) {
+  .auth-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; padding-block: 72px 56px; }
+}
+@media (max-width: 640px) {
+  .auth-col .lp-cloud .brand-mark { width: min(220px, 40vw); }
+}
 .sidebar-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
 .sidebar-foot p { margin: 0; }
 .sidebar-email { overflow-wrap: anywhere; }
@@ -422,7 +460,180 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 .not-found > p { margin: 0; }
 .not-found-ref { padding: 1px 6px; border-radius: 4px; background: var(--tag-bg); color: var(--text-2); font-size: 0.9em; overflow-wrap: anywhere; }
 
+/* Landing page (logged out). On desktop each part fills the screen and scrolling always lands on one, never between
+   two; narrow or short screens get a soft snap and parts size to their content. */
+html.lp-snap { scroll-snap-type: y proximity; }
+.lp-part { scroll-snap-align: start; }
+@media (min-width: 901px) and (min-height: 640px) {
+  html.lp-snap { scroll-snap-type: y mandatory; }
+  .lp-part { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+  /* The last screen holds the steps, the closing band and the footer; tighter spacing keeps all three on one screen. */
+  .lp-part > .lp-section { padding-block: 52px; }
+  .lp-part > .lp-cta-section { padding-top: 0; }
+  /* The night sky stays pinned and the first day screen slides up over it, with a shadow on its top edge. */
+  /* A pinned element is a moving snap target, so the wrapper holds the hero's snap point instead. */
+  /* Its last 2px are cut off so the pinned hero's edge can't show as a line under the day screen. */
+  .lp-cover { scroll-snap-align: start; clip-path: inset(0 0 2px 0); }
+  .lp-cover .lp-hero { position: sticky; top: 0; z-index: 0; scroll-snap-align: none; }
+  /* The clip keeps the shadow to the top edge. */
+  .lp-cover-over { position: relative; z-index: 1; background: var(--bg); box-shadow: 0 -30px 60px -12px rgba(6, 13, 26, 0.6), 0 -8px 18px rgba(6, 13, 26, 0.25); clip-path: inset(-120px 0 0 0); }
+  /* As it's covered, the night sinks back and darkens. */
+  @supports (animation-timeline: scroll()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .lp-cover .lp-hero-grid { transform-origin: 50% 40%; animation: lp-sink linear both; animation-timeline: scroll(root block); animation-range: 0 100vh; }
+      .lp-cover .lp-hero::after { content: ''; position: absolute; inset: 0; background: #050b16; pointer-events: none; animation: lp-darken linear both; animation-timeline: scroll(root block); animation-range: 0 100vh; }
+    }
+  }
+}
+@keyframes lp-sink { from { transform: none; } to { transform: scale(0.94) translateY(-30px); } }
+@keyframes lp-darken { from { opacity: 0; } to { opacity: 0.55; } }
+/* Short laptop screens: tighten the hero so all of it fits in the first screen. */
+@media (min-width: 901px) and (max-height: 800px) {
+  /* .lp in front so these win over the base rules further down. */
+  .lp .lp-hero-grid { padding-block: 28px 36px; }
+  .lp .lp-hero-copy { gap: 16px; }
+  .lp .lp-hero h1 { font-size: clamp(36px, 7vh, 60px); }
+  .lp .lp-hero .lp-lede { font-size: 17px; }
+}
+.lp h3 { font-family: var(--font-display); }
+.lp p { margin: 0; }
+.lp-wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+/* One button for the logged-out screens: white and square like the cloud, with an amber pixel shadow to match its
+   pixel-art sunglasses. It lifts on hover and presses in on click. */
+.pixel-btn { display: inline-flex; align-items: center; justify-content: center; min-height: 50px; padding: 0 26px; border: 3px solid var(--night); border-radius: 0; background: #fff; color: var(--night); font-family: var(--font-mono); font-size: 15px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; text-decoration: none; box-shadow: 5px 5px 0 var(--amber); cursor: pointer; transition: transform 90ms ease-out, box-shadow 90ms ease-out; }
+.pixel-btn:hover { color: var(--night); transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--amber); }
+.pixel-btn:active { transform: translate(3px, 3px); box-shadow: 2px 2px 0 var(--amber); }
+.pixel-btn:disabled { opacity: 0.6; cursor: default; transform: none; box-shadow: 5px 5px 0 var(--amber); }
+/* The quieter choice next to it is a plain link, so there's only ever one button to press. */
+.lp-text-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--night-text); font-weight: 500; text-decoration: underline; text-decoration-color: var(--amber); text-underline-offset: 4px; }
+.lp-text-link:hover { color: #fff; }
+.lp :focus-visible { outline-color: var(--amber); }
+.lp-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; }
+
+.lp-hero { position: relative; overflow: hidden; background: radial-gradient(120% 90% at 85% 10%, var(--night-2) 0%, var(--night) 60%); color: var(--night-text); }
+.lp-stars { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.lp-hero-grid { position: relative; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 48px; align-items: center; padding-block: 64px 72px; }
+.lp-hero-copy { display: flex; flex-direction: column; gap: 22px; min-width: 0; }
+.lp-cloud { display: block; width: fit-content; }
+.lp-cloud .brand-mark { width: min(220px, 52vw); height: auto; filter: drop-shadow(0 18px 30px rgba(0, 0, 0, 0.35)); animation: lp-drift 7s ease-in-out infinite; }
+.lp-cloud .brand-glint { animation: lp-glint 7s ease-in-out infinite; }
+.lp-hero h1 { color: #fff; font-weight: 800; font-size: clamp(36px, 5.2vw, 60px); line-height: 1.02; letter-spacing: -0.025em; text-wrap: balance; }
+.lp-eyebrow { font-family: var(--font-mono); font-size: 12px; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--amber-light); }
+.lp-hero h1 em { font-style: normal; color: var(--amber); }
+.lp-lede { font-size: 18px; max-width: 34em; }
+.lp-note { max-width: 34em; font-size: 14px; color: var(--night-muted); }
+
+.lp-preview { position: relative; min-width: 0; padding: 22px; border-radius: 14px; background: var(--surface); color: var(--text); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.35); transform: rotate(1.2deg); display: flex; flex-direction: column; gap: 16px; }
+.lp-preview-label { position: absolute; top: -12px; left: 20px; padding: 3px 9px; border-radius: 4px; background: var(--amber); color: var(--night); font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.lp-pv-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.lp-pv-title { font-family: var(--font-display); font-weight: 700; font-size: 22px; }
+.lp-pv-meta { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+.lp-pv-progress { display: flex; flex-direction: column; gap: 6px; }
+.lp-pv-row { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--text-2); }
+.lp-bar { height: 8px; background: var(--track); border-radius: 999px; overflow: hidden; }
+.lp-bar > span { display: block; height: 100%; background: var(--accent); border-radius: inherit; }
+.lp-tasks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.lp-task { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); font-size: 14px; }
+.lp-tick { flex: 0 0 auto; width: 20px; height: 20px; border-radius: 6px; border: 2px solid var(--dot-border); display: grid; place-items: center; }
+.lp-task.is-done .lp-tick { background: var(--accent); border-color: var(--accent); }
+.lp-task.is-done .lp-task-name { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); }
+.lp-task-name { flex: 1 1 auto; min-width: 0; }
+.lp-chip { flex: 0 0 auto; padding: 2px 8px; border-radius: 999px; background: var(--tag-bg); color: var(--muted); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.lp-chip.is-lab { background: var(--accent-soft); color: var(--accent-strong); }
+.lp-chip.is-soon { background: var(--soon-bg); color: var(--soon); }
+.lp-due { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 10px; background: var(--soon-bg); color: var(--soon); font-size: 14px; }
+.lp-due strong { color: var(--text); font-weight: 600; }
+.lp-due .mono { margin-left: auto; font-size: 12px; font-weight: 700; white-space: nowrap; }
+
+.lp-section { padding-block: 88px; }
+.lp-section-head { max-width: 40em; margin-bottom: 32px; }
+.lp-section-head h2 { font-size: clamp(26px, 3vw, 36px); font-weight: 700; line-height: 1.1; letter-spacing: -0.015em; text-wrap: balance; }
+.lp-compare { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.lp-compare-col { padding: 24px; border-radius: 12px; display: flex; flex-direction: column; gap: 12px; }
+.lp-compare-col h3 { font-size: 17px; font-weight: 700; }
+.lp-compare-col ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; color: var(--text-2); }
+.lp-compare-col.is-before { background: var(--tag-bg); }
+.lp-compare-col.is-before h3 { color: var(--muted); }
+.lp-compare-col.is-after { background: var(--surface); border: 1px solid var(--accent-line); }
+.lp-compare-col.is-after h3 { color: var(--accent-strong); }
+.lp-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; }
+.lp-feature { min-width: 0; padding: 22px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); display: grid; grid-row: span 3; grid-template-rows: subgrid; row-gap: 14px; }
+.lp-feature h3 { font-size: 19px; font-weight: 700; }
+.lp-feature p { color: var(--muted); }
+.lp-mini { min-height: 148px; padding: 14px; border-radius: 10px; background: var(--bg); display: flex; flex-direction: column; gap: 10px; font-size: 13px; }
+.lp-mini-row { display: flex; flex-direction: column; gap: 5px; }
+.lp-mini-row > div:first-child { display: flex; justify-content: space-between; gap: 8px; }
+.lp-mini-row .mono:first-child { color: var(--muted); }
+.lp-assess { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); }
+.lp-assess > span:first-child { flex: 1 1 auto; min-width: 0; }
+.lp-res-title { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.lp-res-link { display: flex; align-items: center; gap: 8px; padding: 7px 10px; border-radius: 8px; background: var(--surface); border: 1px solid var(--border); color: var(--accent-strong); font-weight: 500; }
+.lp-res-link svg { flex: 0 0 auto; }
+.lp-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; counter-reset: lp-step; }
+.lp-steps li { counter-increment: lp-step; display: flex; flex-direction: column; gap: 8px; padding-top: 18px; border-top: 2px solid var(--text); }
+.lp-steps li::before { content: counter(lp-step); font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--accent-strong); }
+.lp-steps h3 { font-size: 19px; font-weight: 700; }
+.lp-steps p { color: var(--muted); }
+.lp-cta-section { padding-top: 0; }
+.lp-cta { position: relative; overflow: hidden; padding: 48px clamp(20px, 5vw, 56px); border-radius: 18px; background: radial-gradient(120% 140% at 85% 0%, var(--night-2) 0%, var(--night) 60%); color: var(--night-text); display: flex; align-items: center; justify-content: space-between; gap: 28px; flex-wrap: wrap; }
+/* The closing band is a window back onto the hero's sky; its content sits above the stars. */
+.lp-cta > :not(.lp-stars) { position: relative; }
+.lp-cta h2 { max-width: 14em; color: #fff; font-size: clamp(26px, 3.4vw, 38px); font-weight: 800; line-height: 1.08; letter-spacing: -0.02em; }
+.lp-footer { padding-block: 36px 48px; color: var(--muted); font-size: 13px; }
+.lp-footer p { max-width: 65ch; }
+/* The camera turn between the landing page and the forms. The sky and cloud are captured on their own so they stay put
+   (the cloud glides to its new spot); the content turns away to one side and the next screen turns in from the other. */
+.lp-hero, .auth-page { view-transition-name: lp-sky; }
+.lp-cloud { view-transition-name: lp-cloud; }
+.lp-hero-grid { view-transition-name: lp-stage-landing; }
+.auth-grid.is-login { view-transition-name: lp-stage-login; }
+.auth-grid.is-signup { view-transition-name: lp-stage-signup; }
+::view-transition-group(*) { animation-duration: 650ms; animation-timing-function: cubic-bezier(0.65, 0, 0.35, 1); }
+::view-transition-old(lp-stage-landing), ::view-transition-old(lp-stage-login), ::view-transition-old(lp-stage-signup) { animation: lp-turn-out 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+::view-transition-new(lp-stage-landing), ::view-transition-new(lp-stage-login), ::view-transition-new(lp-stage-signup) { animation: lp-turn-in 650ms cubic-bezier(0.65, 0, 0.35, 1) both; }
+html[data-spin='back']::view-transition-old(lp-stage-landing), html[data-spin='back']::view-transition-old(lp-stage-login), html[data-spin='back']::view-transition-old(lp-stage-signup) { animation-name: lp-turn-out-back; }
+html[data-spin='back']::view-transition-new(lp-stage-landing), html[data-spin='back']::view-transition-new(lp-stage-login), html[data-spin='back']::view-transition-new(lp-stage-signup) { animation-name: lp-turn-in-back; }
+@keyframes lp-turn-out { to { transform: perspective(1400px) translateX(-45vw) rotateY(75deg); opacity: 0; } }
+@keyframes lp-turn-in { from { transform: perspective(1400px) translateX(45vw) rotateY(-75deg); opacity: 0; } }
+@keyframes lp-turn-out-back { to { transform: perspective(1400px) translateX(45vw) rotateY(-75deg); opacity: 0; } }
+@keyframes lp-turn-in-back { from { transform: perspective(1400px) translateX(-45vw) rotateY(75deg); opacity: 0; } }
+/* The stars pan two screen-widths with the camera turn, so the star field looks like one wide sky swinging past; the glow
+   behind them stays put. The new sky crosses the whole screen, and the old one goes off one side and comes back in on
+   the other to fill the gap behind it. The easing is baked into the keyframes (generated, every 5%) because a curve set
+   on the animation would restart at the jump. */
+.lp-hero > .lp-stars, .auth-page > .lp-stars { view-transition-name: lp-stars; }
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(lp-stars) { animation: lp-pan-out 650ms linear both; }
+  ::view-transition-new(lp-stars) { animation: lp-pan-in 650ms linear both; }
+  html[data-spin='back']::view-transition-old(lp-stars) { animation-name: lp-pan-out-back; }
+  html[data-spin='back']::view-transition-new(lp-stars) { animation-name: lp-pan-in-back; }
+}
+@keyframes lp-pan-out { 0% { transform: translateX(-0.00%); } 5% { transform: translateX(-0.42%); } 10% { transform: translateX(-1.79%); } 15% { transform: translateX(-4.32%); } 20% { transform: translateX(-8.31%); } 25% { transform: translateX(-14.16%); } 30% { transform: translateX(-22.48%); } 35% { transform: translateX(-34.15%); } 40% { transform: translateX(-50.42%); } 45% { transform: translateX(-72.60%); } 49.99% { transform: translateX(-100%); } 50% { transform: translateX(100%); } 55% { transform: translateX(72.60%); } 60% { transform: translateX(50.42%); } 65% { transform: translateX(34.15%); } 70% { transform: translateX(22.48%); } 75% { transform: translateX(14.16%); } 80% { transform: translateX(8.31%); } 85% { transform: translateX(4.32%); } 90% { transform: translateX(1.79%); } 95% { transform: translateX(0.42%); } 100% { transform: translateX(0.00%); } }
+@keyframes lp-pan-in { 0% { transform: translateX(100.00%); } 5% { transform: translateX(99.58%); } 10% { transform: translateX(98.21%); } 15% { transform: translateX(95.68%); } 20% { transform: translateX(91.69%); } 25% { transform: translateX(85.84%); } 30% { transform: translateX(77.52%); } 35% { transform: translateX(65.85%); } 40% { transform: translateX(49.58%); } 45% { transform: translateX(27.40%); } 50% { transform: translateX(0.00%); } 55% { transform: translateX(-27.40%); } 60% { transform: translateX(-49.58%); } 65% { transform: translateX(-65.85%); } 70% { transform: translateX(-77.52%); } 75% { transform: translateX(-85.84%); } 80% { transform: translateX(-91.69%); } 85% { transform: translateX(-95.68%); } 90% { transform: translateX(-98.21%); } 95% { transform: translateX(-99.58%); } 100% { transform: translateX(-100.00%); } }
+@keyframes lp-pan-out-back { 0% { transform: translateX(0.00%); } 5% { transform: translateX(0.42%); } 10% { transform: translateX(1.79%); } 15% { transform: translateX(4.32%); } 20% { transform: translateX(8.31%); } 25% { transform: translateX(14.16%); } 30% { transform: translateX(22.48%); } 35% { transform: translateX(34.15%); } 40% { transform: translateX(50.42%); } 45% { transform: translateX(72.60%); } 49.99% { transform: translateX(100%); } 50% { transform: translateX(-100%); } 55% { transform: translateX(-72.60%); } 60% { transform: translateX(-50.42%); } 65% { transform: translateX(-34.15%); } 70% { transform: translateX(-22.48%); } 75% { transform: translateX(-14.16%); } 80% { transform: translateX(-8.31%); } 85% { transform: translateX(-4.32%); } 90% { transform: translateX(-1.79%); } 95% { transform: translateX(-0.42%); } 100% { transform: translateX(-0.00%); } }
+@keyframes lp-pan-in-back { 0% { transform: translateX(-100.00%); } 5% { transform: translateX(-99.58%); } 10% { transform: translateX(-98.21%); } 15% { transform: translateX(-95.68%); } 20% { transform: translateX(-91.69%); } 25% { transform: translateX(-85.84%); } 30% { transform: translateX(-77.52%); } 35% { transform: translateX(-65.85%); } 40% { transform: translateX(-49.58%); } 45% { transform: translateX(-27.40%); } 50% { transform: translateX(-0.00%); } 55% { transform: translateX(27.40%); } 60% { transform: translateX(49.58%); } 65% { transform: translateX(65.85%); } 70% { transform: translateX(77.52%); } 75% { transform: translateX(85.84%); } 80% { transform: translateX(91.69%); } 85% { transform: translateX(95.68%); } 90% { transform: translateX(98.21%); } 95% { transform: translateX(99.58%); } 100% { transform: translateX(100.00%); } }
+@keyframes lp-fade-out { to { opacity: 0; } }
+@keyframes lp-fade-in { from { opacity: 0; } }
+@keyframes lp-drift { 0%, 100% { transform: translate(0, 0) rotate(-2deg); } 50% { transform: translate(10px, -8px) rotate(1deg); } }
+@keyframes lp-glint { 0%, 70%, 100% { opacity: 1; } 74%, 78% { opacity: 0.2; } }
+@media (max-width: 900px) {
+  .lp-hero-grid { grid-template-columns: minmax(0, 1fr); gap: 40px; padding-block: 40px 56px; }
+  .lp-preview { transform: none; }
+  .lp-features, .lp-steps { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .lp-compare { grid-template-columns: minmax(0, 1fr); }
+  .lp-section { padding-block: 52px; }
+  .lp-cta-section { padding-top: 0; }
+  .lp-lede { font-size: 16px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .lp-cloud .brand-mark, .lp-cloud .brand-glint { animation: none; }
+  /* No turn: the cloud jumps to its spot and the screens cross-fade. */
+  ::view-transition-group(*) { animation: none; }
+  ::view-transition-old(*), html[data-spin]::view-transition-old(*) { animation: lp-fade-out 200ms ease-out both; }
+  ::view-transition-new(*), html[data-spin]::view-transition-new(*) { animation: lp-fade-in 200ms ease-out both; }
   .sk-bar { animation: none; }
   .jump-chip svg { transition: none; }
   input[type='checkbox'] { transition: background-color 120ms ease-out, border-color 120ms ease-out; }

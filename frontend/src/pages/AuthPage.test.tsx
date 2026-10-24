@@ -13,9 +13,9 @@ describe('sign-in flow', () => {
   it('sends a logged-out visitor to a welcome page with both choices', async () => {
     mockApi({ '/api/me': unauthorized })
     renderAt('/')
-    expect(await screen.findByRole('heading', { level: 1, name: 'Your week-by-week study guide' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Know exactly what to do this week.' })).toBeInTheDocument()
     await waitFor(() => expect(document.title).toBe('Welcome · Cloudy McHackface'))
-    expect(screen.getByRole('link', { name: 'Get started' })).toHaveAttribute('href', '/signup')
+    for (const link of screen.getAllByRole('link', { name: 'Get started' })) expect(link).toHaveAttribute('href', '/signup')
     await userEvent.click(screen.getByRole('link', { name: 'Already have an account? Log in' }))
     expect(screen.getByRole('heading', { level: 1, name: 'Log in' })).toBeInTheDocument()
   })
@@ -23,7 +23,7 @@ describe('sign-in flow', () => {
   it('Get started opens sign-up', async () => {
     mockApi({ '/api/me': unauthorized, '/api/intakes': INTAKES })
     renderAt('/welcome')
-    await userEvent.click(await screen.findByRole('link', { name: 'Get started' }))
+    await userEvent.click((await screen.findAllByRole('link', { name: 'Get started' }))[0])
     expect(screen.getByRole('heading', { level: 1, name: 'Create your account' })).toBeInTheDocument()
   })
 
@@ -181,7 +181,7 @@ describe('sign-in flow', () => {
     expect(await screen.findByRole('link', { name: 'Already have an account? Log in' })).toBeInTheDocument()
   })
 
-  it('logs out from the sidebar', async () => {
+  it('logs out from the sidebar to the landing page', async () => {
     let loggedIn = true
     mockApi({
       '/api/me': () => (loggedIn ? jsonResponse(ME) : unauthorized()),
@@ -195,7 +195,7 @@ describe('sign-in flow', () => {
     const nav = await screen.findByRole('navigation', { name: 'Main' })
     expect(within(nav).getByText('joel@example.com')).toBeInTheDocument()
     await userEvent.click(within(nav).getByRole('button', { name: 'Log out' }))
-    expect(await screen.findByRole('heading', { name: 'Log in' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { level: 1, name: 'Know exactly what to do this week.' })).toBeInTheDocument()
   })
 
   it('shows a friendly message when the server is unreachable', async () => {
@@ -207,4 +207,47 @@ describe('sign-in flow', () => {
     renderAt('/')
     expect(await screen.findByRole('alert')).toHaveTextContent("Can't reach the server. Check your connection and try again.")
   })
+
+  it('shows every problem at once, by its field, without asking the server', async () => {
+    const fetchMock = mockApi({ '/api/me': unauthorized, '/api/intakes': INTAKES })
+    renderAt('/signup')
+    await screen.findByLabelText('Email')
+    await userEvent.click(screen.getByRole('button', { name: 'Create account' }))
+    const alert = screen.getByRole('alert')
+    expect(alert).toHaveTextContent('Enter your email address.')
+    expect(alert).toHaveTextContent('Use a password of at least 8 characters.')
+    expect(alert).toHaveTextContent('Choose your intake.')
+    const email = screen.getByLabelText('Email')
+    expect(email).toHaveAttribute('aria-invalid', 'true')
+    expect(email).toHaveFocus()
+    expect(email).toHaveAccessibleDescription('Enter your email address.')
+    expect(fetchMock).not.toHaveBeenCalledWith('/api/auth/signup', expect.anything())
+
+    await userEvent.type(email, 'j')
+    expect(email).not.toHaveAttribute('aria-invalid')
+    expect(screen.getByLabelText('Intake')).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('checks for an empty log in before calling the server', async () => {
+    const fetchMock = mockApi({ '/api/me': unauthorized })
+    renderAt('/login')
+    await screen.findByLabelText('Email')
+    await userEvent.type(screen.getByLabelText('Email'), 'not-an-email')
+    await userEvent.click(screen.getByRole('button', { name: 'Log in' }))
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter an email address like name@example.com. Enter your password.')
+    expect(fetchMock).not.toHaveBeenCalledWith('/api/auth/login', expect.anything())
+    expect(screen.getByText(/Forgot your password/)).toBeInTheDocument()
+  })
+
+  it('lets you try loading the intakes again', async () => {
+    let calls = 0
+    mockApi({
+      '/api/me': unauthorized,
+      '/api/intakes': () => (++calls === 1 ? jsonResponse({ detail: 'Not found' }, 404) : jsonResponse(INTAKES)),
+    })
+    renderAt('/signup')
+    await userEvent.click(await screen.findByRole('button', { name: 'Try again' }))
+    expect(await screen.findByRole('option', { name: 'July 2026 intake, part-time' })).toBeInTheDocument()
+  })
+
 })
