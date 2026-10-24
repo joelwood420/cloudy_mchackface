@@ -460,11 +460,16 @@ input[type='checkbox']:checked::before { clip-path: inset(0); }
 .not-found > p { margin: 0; }
 .not-found-ref { padding: 1px 6px; border-radius: 4px; background: var(--tag-bg); color: var(--text-2); font-size: 0.9em; overflow-wrap: anywhere; }
 
-/* Landing page (logged out). Each part fills the screen and scrolling snaps to the next; narrow or short screens get a soft snap and parts size to their content. */
+/* Landing page (logged out). On desktop each part fills the screen and scrolling always lands on one, never between
+   two; narrow or short screens get a soft snap and parts size to their content. */
 html.lp-snap { scroll-snap-type: y proximity; }
 .lp-part { scroll-snap-align: start; }
 @media (min-width: 901px) and (min-height: 640px) {
-  .lp-hero { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+  html.lp-snap { scroll-snap-type: y mandatory; }
+  .lp-part { min-height: 100vh; min-height: 100svh; display: flex; flex-direction: column; justify-content: center; }
+  /* The last screen holds the steps, the closing band and the footer; tighter spacing keeps all three on one screen. */
+  .lp-part > .lp-section { padding-block: 52px; }
+  .lp-part > .lp-cta-section { padding-top: 0; }
 }
 /* Short laptop screens: tighten the hero so all of it fits in the first screen. */
 @media (min-width: 901px) and (max-height: 800px) {
