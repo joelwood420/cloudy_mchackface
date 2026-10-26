@@ -1,21 +1,23 @@
 from datetime import date, datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, Response
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
-from app.api.schemas import LoginIn, MeOut, SignupIn, SignupOut
+from app.api.schemas import ForgotPasswordIn, LoginIn, MeOut, ResetPasswordIn, SignupIn, SignupOut
 from app.api.settings import find_intake, me_out
 from app.auth.deps import current_user
+from app.auth.password_reset import create_reset_token, redeem_reset_token
 from app.auth.passwords import hash_password, verify_password
-from app.auth.ratelimit import email_limiter, ip_limiter
+from app.auth.ratelimit import email_limiter, ip_limiter, reset_send_limiter
 from app.auth.sessions import SESSION_COOKIE, SESSION_LIFETIME, end_session, start_session
 from app.catchup import prefill_past_work
 from app.clock import today
 from app.config import get_settings
 from app.db import get_db
 from app.disclaimer import DISCLAIMER_VERSION
+from app.mail import send_password_reset
 from app.models import User, UserSettings
 
 router = APIRouter(tags=["auth"])
@@ -23,6 +25,9 @@ router = APIRouter(tags=["auth"])
 EMAIL_TAKEN = "Couldn't create an account with that email. Try logging in instead."
 BAD_LOGIN = "Email or password is incorrect."
 STALE_DISCLAIMER = "The disclaimer has changed. Reload the page and accept it to continue."
+RESET_SENT = "If there's an account for that email, we've sent a reset link."
+RESET_EXPIRED = "This reset link has expired or has already been used. Ask for a new one."
+TOO_MANY = "Too many attempts. Wait a few minutes and try again."
 
 
 def _client_ip(request: Request) -> str:
@@ -34,7 +39,7 @@ def _client_ip(request: Request) -> str:
 def _limit(request: Request, email: str) -> None:
     ip = _client_ip(request)
     if not ip_limiter.hit(f"ip:{ip}") or not email_limiter.hit(f"email:{email}"):
-        raise HTTPException(status_code=429, detail="Too many attempts. Wait a few minutes and try again.")
+        raise HTTPException(status_code=429, detail=TOO_MANY)
 
 
 def _cookie_args() -> dict:
@@ -93,6 +98,31 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)) 
     end_session(db, request.cookies.get(SESSION_COOKIE))
     db.commit()
     response.delete_cookie(SESSION_COOKIE, **_cookie_args())
+
+
+@router.post("/auth/forgot-password", status_code=202)
+def forgot_password(
+    body: ForgotPasswordIn, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)
+) -> dict:
+    # Same answer whether or not the account exists, and the email goes out after the response, so neither the
+    # reply nor its timing says which emails have accounts. Over the send limit, quietly send nothing.
+    _limit(request, body.email)
+    user = db.scalars(select(User).where(User.email == body.email)).one_or_none()
+    if user is not None and reset_send_limiter.hit(f"reset:{body.email}"):
+        token = create_reset_token(db, user)
+        db.commit()
+        link = f"{get_settings().app_url.rstrip('/')}/reset-password#token={token}"
+        background_tasks.add_task(send_password_reset, user.email, link)
+    return {"detail": RESET_SENT}
+
+
+@router.post("/auth/reset-password", status_code=204)
+def reset_password(body: ResetPasswordIn, request: Request, db: Session = Depends(get_db)) -> None:
+    if not ip_limiter.hit(f"ip:{_client_ip(request)}"):
+        raise HTTPException(status_code=429, detail=TOO_MANY)
+    if not redeem_reset_token(db, body.token, body.password):
+        raise HTTPException(status_code=400, detail=RESET_EXPIRED)
+    db.commit()
 
 
 @router.get("/me", response_model=MeOut)

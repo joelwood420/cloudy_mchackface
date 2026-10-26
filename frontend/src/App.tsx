@@ -10,6 +10,7 @@ import { DisclaimerPage } from './pages/DisclaimerPage'
 import { ModulePage } from './pages/ModulePage'
 import { ModulesPage } from './pages/ModulesPage'
 import { NotFoundPage } from './pages/NotFoundPage'
+import { ForgotPasswordPage, ResetPasswordPage } from './pages/PasswordResetPages'
 import { SettingsPage } from './pages/SettingsPage'
 import { ThisWeekPage } from './pages/ThisWeekPage'
 import { WelcomePage } from './pages/WelcomePage'
@@ -47,6 +48,8 @@ export function AppRoutes() {
         <Route path="/welcome" element={<WelcomePage />} />
         <Route path="/login" element={<AuthPage key="login" mode="login" />} />
         <Route path="/signup" element={<AuthPage key="signup" mode="signup" />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route element={<RequireAuth />}>
           <Route element={<AppShell />}>
             <Route path="/" element={<ThisWeekPage />} />

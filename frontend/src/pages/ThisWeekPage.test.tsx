@@ -281,7 +281,7 @@ describe('ThisWeekPage', () => {
 
   it('lists holidays this week', async () => {
     show({ ...teaching, holidays: [{ day: '2026-10-26', name: 'Labour Day' }] })
-    expect(await screen.findByText('Labour Day, Mon 26 Oct: campus closed.')).toBeInTheDocument()
+    expect(await screen.findByText('Labour Day, Mon 26 Oct: campus closed. Take the day and relax.')).toBeInTheDocument()
   })
 
   it('shows the lurking banner on a break too', async () => {

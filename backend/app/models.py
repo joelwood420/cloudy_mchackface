@@ -271,6 +271,19 @@ class UserSession(Base):
     user: Mapped[User] = relationship(back_populates="sessions")
 
 
+class PasswordResetToken(Base):
+    """A single-use link for setting a new password. Only the token's hash is stored, like sessions."""
+
+    __tablename__ = "password_reset_tokens"
+
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+    user: Mapped[User] = relationship()
+
+
 class TaskCompletion(Base):
     __tablename__ = "task_completions"
 
