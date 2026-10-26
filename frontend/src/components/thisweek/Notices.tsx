@@ -14,7 +14,7 @@ export function HolidayNotes({ holidays }: { holidays: ThisWeek['holidays'] }) {
     <>
       {holidays.map((h) => (
         <p key={h.day} className="notice">
-          {`${h.name}, ${dayDate(h.day)}: campus closed.`}
+          {`${h.name}, ${dayDate(h.day)}: campus closed. Take the day and relax.`}
         </p>
       ))}
     </>
