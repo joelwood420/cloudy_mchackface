@@ -123,6 +123,15 @@ class LoginIn(BaseModel):
     password: Annotated[str, StringConstraints(min_length=1, max_length=256)]
 
 
+class ForgotPasswordIn(BaseModel):
+    email: Email
+
+
+class ResetPasswordIn(BaseModel):
+    token: Annotated[str, StringConstraints(min_length=1, max_length=200)]
+    password: Annotated[str, StringConstraints(min_length=MIN_PASSWORD_LENGTH, max_length=MAX_PASSWORD_LENGTH)]
+
+
 class IntakeOut(_Out):
     key: str
     title: str

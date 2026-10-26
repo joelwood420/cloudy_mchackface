@@ -21,6 +21,12 @@ class Settings(BaseSettings):
     trust_fly_client_ip: bool = False
     # Built frontend (frontend/dist) to serve alongside the API. Unset in dev, where Vite serves it.
     frontend_dist: Path | None = None
+    # Password reset emails go through Brevo. Without a key and sender, the link is logged instead (dev, tests).
+    brevo_api_key: str | None = None
+    mail_from: str | None = None
+    mail_from_name: str = "Cloudy McHackface"
+    # Base of links in emails. Fixed by config, never taken from the request's Host header.
+    app_url: str = "http://localhost:5173"
 
 
 @lru_cache

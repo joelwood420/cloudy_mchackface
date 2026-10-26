@@ -11,6 +11,7 @@ primary_region = "syd"
 [env]
   COOKIE_SECURE = "true"
   TRUST_FLY_CLIENT_IP = "true"
+  APP_URL = "https://cloudy-mchackface.fly.dev"
 
 [http_service]
   internal_port = 8000

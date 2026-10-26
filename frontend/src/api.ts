@@ -210,6 +210,9 @@ export const signup = (email: string, password: string, intakeKey: string) =>
   })
 export const login = (email: string, password: string) => request<Me>('POST', '/auth/login', { email, password })
 export const logout = () => request<void>('POST', '/auth/logout')
+export const requestPasswordReset = (email: string) => request<unknown>('POST', '/auth/forgot-password', { email })
+export const resetPassword = (token: string, password: string) =>
+  request<void>('POST', '/auth/reset-password', { token, password })
 export const setTaskDone = (key: string, done: boolean) =>
   request<void>(done ? 'PUT' : 'DELETE', `/tasks/${encodeURIComponent(key)}/complete`)
 export const setPrerequisiteDone = (key: string, done: boolean) =>
