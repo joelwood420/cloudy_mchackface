@@ -27,3 +27,5 @@ class RateLimiter:
 
 ip_limiter = RateLimiter(limit=30, window=15 * 60)
 email_limiter = RateLimiter(limit=10, window=15 * 60)
+# Reset emails per address, so the forgot-password form can't flood an inbox or use up Brevo's daily quota.
+reset_send_limiter = RateLimiter(limit=3, window=60 * 60)

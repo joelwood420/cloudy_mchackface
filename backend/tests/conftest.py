@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 import app.models  # noqa: F401  (registers tables on Base.metadata)
 from app.clock import today
-from app.auth.ratelimit import email_limiter, ip_limiter
+from app.auth.ratelimit import email_limiter, ip_limiter, reset_send_limiter
 from app.config import get_settings, same_database, sqlalchemy_url
 from app.db import Base, get_db
 from app.disclaimer import DISCLAIMER_VERSION
@@ -140,6 +140,15 @@ def signup_body(email: str, password: str = PASSWORD, **extra) -> dict:
 def reset_rate_limits():
     ip_limiter.reset()
     email_limiter.reset()
+    reset_send_limiter.reset()
+
+
+@pytest.fixture(autouse=True)
+def sent_emails(monkeypatch):
+    """Records reset emails as (to, link) instead of sending them. backend/.env may hold a real Brevo key."""
+    sent = []
+    monkeypatch.setattr("app.api.auth.send_password_reset", lambda to, link: sent.append((to, link)))
+    return sent
 
 
 @pytest.fixture
