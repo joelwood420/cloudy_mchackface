@@ -184,35 +184,40 @@ submodules:
         week_number: 13
         title: "AWS DEA-C01 Modules 1–5"
         tasks:
-          - key: ccc602-w13-dea-m1
-            title: "DEA-C01 M1: Course welcome and AWS data engineering overview"
+          - key: ccc602-w13-dea-intro
+            title: "Data Engineering: Introduction and pre-course survey"
             type: learning_path
-            external_url: https://aws.amazon.com/certification/certified-data-engineer-associate/
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325766
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
+          - key: ccc602-w13-dea-m1
+            title: "Data Engineering M1: Welcome to AWS Academy Data Engineering"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325767
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w13-dea-m2
-            title: "DEA-C01 M2: Data-driven organizations"
+            title: "Data Engineering M2: Data-driven organizations (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/executive-insights/content/how-do-you-become-a-data-driven-organization/
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325768
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w13-dea-m3
-            title: "DEA-C01 M3: The elements of data"
+            title: "Data Engineering M3: The elements of data (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/data/datastrategy/
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325769
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w13-dea-m4
-            title: "DEA-C01 M4: Design principles and patterns for data pipelines"
+            title: "Data Engineering M4: Design principles and patterns for data pipelines (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/whitepapers/latest/building-data-lakes/designing-data-lakes-and-analytics-on-aws.html
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325770
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w13-dea-lab-athena
             title: "Lab: Querying data by using Athena"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/177339/modules/items/17418091
           - key: ccc602-w13-dea-m5
-            title: "DEA-C01 M5: Securing and scaling the data pipeline"
+            title: "Data Engineering M5: Securing and scaling the data pipeline (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/whitepapers/latest/aws-security-best-practices/aws-security-best-practices.pdf
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325771
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w13-a4-start
             title: "Start Assessment 4: read the brief"
@@ -230,30 +235,30 @@ submodules:
         title: "AWS DEA-C01 Modules 6–8"
         tasks:
           - key: ccc602-w14-dea-m6
-            title: "DEA-C01 M6: Ingesting and preparing data"
+            title: "Data Engineering M6: Ingesting and preparing data (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/glue/index.html
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325772
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w14-dea-m7
-            title: "DEA-C01 M7: Ingesting by batch or by stream"
+            title: "Data Engineering M7: Ingesting by batch or by stream (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/kinesis/index.html
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325773
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w14-dea-lab-glue
             title: "Lab: Performing ETL on a dataset by using AWS Glue"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/177339/modules/items/17418127
           - key: ccc602-w14-dea-m8
-            title: "DEA-C01 M8: Storing and organizing data"
+            title: "Data Engineering M8: Storing and organizing data (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/redshift/index.html
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325777
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w14-dea-lab-redshift
             title: "Lab: Storing and analyzing data by using Amazon Redshift"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/177339/modules/items/17418146
           - key: ccc602-w14-a4-t1
             title: "Complete Task 1 of Assessment 4 (Infrastructure setup and ingestion automation)"
             type: assessment_step
@@ -271,45 +276,45 @@ submodules:
         title: "AWS DEA-C01 Modules 9–12"
         tasks:
           - key: ccc602-w15-dea-m9
-            title: "DEA-C01 M9: Processing big data"
+            title: "Data Engineering M9: Processing big data (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/emr/index.html
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325779
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w15-dea-lab-emr
             title: "Lab: Processing logs by using Amazon EMR"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/177339/modules/items/17418162
           - key: ccc602-w15-dea-lab-hudi
             title: "Lab: Updating dynamic data in place (Apache Hudi)"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/177339/modules/items/17418164
           - key: ccc602-w15-dea-m10
-            title: "DEA-C01 M10: Processing data for ML"
+            title: "Data Engineering M10: Processing data for ML (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/sagemaker/index.html
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325782
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w15-dea-m11
-            title: "DEA-C01 M11: Analyzing and visualizing data"
+            title: "Data Engineering M11: Analyzing and visualizing data (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/quicksight/index.html
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325783
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w15-dea-lab-kinesis
             title: "Lab: Analyzing and visualizing streaming data with Kinesis Data Firehose and OpenSearch"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/177339/modules/items/17418194
           - key: ccc602-w15-dea-m12
-            title: "DEA-C01 M12: Automating the pipeline"
+            title: "Data Engineering M12: Automating the pipeline (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/step-functions/index.html
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325784
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w15-dea-lab-stepfn
             title: "Lab: Building and orchestrating ETL pipelines with Athena and Step Functions"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/177339/modules/items/17418202
           - key: ccc602-w15-a4-t3
             title: "Complete Task 3 of Assessment 4 (Multi-cloud integration: GitHub, AWS, Azure Synapse)"
             type: assessment_step
@@ -318,8 +323,23 @@ submodules:
             uplearn_url: https://yoobee.uplearn.education/mod/assign/view.php?id=73320
       - key: ccc602-w16
         week_number: 16
-        title: "Assessment 4"
+        title: "AWS Data Engineering wrap-up and Assessment 4"
         tasks:
+          - key: ccc602-w16-dea-m13
+            title: "Data Engineering M13: Bridging to certification"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/177339/modules#module_2325785
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
+          - key: ccc602-w16-dea-capstone
+            title: "Data Engineering: Capstone project"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/177339/modules/items/17418207
+          - key: ccc602-w16-dea-final
+            title: "Data Engineering: Course assessment"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/177339/modules/items/17418208
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9658
           - key: ccc602-w16-a4-t4
             title: "Complete Task 4 of Assessment 4 (Final report on AWS services and architecture)"
             type: assessment_step
