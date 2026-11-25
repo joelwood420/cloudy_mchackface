@@ -23,37 +23,42 @@ submodules:
         week_number: 17
         title: "AWS Security (SCS-C02) Modules 1–4"
         tasks:
-          - key: ccc603-w17-scs-m1
-            title: "AWS Security M1: Course welcome"
+          - key: ccc603-w17-scs-intro
+            title: "AWS Security: Welcome and pre-course survey"
             type: learning_path
-            external_url: https://aws.amazon.com/certification/certified-security-specialty/
+            external_url: https://awsacademy.instructure.com/courses/186523/modules#module_2459326
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w17-scs-m1
+            title: "AWS Security M1: Course welcome (incl. documentation scavenger hunt)"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/186523/modules#module_2459328
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w17-scs-m2
-            title: "AWS Security M2: Introduction to security on AWS"
+            title: "AWS Security M2: Introduction to security on AWS (videos + knowledge check)"
             type: learning_path
-            external_url: https://aws.amazon.com/compliance/shared-responsibility-model/
+            external_url: https://awsacademy.instructure.com/courses/186523/modules#module_2459330
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w17-scs-m3
-            title: "AWS Security M3: Securing access to cloud resources"
+            title: "AWS Security M3: Securing access to cloud resources (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/IAM/latest/UserGuide/introduction.html
+            external_url: https://awsacademy.instructure.com/courses/186523/modules#module_2459334
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w17-lab-s3-policy
-            title: "Lab: Using resource-based policies to secure an S3 bucket"
+            title: "Lab 3.1: Using resource-based policies to secure an S3 bucket"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            external_url: https://docs.aws.amazon.com/AmazonS3/latest/userguide/example-bucket-policies.html
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/186523/modules/items/18438497
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w17-scs-m4
-            title: "AWS Security M4: Securing your infrastructure"
+            title: "AWS Security M4: Securing your infrastructure (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/vpc/latest/userguide/what-is-amazon-vpc.html
+            external_url: https://awsacademy.instructure.com/courses/186523/modules#module_2459338
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w17-lab-security-groups
             title: "Lab 4.1: Securing VPC resources by using security groups"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            external_url: https://docs.aws.amazon.com/vpc/latest/userguide/VPC_SecurityGroups.html
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/186523/modules/items/18438545
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w17-a5-start
             title: "Start Assessment 5: read the brief"
@@ -65,34 +70,47 @@ submodules:
         title: "AWS Security (SCS-C02) Modules 5–8"
         tasks:
           - key: ccc603-w18-scs-m5
-            title: "AWS Security M5: Protecting data in your application"
+            title: "AWS Security M5: Protecting data in your application (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/kms/latest/developerguide/overview.html
+            external_url: https://awsacademy.instructure.com/courses/186523/modules#module_2459343
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w18-lab-kms
-            title: "Lab: Encrypting data at rest by using AWS KMS"
+            title: "Lab 5.1: Encrypting data at rest by using AWS KMS"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/186523/modules/items/18438594
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w18-scs-m6
-            title: "AWS Security M6: Logging and monitoring"
+            title: "AWS Security M6: Logging and monitoring (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/whitepapers/latest/logging-monitoring-aws/logging-monitoring-aws.html
+            external_url: https://awsacademy.instructure.com/courses/186523/modules#module_2459347
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w18-lab-cloudtrail
+            title: "Lab 6.1: Monitoring and alerting with CloudTrail and CloudWatch"
+            type: lab
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/186523/modules/items/18438653
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w18-scs-m7
-            title: "AWS Security M7: Responding to and managing an incident"
+            title: "AWS Security M7: Responding to and managing an incident (videos + knowledge check)"
             type: learning_path
-            external_url: https://docs.aws.amazon.com/whitepapers/latest/aws-security-incident-response-guide/aws-security-incident-response-guide.html
+            external_url: https://awsacademy.instructure.com/courses/186523/modules#module_2459353
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w18-lab-config-lambda
-            title: "Lab: Remediating an incident by using AWS Config and Lambda"
+            title: "Lab 7.1: Remediating an incident by using AWS Config and Lambda"
             type: lab
-            note: "AWS Academy lab: access it through the AWS Academy invite sent to your Yoobee email."
-            external_url: https://docs.aws.amazon.com/config/latest/developerguide/WhatIsConfig.html
+            note: "AWS Academy lab: open it from the module, then Start Lab to launch the lab environment."
+            external_url: https://awsacademy.instructure.com/courses/186523/modules/items/18438698
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w18-scs-m8
             title: "AWS Security M8: Bridging to certification"
             type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/186523/modules#module_2459360
+            uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
+          - key: ccc603-w18-scs-final
+            title: "AWS Security: Course assessment"
+            type: learning_path
+            external_url: https://awsacademy.instructure.com/courses/186523/modules/items/18438744
             uplearn_url: https://yoobee.uplearn.education/course/section.php?id=9699
           - key: ccc603-w18-a5-t1
             title: "Complete Task 1 of Assessment 5 (Secure VPC setup and architecture design)"
